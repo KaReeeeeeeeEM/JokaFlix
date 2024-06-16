@@ -86,7 +86,6 @@ const Home = () => {
         }
       };  
 
-
   return (
     <>
         { isLoading ? <Loading /> : (
@@ -128,12 +127,12 @@ const Home = () => {
             <div className='flex items-center justify-center h-16 md:h-24 my-12 w-[20vw] md:w-[8vw] m-auto'>
                 <img src={imdb} alt="imdb-icon" className='w-full h-full' />
             </div>
-            <>
+            <div>
                 <Showcase />
-            </>
-            <>
+            </div>
+            <div>
                 <ForYou />
-            </>
+            </div>
             
         </div>)}
      </>
