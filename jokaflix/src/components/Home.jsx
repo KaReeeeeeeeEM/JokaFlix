@@ -104,7 +104,7 @@ const Home = () => {
                 <div className='w-full px-8 lg:px-12 absolute top-[65vh] md:top-[40vh] lg:top-[60vh] flex flex-col justify-between items-left'>
                     <h1 className='text-3xl md:text-4xl text-orange-400 font-extrabold'>{upcomingMovies[coverMovie].original_title }</h1>
                     <h2 className='text-md text-gray-300 font-semibold md:w-1/2'>
-                       {(upcomingMovies[coverMovie].overview).length > 400 ? (upcomingMovies[coverMovie].overview).slice(0,120) + " ... " : upcomingMovies[coverMovie].overview }
+                       {(upcomingMovies[coverMovie].overview).length > 100 ? (upcomingMovies[coverMovie].overview).slice(0,120) + " ... " : upcomingMovies[coverMovie].overview }
                     </h2>
                 </div>
                 <div className='w-full px-8 md:px-12 absolute top-[80vh] md:top-[80vh] lg:top-[80vh] flex items-center lg:text-lg'>
