@@ -1,5 +1,6 @@
 import React from 'react'
 import imdb from '../assets/imdb.png'
+import star from '../assets/star.png'
 
 const Card = ({src,rating}) => {
   return (
@@ -7,7 +8,7 @@ const Card = ({src,rating}) => {
       <div className="relative top-0 h-full w-full inset-0 bg-opacity-60 bg-gray-900 blur-md"></div>
       <div className='flex items-center justify-around relative -top-60 lg:-top-80 p-2 m-2 w-[8rem] h-[2rem]'>
           <img src={imdb} alt='imdb' className='w-[3rem] h-[3rem]' />
-          <h1 className='text-xl text-white font-semibold'>{Math.ceil(rating * 10)/10}</h1>
+          <h1 className='flex items-center text-xl text-white font-semibold'><span className='mx-1'><img src={star} alt="star" className='w-6 h-6' /></span>{Math.ceil(rating * 10)/10}</h1>
       </div>
     </div>
   )
