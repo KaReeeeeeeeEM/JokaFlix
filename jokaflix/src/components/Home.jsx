@@ -7,6 +7,7 @@ import ForYou from './ForYou'
 import axios from 'axios'
 import Loading from './Loading'
 import imdb from '../assets/imdb.png'
+import star from '../assets/star.png'
 
 const Home = () => {
     const [popularMovies, setPopularMovies] = useState([]);
@@ -95,7 +96,7 @@ const Home = () => {
             {/* <div className="absolute bottom-0 h-1/6 w-full inset-0 bg-opacity-60 bg-gray-900 blur-md"></div> */}
                 <div className='flex items-center justify-around absolute top-[60vh] lg:top-[55vh] left-[1.2rem] lg:left-[2.5rem] p-2 w-[8rem] h-[2rem]'>
                     <img src={imdb} alt='imdb' className='w-[3rem] h-[3rem]' />
-                    <h1 className='text-xl text-white font-semibold'>IMDB</h1>
+                    <h1 className='flex text-xl text-white font-semibold'><span className='mx-1'><img src={star} alt="star" className='w-6 h-6' /></span>{upcomingMovies[coverMovie].vote_average < 1 ? 5.5 : Math.ceil(upcomingMovies[coverMovie].vote_average * 10 )/10}</h1>
                 </div>
                 <div className=' w-full h-4 px-8 my-6 flex justify-between items-center absolute top-0 right-0 z-30'>
                     <h1 className='text-xl md:text-3xl text-white'>Joka<span className='text-orange-400'>Flix</span></h1>
