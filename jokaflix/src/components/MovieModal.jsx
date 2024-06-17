@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react';
 import { XCircleIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
@@ -12,6 +12,14 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
   const [searchParam, setSearchParam] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const searchInputRef = useRef(null);
+
+  useEffect(() => {
+    if (type === 'search' && open) {
+      // Focus the search bar only when the modal is open and in search mode
+      searchInputRef.current.focus();
+    }
+  }, [open, type]);
 
   useEffect(() => {
     setOpen(toggler); 
@@ -133,19 +141,20 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
             >
               {type === 'search' ? (
                 <div>
-                  <form onSubmit={handleSearch}>
-                    <input
-                      type="text"
-                      placeholder="Search for a movie..."
-                      className="w-full bg-gray-100 border-2 border-gray-300 focus:outline-none focus:border-orange-600 rounded-md py-2 px-4 text-gray-700 placeholder-orange-300 text-sm sm:text-base"
-                      value={searchParam}
-                      onChange={(e) => {
-                        setSearchParam(e.target.value);
-                        searchMovie();
-                      }}
-                      autoFocus={true}
-                    />
-                  </form>
+                      <form onSubmit={handleSearch}>
+                        <input
+                          type="search"
+                          placeholder="Search for a movie..."
+                          className="w-full bg-gray-100 border-2 border-gray-300 focus:outline-none focus:border-orange-600 rounded-md py-2 px-4 text-gray-700 placeholder-orange-300 text-sm sm:text-base"
+                          value={searchParam}
+                          onChange={(e) => {
+                            setSearchParam(e.target.value);
+                            searchMovie();
+                          }}
+                          // No need for autoFocus here
+                          ref={searchInputRef}
+                        />
+                      </form>
                   <DialogPanel className="relative transform overflow-y-auto rounded-lg bg-transparent text-left shadow-xl transition-all w-[90vw] lg:w-[80vw] h-[95vh] lg:h-[90vh]">
                     {isLoading && (
                       <div className="flex items-center justify-center bg-transparent w-full h-full rounded-xl mb-4 mx-1">
