@@ -8,6 +8,8 @@ import axios from 'axios'
 import Loading from './Loading'
 import imdb from '../assets/imdb.png'
 import star from '../assets/star.png'
+import search from '../assets/search.png'
+import MovieModal from './MovieModal';
 
 const Home = () => {
     const [popularMovies, setPopularMovies] = useState([]);
@@ -17,6 +19,7 @@ const Home = () => {
     const [username, setUsername] = useState(null);
     const [profile, setProfile] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [openSearch, setOpenSearch] = useState(false);
     const urlSearchParams = new URLSearchParams(window.location.search);
     const profilePicture = urlSearchParams.get("profile");
     const { user } = useParams();
@@ -90,18 +93,32 @@ const Home = () => {
     <>
         { isLoading ? <Loading /> : (
             <div className='overflow-y-auto bg-gray-900'>
+            {openSearch && (
+                <MovieModal
+                toggler={openSearch}
+                title="Search"
+                type="search"
+                searchParam="House"
+                onClose={() => setOpenSearch(false)}
+                />
+      )}
             <div className='w-full h-screen bg-gray-900' style={{backgroundImage:`url(https://image.tmdb.org/t/p/original${upcomingMovies[coverMovie].poster_path || upcomingMovies[coverMovie].backdrop_path})`, backgroundPosition:"center", backgroundSize:"cover", backgroundRepeat:"no-repeat"}}>
                 <div className="absolute top-0 h-full w-full inset-0 bg-opacity-60 bg-black blur-md"></div>
             {/* <div className="absolute bottom-0 h-1/6 w-full inset-0 bg-opacity-60 bg-gray-900 blur-md"></div> */}
-                <div className='flex items-center justify-around absolute top-[60vh] lg:top-[55vh] left-[1.2rem] lg:left-[2.5rem] p-2 w-[8rem] h-[2rem]'>
+                <div className='flex items-center justify-around absolute top-[60vh] md:top-[65vh] lg:top-[55vh] left-[1.2rem] lg:left-[2.5rem] p-2 w-[8rem] h-[2rem]'>
                     <img src={imdb} alt='imdb' className='w-[3rem] h-[3rem]' />
                     <h1 className='flex text-xl text-white font-semibold'><span className='mx-1'><img src={star} alt="star" className='w-6 h-6' /></span>{upcomingMovies[coverMovie].vote_average < 1 ? 5.5 : Math.ceil(upcomingMovies[coverMovie].vote_average * 10 )/10}</h1>
                 </div>
                 <div className=' w-full h-4 px-8 my-6 flex justify-between items-center absolute top-0 right-0 z-30'>
                     <h1 className='text-xl md:text-3xl text-white'>Joka<span className='text-orange-400'>Flix</span></h1>
-                    <Profile/>
+                    <div className='flex items-center justify-between w-[6rem] lg:w-[8rem]'>
+                        <button onClick={() => setOpenSearch(true)}>
+                            <img src={search} alt='search' className='rounded-full w-6 h-6 md:w-8 md:h-8' />
+                        </button>
+                         <Profile/>
+                    </div>
                 </div>
-                <div className='w-full px-8 lg:px-12 absolute top-[65vh] md:top-[40vh] lg:top-[60vh] flex flex-col justify-between items-left'>
+                <div className='w-full px-8 lg:px-12 absolute top-[65vh] md:top-[70vh] lg:top-[60vh] flex flex-col justify-between items-left'>
                     <h1 className='text-3xl md:text-4xl text-orange-400 font-extrabold'>{upcomingMovies[coverMovie].original_title }</h1>
                     <h2 className='text-md text-gray-300 font-semibold md:w-1/2'>
                        {(upcomingMovies[coverMovie].overview).length > 50 ? (upcomingMovies[coverMovie].overview).slice(0,100) + " ... " : upcomingMovies[coverMovie].overview }

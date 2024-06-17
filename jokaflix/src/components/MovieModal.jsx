@@ -1,76 +1,59 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react';
 import { XCircleIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
 import Card from './Card';
+import progress from '../assets/progress.png';
 
-export default function MovieModal({ toggler, title, movieCategory, onClose }) {
+export default function MovieModal({ toggler, title, type, movieCategory, onClose }) {
   const [open, setOpen] = useState(toggler);
+  const [searchParam, setSearchParam] = useState(''); // State to hold search query
+  const [searchResults, setSearchResults] = useState([]); // State to hold search results
+  const [isLoading, setIsLoading] = useState(false); // State to manage loading indicator
 
   useEffect(() => {
-    setOpen(toggler);
+    setOpen(toggler); // Update modal state based on toggler prop
   }, [toggler]);
 
   const closeModal = () => {
-    setOpen(false);
-    onClose(); // Callback to notify parent about modal close
+    setOpen(false); 
+    onClose(); 
   };
 
-  const [popularMovies, setPopularMovies] = useState([]);
-  const [trendingMovies, setTrendingMovies] = useState([]);
-  const [upcomingMovies, setUpcomingMovies] = useState([]);
-  const [coverMovie, setCoverMovie] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const id = Math.ceil(Math.random() * 10);
-    setCoverMovie(id);
-
-    const fetchMovies = async () => {
-      try {
-        setIsLoading(true);
-        await fetchMoviesByCategory(movieCategory, 5);
-      } catch (error) {
-        console.error("Error fetching movies:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchMovies();
-  }, [movieCategory]);
-
-  const fetchMoviesByCategory = async (category, pageCount) => {
+  const handleSearch = async (e) => {
+    e.preventDefault(); 
     try {
-      let allMovies = [];
-      setIsLoading(true);
-
-      for (let page = 1; page <= pageCount; page++) {
-        const response = await axios.get(
-          `https://api.themoviedb.org/3/movie/${category}?api_key=035c0f1a7347b310a5b95929826fc81f&language=en-US&page=${page}`
-        );
-
-        const moviesData = response.data.results;
-        allMovies = [...allMovies, ...moviesData];
-      }
-
-      // Update state based on category
-      if (category === "popular") {
-        setPopularMovies((prev) => [...prev, ...allMovies]);
-      } else if (category === "trending") {
-        setTrendingMovies((prev) => [...prev, ...allMovies]);
-      } else if (category === "upcoming") {
-        setUpcomingMovies((prev) => [...prev, ...allMovies]);
-      }
+      setIsLoading(true); 
+      const response = await axios.get(
+        `https://api.themoviedb.org/3/search/movie?api_key=035c0f1a7347b310a5b95929826fc81f&query=${searchParam}`
+      );
+      setSearchResults(response.data.results); 
     } catch (error) {
+      setIsLoading(false); 
+      console.error('Error fetching movies:', error);
+    } finally {
       setIsLoading(false);
-      console.error(`Error fetching ${category} movies:`, error);
     }
   };
 
+  const searchMovie = async () =>{
+    try {
+      setIsLoading(true); 
+      const response = await axios.get(
+        `https://api.themoviedb.org/3/search/movie?api_key=035c0f1a7347b310a5b95929826fc81f&query=${searchParam}`
+      );
+      setSearchResults(response.data.results); 
+    } catch (error) {
+      setIsLoading(false); 
+      console.error('Error fetching movies:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <Transition show={open}>
-      <Dialog className="relative z-10" onClose={closeModal}>
+      <Dialog className="relative z-50" onClose={closeModal}>
         <TransitionChild
           enter="ease-in-out duration-300"
           enterFrom="absolute top-[100vh] opacity-0"
@@ -104,19 +87,63 @@ export default function MovieModal({ toggler, title, movieCategory, onClose }) {
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <DialogPanel className="relative transform overflow-y-auto rounded-lg bg-transparent text-left shadow-xl transition-all w-[90vw] lg:w-[80vw] h-[95vh] lg:h-[90vh]">
-                <div className="bg-transparent px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                  <div className="sm:flex sm:items-start">
-                    <div className="text-center sm:ml-4 sm:mt-0 sm:text-left">
-                      <div className="flex flex-wrap items-center justify-center mt-2 w-full">
-                        {upcomingMovies.map((upcoming) => (
-                          <Card key={upcoming.id} src={upcoming.poster_path} rating={upcoming.vote_average} />
-                        ))}
+              {type === 'search' ? (
+                <div>
+                  <form onSubmit={handleSearch}>
+                  <input
+                    type="text"
+                    placeholder="Search for a movie..."
+                    className="w-full bg-gray-100 border-2 border-gray-300 focus:outline-none focus:border-orange-600 rounded-md py-2 px-4 text-gray-700 placeholder-orange-300 text-sm sm:text-base"
+                    value={searchParam}
+                    onChange={(e) => {
+                      setSearchParam(e.target.value);
+                      searchMovie();
+                    }}
+                    autoFocus
+                  />
+                  </form>
+                  <DialogPanel className="relative transform overflow-y-auto rounded-lg bg-transparent text-left shadow-xl transition-all w-[90vw] lg:w-[80vw] h-[95vh] lg:h-[90vh]">
+                    {isLoading && (
+                      <div className="flex items-center justify-center bg-transparent w-full h-full rounded-xl mb-4 mx-1">
+                        <img src={progress} alt="progress" className="animate-spin w-8 h-8" />
+                      </div>
+                    )}
+                    <div className="bg-transparent px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                      <div className="sm:flex sm:items-start">
+                        <div className="text-center sm:ml-4 sm:mt-0 sm:text-left">
+                          <div className="flex flex-wrap items-center justify-center mt-2 w-full">
+                            {
+                            searchResults.map((result) => (
+                              (result.poster_path === null && result.backdrop_path === null) ?
+                                ""
+                              :
+                                <Card
+                                key={result.id}
+                                src={result.poster_path || result.backdrop_path}
+                                rating={result.vote_average}
+                              />
+                              
+                              
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </DialogPanel>
+                </div>
+              ) : (
+                <DialogPanel className="relative transform overflow-y-auto rounded-lg bg-transparent text-left shadow-xl transition-all w-[90vw] lg:w-[80vw] h-[95vh] lg:h-[90vh]">
+                  <div className="bg-transparent px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                    <div className="sm:flex sm:items-start">
+                      <div className="text-center sm:ml-4 sm:mt-0 sm:text-left">
+                        <div className="flex flex-wrap items-center justify-center mt-2 w-full">
+                          {/* Render other category movies */}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </DialogPanel>
+                </DialogPanel>
+              )}
             </TransitionChild>
           </div>
         </div>
