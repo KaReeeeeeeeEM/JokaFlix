@@ -29,6 +29,11 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
     onClose(); 
   };
 
+  const openModal = () => {
+    setOpen(true); 
+    // onClose(); 
+  };
+
   useEffect(() => {
     const id = Math.ceil(Math.random() * 10);
     setCoverMovie(id);
@@ -117,7 +122,7 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
 
   return (
     <Transition show={open}>
-      <Dialog className="relative z-50" onClose={setOpen(true)}>
+      <Dialog className="relative z-50" onClose={openModal}>
         <TransitionChild
           enter="ease-in-out duration-300"
           enterFrom="absolute top-[100vh] opacity-0"
