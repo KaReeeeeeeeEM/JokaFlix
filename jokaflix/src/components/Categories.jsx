@@ -73,7 +73,7 @@ const Categories = () => {
   };
 
   return (
-    <div className='flex flex-col items-left px-8 md:px-40 my-24 md:my-48 w-[98vw]'>
+    <div className='flex flex-col items-left px-8 md:px-40 my-12 md:my-24 w-[98vw]'>
       {openModal && (
         <MovieModal
           toggler={openModal}
@@ -83,7 +83,14 @@ const Categories = () => {
         />
       )}
       <div className='flex items-left justify-between text-white font-semibold mb-8'>
-        <h1 className='text-lg'>Categories</h1>
+        <h1 className='flex items-center text-lg md:text-2xl'>
+            <span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="orange" className="size-6 mr-2">
+                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z" />
+            </svg>
+
+            </span>
+            Categories</h1>
       </div>
       <div className="flex overflow-x-auto w-full">
         {isLoading ? (
@@ -96,31 +103,31 @@ const Categories = () => {
                 setCategory("/movie/popular")
                 setOpenModal(true)
                 }}>
-                <Card key={popularMovies[4].id} src={popularMovies[4].poster_path} category="popular" />
+                <Card key={popularMovies[3].id} src={popularMovies[3].poster_path} category="popular" />
               </Link>
               <Link onClick={() => {
                 setCategory("/movie/top_rated")
                 setOpenModal(true)
                 }}>
-                <Card key={trendingMovies[4].id} src={trendingMovies[4].poster_path} category="trending"  />
+                <Card key={trendingMovies[3].id} src={trendingMovies[3].poster_path} category="trending"  />
               </Link>
               <Link onClick={() => {
                 setCategory("/movie/upcoming")
                 setOpenModal(true)
                 }}>
-                <Card key={upcomingMovies[4].id} src={upcomingMovies[4].poster_path} category="upcoming" />
+                <Card key={upcomingMovies[3].id} src={upcomingMovies[3].poster_path} category="upcoming" />
               </Link>
               <Link onClick={() => {
                 setCategory("/movie/now_playing")
                 setOpenModal(true)
                 }}>
-                <Card key={nowPlaying[4].id} src={nowPlaying[4].poster_path} category="now playing"  />
+                <Card key={nowPlaying[3].id} src={nowPlaying[3].poster_path} category="now playing"  />
               </Link>
               <Link onClick={() => {
                 setCategory("/tv/popular")
                 setOpenModal(true)
                 }}>
-                <Card key={tvShows[4].id} src={tvShows[4].poster_path} category="tv shows"  />
+                <Card key={tvShows[3].id} src={tvShows[3].poster_path} category="tv shows"  />
               </Link>
           </div>
         )}

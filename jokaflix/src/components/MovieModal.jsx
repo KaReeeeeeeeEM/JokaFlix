@@ -14,7 +14,7 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setOpen(toggler); // Update modal state based on toggler prop
+    setOpen(toggler); 
   }, [toggler]);
 
   const closeModal = () => {
@@ -24,7 +24,6 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
 
   const openModal = () => {
     setOpen(true); 
-    // onClose(); 
   };
 
   useEffect(() => {

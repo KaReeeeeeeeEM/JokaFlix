@@ -79,7 +79,7 @@ const Showcase = () => {
                 <Swiper
                 slidesPerView={"auto"}
                 spaceBetween={30}
-                navigation={true}
+                // navigation={true}
                 loop={true}
                 autoplay={{
                     delay: 2500,
@@ -88,7 +88,7 @@ const Showcase = () => {
                 pagination={{
                 clickable: true,
                 }}
-                modules={[Autoplay, Pagination]}
+                modules={[Autoplay]}
                 className="mySwiper"
             >
                 {popularMovies.map(popular => 

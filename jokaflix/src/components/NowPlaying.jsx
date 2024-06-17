@@ -6,10 +6,10 @@ import Card from './Card';
 import MovieModal from './MovieModal';
 import progress from '../assets/progress.png';
 
-const ForYou = () => {
+const NowPlaying = () => {
   const [popularMovies, setPopularMovies] = useState([]);
   const [trendingMovies, setTrendingMovies] = useState([]);
-  const [upcomingMovies, setUpcomingMovies] = useState([]);
+  const [nowPlaying, setNowPlaying] = useState([]);
   const [coverMovie, setCoverMovie] = useState(0);
   const [openModal, setOpenModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,7 +23,7 @@ const ForYou = () => {
         setIsLoading(true);
         await fetchMoviesByCategory("popular", 5);
         await fetchMoviesByCategory("top_rated", 5);
-        await fetchMoviesByCategory("upcoming", 5);
+        await fetchMoviesByCategory("now_playing", 5);
       } catch (error) {
         setIsLoading(false);
         console.error("Error fetching movies:", error);
@@ -53,8 +53,8 @@ const ForYou = () => {
         setPopularMovies((prev) => [...prev, ...allMovies]);
       } else if (category === "trending") {
         setTrendingMovies((prev) => [...prev, ...allMovies]);
-      } else if (category === "upcoming") {
-        setUpcomingMovies((prev) => [...prev, ...allMovies]);
+      } else if (category === "now_playing") {
+        setNowPlaying((prev) => [...prev, ...allMovies]);
       }
     } catch (error) {
       setIsLoading(false);
@@ -63,23 +63,25 @@ const ForYou = () => {
   };
 
   return (
-    <div className='flex flex-col items-left px-8 md:px-40 my-12 md:my-24 w-[95vw]'>
+    <div className='flex flex-col items-left px-8 md:px-40 my-6 md:my-24 w-[95vw]'>
       {openModal && (
         <MovieModal
           toggler={openModal}
-          title="For You"
-          movieCategory="/movie/upcoming"
+          title="Now Playing"
+          movieCategory="/movie/now_playing"
           onClose={() => setOpenModal(false)}
         />
       )}
       <div className='flex items-center justify-between text-white font-semibold mb-8'>
         <h1 className='flex items-center text-lg md:text-2xl'>
-          <span>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="orange" className="size-6 mr-2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
-          </svg>
+            <span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="orange" className="size-6 mr-2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z" />
+            </svg>
 
-          </span>For You</h1>
+            </span>
+            Now on TV</h1>
         <button className='text-orange-300 text-md' onClick={() => setOpenModal(true)}>
           See All
         </button>
@@ -91,7 +93,7 @@ const ForYou = () => {
           </div>
         ) : (
           <div className='flex items-center justify-start flex-nowrap whitespace-nowrap'>
-            {upcomingMovies.map((upcoming) => (
+            {nowPlaying.map((upcoming) => (
               <Card key={upcoming.id} src={upcoming.poster_path} rating={upcoming.vote_average < 2 ? "5.2" : upcoming.vote_average} />
             ))}
           </div>
@@ -101,4 +103,4 @@ const ForYou = () => {
   );
 };
 
-export default ForYou;
+export default NowPlaying;
