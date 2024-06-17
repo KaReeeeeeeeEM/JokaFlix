@@ -1,0 +1,132 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable jsx-a11y/anchor-is-valid */
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import Card from './Card';
+import MovieModal from './MovieModal';
+import progress from '../assets/progress.png';
+import { Link } from 'react-router-dom';
+
+const Categories = () => {
+  const [popularMovies, setPopularMovies] = useState([]);
+  const [trendingMovies, setTrendingMovies] = useState([]);
+  const [upcomingMovies, setUpcomingMovies] = useState([]);
+  const [nowPlaying, setNowPlaying] = useState([]);
+  const [category, setCategory] = useState("");
+  const [tvShows, setTvShows] = useState([]);
+  const [coverMovie, setCoverMovie] = useState(0);
+  const [openModal, setOpenModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const id = Math.ceil(Math.random() * 10);
+    setCoverMovie(id);
+
+    const fetchMovies = async () => {
+      try {
+        setIsLoading(true);
+        await fetchMoviesByCategory("/movie/popular", 5);
+        await fetchMoviesByCategory("/movie/top_rated", 5);
+        await fetchMoviesByCategory("/movie/upcoming", 5);
+        await fetchMoviesByCategory("/movie/now_playing", 5);
+        await fetchMoviesByCategory("/tv/popular", 5);
+      } catch (error) {
+        setIsLoading(false);
+        console.error("Error fetching movies:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMovies();
+  }, []);
+
+  const fetchMoviesByCategory = async (category, pageCount) => {
+    try {
+      let allMovies = [];
+      setIsLoading(true);
+
+      for (let page = 1; page <= pageCount; page++) {
+        const response = await axios.get(
+          `https://api.themoviedb.org/3/${category}?api_key=035c0f1a7347b310a5b95929826fc81f&language=en-US&page=${page}`
+        );
+
+        const moviesData = response.data.results;
+        allMovies = [...allMovies, ...moviesData];
+      }
+
+      if (category === "/movie/popular") {
+        setPopularMovies((prev) => [...prev, ...allMovies]);
+      } else if (category === "/movie/top_rated") {
+        setTrendingMovies((prev) => [...prev, ...allMovies]);
+      } else if (category === "/movie/upcoming") {
+        setUpcomingMovies((prev) => [...prev, ...allMovies]);
+      }else if (category === "/movie/now_playing") {
+        setNowPlaying((prev) => [...prev, ...allMovies]);
+      } else if(category === "/tv/popular"){
+        setTvShows((prev) => [...prev,...allMovies]);
+      }
+    } catch (error) {
+      setIsLoading(false);
+      console.error(`Error fetching ${category} movies:`, error);
+    }
+  };
+
+  return (
+    <div className='flex flex-col items-left px-8 md:px-40 my-24 md:my-48 w-[98vw]'>
+      {openModal && (
+        <MovieModal
+          toggler={openModal}
+          title={category === "/tv/popular" ? "tv shows" : category.slice(7,) + " movies"}
+          movieCategory={category}
+          onClose={() => setOpenModal(false)}
+        />
+      )}
+      <div className='flex items-left justify-between text-white font-semibold mb-8'>
+        <h1 className='text-lg'>Categories</h1>
+      </div>
+      <div className="flex overflow-x-auto w-full">
+        {isLoading ? (
+          <div className='flex items-center justify-center bg-transparent h-[15rem] w-full lg:h-[20rem]'>
+            <img src={progress} alt="progress" className='animate-spin w-8 h-8' />
+          </div>
+        ) : (
+          <div className='flex w-full items-center justify-start flex-nowrap overflow-y-hidden'>
+              <Link onClick={() => {
+                setCategory("/movie/popular")
+                setOpenModal(true)
+                }}>
+                <Card key={popularMovies[4].id} src={popularMovies[4].poster_path} category="popular" />
+              </Link>
+              <Link onClick={() => {
+                setCategory("/movie/top_rated")
+                setOpenModal(true)
+                }}>
+                <Card key={trendingMovies[4].id} src={trendingMovies[4].poster_path} category="trending"  />
+              </Link>
+              <Link onClick={() => {
+                setCategory("/movie/upcoming")
+                setOpenModal(true)
+                }}>
+                <Card key={upcomingMovies[4].id} src={upcomingMovies[4].poster_path} category="upcoming" />
+              </Link>
+              <Link onClick={() => {
+                setCategory("/movie/now_playing")
+                setOpenModal(true)
+                }}>
+                <Card key={nowPlaying[4].id} src={nowPlaying[4].poster_path} category="now playing"  />
+              </Link>
+              <Link onClick={() => {
+                setCategory("/tv/popular")
+                setOpenModal(true)
+                }}>
+                <Card key={tvShows[4].id} src={tvShows[4].poster_path} category="tv shows"  />
+              </Link>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Categories;

@@ -3,7 +3,7 @@ import imdb from '../assets/imdb.png'
 import star from '../assets/star.png'
 import CardLoader from './CardLoader'
 
-const Card = ({src,rating,loading}) => {
+const Card = ({src,rating,loading,category}) => {
   return (
       <div>
     {loading ? <CardLoader /> : 
@@ -11,7 +11,10 @@ const Card = ({src,rating,loading}) => {
       <div className="relative top-0 h-full w-full inset-0 bg-opacity-60 bg-gray-900 blur-md"></div>
         <div className='flex items-center justify-around relative -top-60 lg:-top-80 m-2 w-[4rem] h-[2rem]'>
             <img src={imdb} alt='imdb' className='w-[2rem] h-[2rem]' />
-            <h1 className='flex items-center text-lg text-white font-bold'><span className='w-6 h-4'><img src={star} alt="star" className='w-4 h-4 ml-1' /></span>{rating < 1 ? 5.2 : Math.ceil(rating * 10)/10}</h1>
+            {rating && <h1 className='flex items-center text-lg text-white font-bold'><span className='w-6 h-4'><img src={star} alt="star" className='w-4 h-4 ml-1' /></span>{rating < 1 ? 5.2 : Math.ceil(rating * 10)/10}</h1>}
+        </div>
+        <div>
+          <h1 className='relative bottom-28 md:bottom-24 uppercase text-center text-xl text-white font-bold'>{category}</h1>
         </div>
      </div>}
       </div>

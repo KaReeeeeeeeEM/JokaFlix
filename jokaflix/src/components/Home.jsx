@@ -10,6 +10,7 @@ import imdb from '../assets/imdb.png'
 import star from '../assets/star.png'
 import search from '../assets/search.png'
 import MovieModal from './MovieModal';
+import Categories from './Categories';
 
 const Home = () => {
     const [popularMovies, setPopularMovies] = useState([]);
@@ -149,6 +150,9 @@ const Home = () => {
             </div>
             <div>
                 <ForYou />
+            </div>
+            <div>
+                <Categories />
             </div>
             
         </div>)}

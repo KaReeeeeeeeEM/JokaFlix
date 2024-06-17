@@ -6,12 +6,14 @@ import axios from 'axios';
 import Card from './Card';
 import progress from '../assets/progress.png';
 
-export default function MovieModal({ toggler, title, type, movieCategory, onClose }) {
+export default function MovieModal({ toggler, title, type, movieCategory, onClose, movies }) {
   const [open, setOpen] = useState(toggler); 
   const [popularMovies, setPopularMovies] = useState([]);
   const [trendingMovies, setTrendingMovies] = useState([]);
   const [searchParam, setSearchParam] = useState("");
   const [upcomingMovies, setUpcomingMovies] = useState([]);
+  const [nowPlaying, setNowPlaying] = useState([]);
+  const [tvShows, setTvShows] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [totalResults, setTotalResults] = useState([]);
   const [startSearching, setStartSearching] = useState(false);
@@ -34,6 +36,8 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
       try {
         setIsLoading(true);
         await fetchMoviesByCategory(movieCategory, 5);
+        const moviesByCat = await fetchMoviesByCategory(movieCategory, 5);
+        setTotalResults(moviesByCat);
       } catch (error) {
         console.error("Error fetching movies:", error);
       } finally {
@@ -44,6 +48,10 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
     fetchMovies();
   }, [movieCategory]);    
 
+  //get movie details
+  // GET https://api.themoviedb.org/3/movie/${movie_id}?api_key=035c0f1a7347b310a5b95929826fc81f
+
+
   const fetchMoviesByCategory = async (category, pageCount) => {
     if(category != null)
     {try {
@@ -51,7 +59,7 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
     setIsLoading(true);
     for (let page = 1; page <= pageCount; page++) {
       const response = await axios.get(
-        `https://api.themoviedb.org/3/movie/${category}?api_key=035c0f1a7347b310a5b95929826fc81f&language=en-US&page=${page}`
+        `https://api.themoviedb.org/3/${category}?api_key=035c0f1a7347b310a5b95929826fc81f&language=en-US&page=${page}`
       );
   
       const moviesData = response.data.results;
@@ -59,12 +67,16 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
     }
   
     // Update state based on category
-    if (category === "popular") {
+    if (category === "/movie/popular") {
       setPopularMovies((prev) => [...prev, ...allMovies]);
-    } else if (category === "trending") {
+    } else if (category === "/movie/top_rated") {
       setTrendingMovies((prev) => [...prev, ...allMovies]);
-    } else if (category === "upcoming") {
+    } else if (category === "/movie/upcoming") {
       setUpcomingMovies((prev) => [...prev, ...allMovies]);
+    }else if (category === "/movie/now_playing") {
+      setNowPlaying((prev) => [...prev, ...allMovies]);
+    } else if(category === "/tv/popular"){
+      setTvShows((prev) => [...prev,...allMovies]);
     }
   } catch (error) {
     setIsLoading(false);
@@ -105,7 +117,7 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
 
   return (
     <Transition show={open}>
-      <Dialog className="relative z-50" onClose={closeModal}>
+      <Dialog className="relative z-50" onClose={searchMovie}>
         <TransitionChild
           enter="ease-in-out duration-300"
           enterFrom="absolute top-[100vh] opacity-0"
@@ -119,7 +131,7 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
 
         <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
           <div
-            className="fixed top-0 left-0 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10"
+            className="fixed top-0 left-0 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10 cursor-pointer"
             onClick={closeModal}
           >
             <XCircleIcon className="h-8 w-8 text-orange-600" aria-hidden="true" />
@@ -151,7 +163,7 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                       setSearchParam(e.target.value);
                       searchMovie();
                     }}
-                    autoFocus
+                    autoFocus={true}
                   />
                   </form>
                   <DialogPanel className="relative transform overflow-y-auto rounded-lg bg-transparent text-left shadow-xl transition-all w-[90vw] lg:w-[80vw] h-[95vh] lg:h-[90vh]">
@@ -172,10 +184,8 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                                 <Card
                                 key={result.id}
                                 src={result.poster_path || result.backdrop_path}
-                                rating={result.vote_average}
+                                rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
                               />
-                              
-                              
                             ))}
                           </div>
                         </div>
@@ -190,17 +200,15 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                       <div className="text-center sm:ml-4 sm:mt-0 sm:text-left">
                         <div className="flex flex-wrap items-center justify-center mt-2 w-full">
                           {
-                            upcomingMovies.map((result) => (
+                            (upcomingMovies).map((result) => (
                               (result.poster_path === null && result.backdrop_path === null) ?
                                 ""
                               :
                                 <Card
                                 key={result.id}
                                 src={result.poster_path || result.backdrop_path}
-                                rating={result.vote_average}
+                                rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
                               />
-                              
-                              
                             ))}
                         </div>
                       </div>

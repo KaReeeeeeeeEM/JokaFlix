@@ -68,7 +68,7 @@ const ForYou = () => {
         <MovieModal
           toggler={openModal}
           title="For You"
-          movieCategory="upcoming"
+          movieCategory="/movie/upcoming"
           onClose={() => setOpenModal(false)}
         />
       )}
@@ -86,7 +86,7 @@ const ForYou = () => {
         ) : (
           <div className='flex items-center justify-start flex-nowrap whitespace-nowrap'>
             {upcomingMovies.map((upcoming) => (
-              <Card key={upcoming.id} src={upcoming.poster_path} rating={upcoming.vote_average} />
+              <Card key={upcoming.id} src={upcoming.poster_path} rating={upcoming.vote_average < 2 ? "5.2" : upcoming.vote_average} />
             ))}
           </div>
         )}
