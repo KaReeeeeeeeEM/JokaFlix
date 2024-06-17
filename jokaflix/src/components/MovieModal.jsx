@@ -16,7 +16,6 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
 
   useEffect(() => {
     if (type === 'search' && open) {
-      // Focus the search bar only when the modal is open and in search mode
       searchInputRef.current.focus();
     }
   }, [open, type]);
@@ -151,11 +150,10 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                             setSearchParam(e.target.value);
                             searchMovie();
                           }}
-                          // No need for autoFocus here
                           ref={searchInputRef}
                         />
                       </form>
-                  <DialogPanel className="relative transform overflow-y-auto rounded-lg bg-transparent text-left shadow-xl transition-all w-[90vw] lg:w-[80vw] h-[95vh] lg:h-[90vh]">
+                  <DialogPanel className="relative transform overflow-y-auto rounded-lg bg-transparent text-left shadow-xl transition-all w-[96vw] lg:w-[80vw] h-[95vh] lg:h-[90vh]">
                     {isLoading && (
                       <div className="flex items-center justify-center bg-transparent w-full h-full rounded-xl mb-4 mx-1">
                         <img src={progress} alt="progress" className="animate-spin w-8 h-8" />
@@ -163,7 +161,7 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                     )}
                     <div className="bg-transparent px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                       <div className="sm:flex sm:items-start">
-                        <div className="text-center sm:ml-4 sm:mt-0 sm:text-left">
+                        <div className="text-center sm:mt-0 sm:text-left">
                           <div className="flex flex-wrap items-center justify-center mt-2 w-full">
                             {searchResults.map((result) => (
                               (result.poster_path === null && result.backdrop_path === null) ?
