@@ -106,7 +106,7 @@ const Home = () => {
                 onClose={() => setOpenSearch(false)}
                 />
       )}
-                <div className="absolute top-0 h-full w-full inset-0 bg-opacity-60 bg-black blur-md"></div>
+            <div className="absolute top-0 h-screen w-full inset-0 bg-opacity-60 bg-black blur-md"></div>
             <div className='w-full h-screen bg-gray-900' style={{backgroundImage:`url(https://image.tmdb.org/t/p/original${upcomingMovies[coverMovie].poster_path || upcomingMovies[coverMovie].backdrop_path})`, backgroundPosition:"center", backgroundSize:"cover", backgroundRepeat:"no-repeat"}}>
             {/* <div className="absolute bottom-0 h-1/6 w-full inset-0 bg-opacity-60 bg-gray-900 blur-md"></div> */}
                 <div className='flex items-center justify-around absolute top-[60vh] md:top-[65vh] lg:top-[55vh] left-[1.2rem] lg:left-[2.5rem] p-2 w-[8rem] h-[2rem]'>
