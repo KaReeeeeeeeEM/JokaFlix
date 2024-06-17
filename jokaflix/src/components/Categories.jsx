@@ -109,7 +109,7 @@ const Categories = () => {
                 setCategory("/movie/top_rated")
                 setOpenModal(true)
                 }}>
-                <Card key={trendingMovies[3].id} src={trendingMovies[3].poster_path} category="trending"  />
+                <Card key={trendingMovies[3].id} src={trendingMovies[3].poster_path} category="top rated"  />
               </Link>
               <Link onClick={() => {
                 setCategory("/movie/upcoming")

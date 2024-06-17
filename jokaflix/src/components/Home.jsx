@@ -114,7 +114,7 @@ const Home = () => {
                     <h1 className='flex text-xl text-white font-semibold'><span className='mx-1'><img src={star} alt="star" className='w-6 h-6' /></span>{upcomingMovies[coverMovie].vote_average < 1 ? 5.5 : Math.ceil(upcomingMovies[coverMovie].vote_average * 10 )/10}</h1>
                 </div>
                 <div className=' w-full h-4 px-8 my-6 flex justify-between items-center absolute top-0 right-0 z-30'>
-                    <h1 className='text-xl md:text-3xl text-white'>Joka<span className='text-orange-400'>Flix</span></h1>
+                    <h1 className='text-xl md:text-3xl text-white font-extrabold'>Joka<span className='text-orange-400'>Flix</span></h1>
                     <div className='flex items-center justify-between w-[6rem] lg:w-[8rem]'>
                         <button onClick={() => setOpenSearch(true)}>
                             <img src={search} alt='search' className='rounded-full w-6 h-6 md:w-8 md:h-8' />
@@ -129,7 +129,7 @@ const Home = () => {
                     </h2>
                 </div>
                 <div className='w-full px-8 md:px-12 absolute top-[80vh] md:top-[80vh] lg:top-[80vh] flex items-center lg:text-lg'>
-                        <button className='py-2 px-4 md:py-4 md:px-16 bg-orange-500 text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
+                        <button className='py-2 pl-4 md:py-4 md:px-16 pr-6 bg-orange-500 text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
                             <span className='px-2'>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
