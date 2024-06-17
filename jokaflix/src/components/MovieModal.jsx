@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react';
 import { XCircleIcon } from '@heroicons/react/24/outline';
@@ -6,10 +7,16 @@ import Card from './Card';
 import progress from '../assets/progress.png';
 
 export default function MovieModal({ toggler, title, type, movieCategory, onClose }) {
-  const [open, setOpen] = useState(toggler);
-  const [searchParam, setSearchParam] = useState(''); // State to hold search query
-  const [searchResults, setSearchResults] = useState([]); // State to hold search results
-  const [isLoading, setIsLoading] = useState(false); // State to manage loading indicator
+  const [open, setOpen] = useState(toggler); 
+  const [popularMovies, setPopularMovies] = useState([]);
+  const [trendingMovies, setTrendingMovies] = useState([]);
+  const [searchParam, setSearchParam] = useState("");
+  const [upcomingMovies, setUpcomingMovies] = useState([]);
+  const [searchResults, setSearchResults] = useState([]);
+  const [totalResults, setTotalResults] = useState([]);
+  const [startSearching, setStartSearching] = useState(false);
+  const [coverMovie, setCoverMovie] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setOpen(toggler); // Update modal state based on toggler prop
@@ -19,6 +26,51 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
     setOpen(false); 
     onClose(); 
   };
+
+  useEffect(() => {
+    const id = Math.ceil(Math.random() * 10);
+    setCoverMovie(id);
+    const fetchMovies = async () => {
+      try {
+        setIsLoading(true);
+        await fetchMoviesByCategory(movieCategory, 5);
+      } catch (error) {
+        console.error("Error fetching movies:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchMovies();
+  }, [movieCategory]);    
+
+  const fetchMoviesByCategory = async (category, pageCount) => {
+    if(category != null)
+    {try {
+    let allMovies = [];
+    setIsLoading(true);
+    for (let page = 1; page <= pageCount; page++) {
+      const response = await axios.get(
+        `https://api.themoviedb.org/3/movie/${category}?api_key=035c0f1a7347b310a5b95929826fc81f&language=en-US&page=${page}`
+      );
+  
+      const moviesData = response.data.results;
+      allMovies = [...allMovies, ...moviesData];
+    }
+  
+    // Update state based on category
+    if (category === "popular") {
+      setPopularMovies((prev) => [...prev, ...allMovies]);
+    } else if (category === "trending") {
+      setTrendingMovies((prev) => [...prev, ...allMovies]);
+    } else if (category === "upcoming") {
+      setUpcomingMovies((prev) => [...prev, ...allMovies]);
+    }
+  } catch (error) {
+    setIsLoading(false);
+    console.error(`Error fetching ${category} movies:`, error);
+  }}
+};  
 
   const handleSearch = async (e) => {
     e.preventDefault(); 
@@ -137,7 +189,19 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                     <div className="sm:flex sm:items-start">
                       <div className="text-center sm:ml-4 sm:mt-0 sm:text-left">
                         <div className="flex flex-wrap items-center justify-center mt-2 w-full">
-                          {/* Render other category movies */}
+                          {
+                            upcomingMovies.map((result) => (
+                              (result.poster_path === null && result.backdrop_path === null) ?
+                                ""
+                              :
+                                <Card
+                                key={result.id}
+                                src={result.poster_path || result.backdrop_path}
+                                rating={result.vote_average}
+                              />
+                              
+                              
+                            ))}
                         </div>
                       </div>
                     </div>
