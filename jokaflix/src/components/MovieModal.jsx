@@ -8,16 +8,9 @@ import progress from '../assets/progress.png';
 
 export default function MovieModal({ toggler, title, type, movieCategory, onClose, movies }) {
   const [open, setOpen] = useState(toggler); 
-  const [popularMovies, setPopularMovies] = useState([]);
-  const [trendingMovies, setTrendingMovies] = useState([]);
+  const [moviesByCategory, setMoviesByCategory] = useState([]);
   const [searchParam, setSearchParam] = useState("");
-  const [upcomingMovies, setUpcomingMovies] = useState([]);
-  const [nowPlaying, setNowPlaying] = useState([]);
-  const [tvShows, setTvShows] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
-  const [totalResults, setTotalResults] = useState([]);
-  const [startSearching, setStartSearching] = useState(false);
-  const [coverMovie, setCoverMovie] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -35,14 +28,11 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
   };
 
   useEffect(() => {
-    const id = Math.ceil(Math.random() * 10);
-    setCoverMovie(id);
     const fetchMovies = async () => {
       try {
         setIsLoading(true);
-        await fetchMoviesByCategory(movieCategory, 5);
         const moviesByCat = await fetchMoviesByCategory(movieCategory, 5);
-        setTotalResults(moviesByCat);
+        setMoviesByCategory(moviesByCat);
       } catch (error) {
         console.error("Error fetching movies:", error);
       } finally {
@@ -53,41 +43,27 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
     fetchMovies();
   }, [movieCategory]);    
 
-  //get movie details
-  // GET https://api.themoviedb.org/3/movie/${movie_id}?api_key=035c0f1a7347b310a5b95929826fc81f
-
-
   const fetchMoviesByCategory = async (category, pageCount) => {
-    if(category != null)
-    {try {
-    let allMovies = [];
-    setIsLoading(true);
-    for (let page = 1; page <= pageCount; page++) {
-      const response = await axios.get(
-        `https://api.themoviedb.org/3/${category}?api_key=035c0f1a7347b310a5b95929826fc81f&language=en-US&page=${page}`
-      );
-  
-      const moviesData = response.data.results;
-      allMovies = [...allMovies, ...moviesData];
+    if (category != null) {
+      try {
+        let allMovies = [];
+        setIsLoading(true);
+        for (let page = 1; page <= pageCount; page++) {
+          const response = await axios.get(
+            `https://api.themoviedb.org/3${category}?api_key=035c0f1a7347b310a5b95929826fc81f&language=en-US&page=${page}`
+          );
+          const moviesData = response.data.results;
+          allMovies = [...allMovies, ...moviesData];
+        }
+        return allMovies;
+      } catch (error) {
+        setIsLoading(false);
+        console.error(`Error fetching ${category} movies:`, error);
+        return [];
+      }
     }
-  
-    // Update state based on category
-    if (category === "/movie/popular") {
-      setPopularMovies((prev) => [...prev, ...allMovies]);
-    } else if (category === "/movie/top_rated") {
-      setTrendingMovies((prev) => [...prev, ...allMovies]);
-    } else if (category === "/movie/upcoming") {
-      setUpcomingMovies((prev) => [...prev, ...allMovies]);
-    }else if (category === "/movie/now_playing") {
-      setNowPlaying((prev) => [...prev, ...allMovies]);
-    } else if(category === "/tv/popular"){
-      setTvShows((prev) => [...prev,...allMovies]);
-    }
-  } catch (error) {
-    setIsLoading(false);
-    console.error(`Error fetching ${category} movies:`, error);
-  }}
-};  
+    return [];
+  };  
 
   const handleSearch = async (e) => {
     e.preventDefault(); 
@@ -105,7 +81,7 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
     }
   };
 
-  const searchMovie = async () =>{
+  const searchMovie = async () => {
     try {
       setIsLoading(true); 
       const response = await axios.get(
@@ -159,17 +135,17 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
               {type === 'search' ? (
                 <div>
                   <form onSubmit={handleSearch}>
-                  <input
-                    type="text"
-                    placeholder="Search for a movie..."
-                    className="w-full bg-gray-100 border-2 border-gray-300 focus:outline-none focus:border-orange-600 rounded-md py-2 px-4 text-gray-700 placeholder-orange-300 text-sm sm:text-base"
-                    value={searchParam}
-                    onChange={(e) => {
-                      setSearchParam(e.target.value);
-                      searchMovie();
-                    }}
-                    autoFocus={true}
-                  />
+                    <input
+                      type="text"
+                      placeholder="Search for a movie..."
+                      className="w-full bg-gray-100 border-2 border-gray-300 focus:outline-none focus:border-orange-600 rounded-md py-2 px-4 text-gray-700 placeholder-orange-300 text-sm sm:text-base"
+                      value={searchParam}
+                      onChange={(e) => {
+                        setSearchParam(e.target.value);
+                        searchMovie();
+                      }}
+                      autoFocus={true}
+                    />
                   </form>
                   <DialogPanel className="relative transform overflow-y-auto rounded-lg bg-transparent text-left shadow-xl transition-all w-[90vw] lg:w-[80vw] h-[95vh] lg:h-[90vh]">
                     {isLoading && (
@@ -181,16 +157,15 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                       <div className="sm:flex sm:items-start">
                         <div className="text-center sm:ml-4 sm:mt-0 sm:text-left">
                           <div className="flex flex-wrap items-center justify-center mt-2 w-full">
-                            {
-                            searchResults.map((result) => (
+                            {searchResults.map((result) => (
                               (result.poster_path === null && result.backdrop_path === null) ?
                                 ""
-                              :
+                                :
                                 <Card
-                                key={result.id}
-                                src={result.poster_path || result.backdrop_path}
-                                rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
-                              />
+                                  key={result.id}
+                                  src={result.poster_path || result.backdrop_path}
+                                  rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
+                                />
                             ))}
                           </div>
                         </div>
@@ -204,17 +179,16 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                     <div className="sm:flex sm:items-start">
                       <div className="text-center sm:ml-4 sm:mt-0 sm:text-left">
                         <div className="flex flex-wrap items-center justify-center mt-2 w-full">
-                          {
-                            (upcomingMovies).map((result) => (
-                              (result.poster_path === null && result.backdrop_path === null) ?
-                                ""
+                          {moviesByCategory.map((result) => (
+                            (result.poster_path === null && result.backdrop_path === null) ?
+                              ""
                               :
-                                <Card
+                              <Card
                                 key={result.id}
                                 src={result.poster_path || result.backdrop_path}
                                 rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
                               />
-                            ))}
+                          ))}
                         </div>
                       </div>
                     </div>
