@@ -4,7 +4,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Card from './Card';
 import MovieModal from './MovieModal';
+import SingleMovieModal from './SingleMovieModal';
 import progress from '../assets/progress.png';
+import { Link } from 'react-router-dom';
 
 const ForYou = () => {
   const [popularMovies, setPopularMovies] = useState([]);
@@ -12,6 +14,9 @@ const ForYou = () => {
   const [upcomingMovies, setUpcomingMovies] = useState([]);
   const [coverMovie, setCoverMovie] = useState(0);
   const [openModal, setOpenModal] = useState(false);
+  const [movieId, setMovieId] = useState("");
+  const [movieTitle, setMovieTitle] = useState("");
+  const [openMovieModal, setOpenMovieModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -72,6 +77,14 @@ const ForYou = () => {
           onClose={() => setOpenModal(false)}
         />
       )}
+      {openMovieModal && (
+        <SingleMovieModal
+          toggler={openMovieModal}
+          title={movieTitle}
+          movieId={`/movie/${movieId}`}
+          onClose={() => setOpenMovieModal(false)}
+        />
+      )}
       <div className='flex items-center justify-between text-white font-semibold mb-8'>
         <h1 className='flex items-center text-lg md:text-2xl'>
           <span>
@@ -92,7 +105,14 @@ const ForYou = () => {
         ) : (
           <div className='flex items-center justify-start flex-nowrap whitespace-nowrap'>
             {upcomingMovies.map((upcoming) => (
-              <Card key={upcoming.id} src={upcoming.poster_path} rating={upcoming.vote_average < 2 ? "5.2" : upcoming.vote_average} />
+              <Link
+                  onClick={() => {
+                  setMovieId(upcoming.id)
+                  setMovieTitle(upcoming.original_title)
+                  setOpenMovieModal(true)
+                  }} >
+                <Card key={upcoming.id} src={upcoming.poster_path} rating={upcoming.vote_average < 2 ? "5.2" : upcoming.vote_average} />
+              </Link>
             ))}
           </div>
         )}
