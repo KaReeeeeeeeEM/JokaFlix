@@ -190,13 +190,13 @@ export default function MovieModal({ toggler, title, type, movieId, onClose, mov
                                         <h1 className='flex text-xl text-white font-semibold'><span className='mx-1'><img src={star} alt="star" className='w-6 h-6' /></span>{result.vote_average < 1 ? 5.5 : Math.ceil(result.vote_average * 10 )/10}</h1>
                                     </div>
                                     
-                                    <div className='w-full px-8 lg:px-12 absolute top-[65vh] md:top-[70vh] lg:top-[60vh] flex flex-col justify-start items-left'>
-                                        <h1 className='text-3xl md:text-4xl text-orange-400 font-extrabold'>{result.original_title }</h1>
-                                        <h2 className='text-md text-gray-300 font-semibold md:w-1/2'>
-                                        {(result.overview).length > 30 ? (result.overview).slice(0,100) + " ... " : result.overview }
+                                    <div className='w-full px-2 lg:px-12 absolute top-[65vh] md:top-[70vh] lg:top-[60vh] flex flex-col justify-between text-start items-left'>
+                                        <h1 className='text-2xl md:text-4xl text-orange-400 font-extrabold'>{result.original_title }</h1>
+                                        <h2 className='text-md text-gray-300 font-semibold w-[80vw] md:w-[90vw]'>
+                                        {result.overview }
                                         </h2>
                                     </div>
-                                    <div className='w-full px-8 md:px-12 absolute top-[80vh] md:top-[80vh] lg:top-[80vh] flex items-center lg:text-lg'>
+                                    <div className='w-full px-2 md:px-12 absolute top-[85vh] md:top-[80vh] lg:top-[80vh] flex items-center lg:text-lg'>
                                             <button className='py-2 pl-4 md:py-4 md:px-16 pr-6 bg-orange-500 text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
                                                 <span className='px-2'>
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -211,7 +211,10 @@ export default function MovieModal({ toggler, title, type, movieId, onClose, mov
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                                             </svg>
                                         </button>
-                                    </div>         
+                                    </div>       
+                                    <div>
+                                        <h1 className='font-semibold text-white'>Hello</h1>    
+                                    </div>  
                                 </div>
                             </>
                           ))}
