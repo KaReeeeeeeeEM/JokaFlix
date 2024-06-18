@@ -4,13 +4,18 @@ import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@
 import { XCircleIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
 import Card from './Card';
+import SingleMovieModal from './SingleMovieModal';
 import progress from '../assets/progress.png';
+import { Link } from 'react-router-dom';
 
 export default function MovieModal({ toggler, title, type, movieCategory, onClose, movies }) {
   const [open, setOpen] = useState(toggler); 
   const [moviesByCategory, setMoviesByCategory] = useState([]);
   const [searchParam, setSearchParam] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [movieId, setMovieId] = useState("");
+  const [movieTitle, setMovieTitle] = useState("");
+  const [openMovieModal, setOpenMovieModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const searchInputRef = useRef(null);
 
@@ -160,6 +165,14 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                       </div>
                     )}
                     <div className="bg-transparent px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                      {openMovieModal && (
+                        <SingleMovieModal
+                          toggler={openMovieModal}
+                          title={movieTitle}
+                          movieId={`/movie/${movieId}`}
+                          onClose={() => setOpenMovieModal(false)}
+                        />
+                      )}
                       <div className="sm:flex sm:items-start">
                         <div className="text-center sm:mt-0 sm:text-left">
                           <div className="flex flex-wrap items-center justify-center mt-2 w-full">
@@ -167,11 +180,18 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                               (result.poster_path === null && result.backdrop_path === null) ?
                                 ""
                                 :
-                                <Card
-                                  key={result.id}
-                                  src={result.poster_path || result.backdrop_path}
-                                  rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
-                                />
+                                <Link
+                                  onClick={() => {
+                                  setMovieId(result.id)
+                                  setMovieTitle(result.original_title)
+                                  setOpenMovieModal(true)
+                                  }} >
+                                    <Card
+                                      key={result.id}
+                                      src={result.poster_path || result.backdrop_path}
+                                      rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
+                                    />
+                                </Link>
                             ))}
                           </div>
                         </div>
@@ -181,6 +201,14 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                 </div>
               ) : (
                 <DialogPanel className="relative transform overflow-y-auto rounded-lg bg-transparent text-left shadow-xl transition-all w-[90vw] lg:w-[80vw] h-[95vh] lg:h-[90vh]">
+                   {openMovieModal && (
+                      <SingleMovieModal
+                        toggler={openMovieModal}
+                        title={movieTitle}
+                        movieId={`/movie/${movieId}`}
+                        onClose={() => setOpenMovieModal(false)}
+                      />
+                    )}
                   <div className="bg-transparent px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                     <div className="sm:flex sm:items-start">
                       <div className="text-center sm:ml-4 sm:mt-0 sm:text-left">
@@ -189,11 +217,18 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                             (result.poster_path === null && result.backdrop_path === null) ?
                               ""
                               :
-                              <Card
-                                key={result.id}
-                                src={result.poster_path || result.backdrop_path}
-                                rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
-                              />
+                              <Link
+                                onClick={() => {
+                                setMovieId(result.id)
+                                setMovieTitle(result.original_title)
+                                setOpenMovieModal(true)
+                                }} >
+                                  <Card
+                                    key={result.id}
+                                    src={result.poster_path || result.backdrop_path}
+                                    rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
+                                  />
+                              </Link>
                           ))}
                         </div>
                       </div>

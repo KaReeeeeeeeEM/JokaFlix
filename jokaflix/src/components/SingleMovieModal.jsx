@@ -4,6 +4,8 @@ import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@
 import { XCircleIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
 import Card from './Card';
+import imdb from '../assets/imdb.png'
+import star from '../assets/star.png'
 import progress from '../assets/progress.png';
 
 export default function MovieModal({ toggler, title, type, movieId, onClose, movies }) {
@@ -122,12 +124,6 @@ export default function MovieModal({ toggler, title, type, movieId, onClose, mov
           >
             <XCircleIcon className="h-8 w-8 text-orange-600" aria-hidden="true" />
           </div>
-          <DialogTitle
-            as="h3"
-            className="text-center font-semibold leading-6 mt-4 text-orange-600 text-2xl"
-          >
-            {title}
-          </DialogTitle>
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
             <TransitionChild
               enter="ease-out duration-300"
@@ -185,8 +181,39 @@ export default function MovieModal({ toggler, title, type, movieId, onClose, mov
                       <div className="text-center sm:ml-4 sm:mt-0 sm:text-left">
                         <div className="flex flex-wrap items-center justify-center mt-2 w-full">
                           {moviesByCategory.map((result) => (
-                            ""
-                            // how you would like the movie to appear likeid
+                            // single movie display
+                            <>
+                                <div className="absolute top-0 h-[50vh] w-full inset-0 bg-opacity-60 bg-black blur-md"></div>
+                                <div className='w-full h-[50vh] bg-gray-900' style={{backgroundImage:`url(https://image.tmdb.org/t/p/original${result.poster_path || result.backdrop_path})`, backgroundPosition:"center", backgroundSize:"cover", backgroundRepeat:"no-repeat"}}>
+                                    <div className='flex items-center justify-around absolute top-[60vh] md:top-[65vh] lg:top-[55vh] left-[1.2rem] lg:left-[2.5rem] p-2 w-[8rem] h-[2rem]'>
+                                        <img src={imdb} alt='imdb' className='w-[3rem] h-[3rem]' />
+                                        <h1 className='flex text-xl text-white font-semibold'><span className='mx-1'><img src={star} alt="star" className='w-6 h-6' /></span>{result.vote_average < 1 ? 5.5 : Math.ceil(result.vote_average * 10 )/10}</h1>
+                                    </div>
+                                    
+                                    <div className='w-full px-8 lg:px-12 absolute top-[65vh] md:top-[70vh] lg:top-[60vh] flex flex-col justify-start items-left'>
+                                        <h1 className='text-3xl md:text-4xl text-orange-400 font-extrabold'>{result.original_title }</h1>
+                                        <h2 className='text-md text-gray-300 font-semibold md:w-1/2'>
+                                        {(result.overview).length > 30 ? (result.overview).slice(0,100) + " ... " : result.overview }
+                                        </h2>
+                                    </div>
+                                    <div className='w-full px-8 md:px-12 absolute top-[80vh] md:top-[80vh] lg:top-[80vh] flex items-center lg:text-lg'>
+                                            <button className='py-2 pl-4 md:py-4 md:px-16 pr-6 bg-orange-500 text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
+                                                <span className='px-2'>
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                </svg>
+                                                </span>
+                                                Watch Now
+                                            </button>
+                                            <h2 className='text-2xl text-white mx-4'> | </h2>
+                                            <button className='py-2 px-4 mx-4 md:py-4 md:px-4 bg-orange-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" class="size-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                                            </svg>
+                                        </button>
+                                    </div>         
+                                </div>
+                            </>
                           ))}
                         </div>
                       </div>
