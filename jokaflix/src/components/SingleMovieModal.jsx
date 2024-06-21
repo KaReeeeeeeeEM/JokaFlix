@@ -114,12 +114,12 @@ export default function MovieModal({ toggler, title, type, movieId, onClose, mov
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gray-900 bg-opacity-90 transition-opacity" />
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-95 transition-opacity" />
         </TransitionChild>
 
-        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+        <div className="fixed inset-0 z-50 w-screen overflow-y-auto">
           <div
-            className="fixed top-0 left-0 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10 cursor-pointer"
+            className="fixed top-0 left-0 z-50 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10 cursor-pointer"
             onClick={closeModal}
           >
             <XCircleIcon className="h-8 w-8 text-orange-600" aria-hidden="true" />
@@ -175,48 +175,31 @@ export default function MovieModal({ toggler, title, type, movieId, onClose, mov
                   </DialogPanel>
                 </div>
               ) : (
-                <DialogPanel className="relative transform overflow-y-auto rounded-lg bg-transparent text-left shadow-xl transition-all w-[90vw] lg:w-[80vw] h-[95vh] lg:h-[90vh]">
+                <DialogPanel className="relative transform overflow-y-auto overflow-x-hidden rounded-lg bg-transparent text-left shadow-xl transition-all w-full lg:w-[98vw] h-[95vh] lg:h-[95vh]">
                   <div className="bg-transparent px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                     <div className="sm:flex sm:items-start">
-                      <div className="text-center sm:ml-4 sm:mt-0 sm:text-left">
-                        <div className="flex flex-wrap items-center justify-center mt-2 w-full">
+                      <div className="text-center  sm:text-left">
+                        <div className="flex flex-wrap items-center justify-center mt-2">
                           {moviesByCategory.map((result) => (
                             // single movie display
-                            <>
-                                <div className="absolute top-0 h-[50vh] w-full inset-0 bg-opacity-60 bg-black blur-md"></div>
-                                <div className='w-full h-[50vh] bg-gray-900' style={{backgroundImage:`url(https://image.tmdb.org/t/p/original${result.poster_path || result.backdrop_path})`, backgroundPosition:"center", backgroundSize:"cover", backgroundRepeat:"no-repeat"}}>
-                                    <div className='flex items-center justify-around absolute top-[60vh] md:top-[65vh] lg:top-[55vh] left-[1.2rem] lg:left-[2.5rem] p-2 w-[8rem] h-[2rem]'>
-                                        <img src={imdb} alt='imdb' className='w-[3rem] h-[3rem]' />
-                                        <h1 className='flex text-xl text-white font-semibold'><span className='mx-1'><img src={star} alt="star" className='w-6 h-6' /></span>{result.vote_average < 1 ? 5.5 : Math.ceil(result.vote_average * 10 )/10}</h1>
-                                    </div>
-                                    
-                                    <div className='w-full px-2 lg:px-12 absolute top-[65vh] md:top-[70vh] lg:top-[60vh] flex flex-col justify-between text-start items-left'>
-                                        <h1 className='text-2xl md:text-4xl text-orange-400 font-extrabold'>{result.original_title }</h1>
-                                        <h2 className='text-md text-gray-300 font-semibold w-[80vw] md:w-[90vw]'>
-                                        {result.overview }
-                                        </h2>
-                                    </div>
-                                    <div className='w-full px-2 md:px-12 absolute top-[85vh] md:top-[80vh] lg:top-[80vh] flex items-center lg:text-lg'>
-                                            <button className='py-2 pl-4 md:py-4 md:px-16 pr-6 bg-orange-500 text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
-                                                <span className='px-2'>
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                                </svg>
-                                                </span>
-                                                Watch Now
-                                            </button>
-                                            <h2 className='text-2xl text-white mx-4'> | </h2>
-                                            <button className='py-2 px-4 mx-4 md:py-4 md:px-4 bg-orange-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" class="size-6">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                                            </svg>
-                                        </button>
-                                    </div>       
-                                    <div>
-                                        <h1 className='font-semibold text-white'>Hello</h1>    
-                                    </div>  
-                                </div>
-                            </>
+                            <div className='w-screen md:w-full h-auto flex flex-col mx-2'>
+                              <div className='w-[93vw] h-[50vh] lg:h-[70vh]'>
+                                <div className="absolute top-8 right-0 h-[55vh] lg:h-[70vh] w-full inset-0 bg-opacity-60 bg-gray-900 blur-md"></div>
+                                <div style={{backgroundImage:`url(https://image.tmdb.org/t/p/original${result.poster_path})`}} className='w-full h-full bg-center bg-cover'></div>
+                              </div>
+                              <div className='flex items-center'>
+                                <img src={imdb} alt='imdb' className='w-[4rem] h-[4rem] mx-2' />
+                                {result.vote_average && <h1 className='flex items-center text-lg text-white font-bold mx-2'><span className='w-6 h-4'><img src={star} alt="star" className='w-4 h-4 ml-1' /></span>{result.vote_average < 1 ? 5.2 : Math.ceil(result.vote_average * 10)/10} <span className='mx-2 text-orange-600'>|</span> </h1>}
+                                <p className='text-lg font-bold text-orange-300'>{result.release_date.slice(0,4)}</p>
+                              </div>
+                              <div className='flex flex-col justify-center items-start text-left'>
+                                <p className='text-xl font-bold lg:text-2xl text-orange-600'>{result.title}</p>
+                                <p className='text-sm text-gray-400'>{result.overview}</p>
+                              </div>
+                              <div className='flex items-center w-full justify-around mt-8'>
+                                  {result.production_companies.map(company => company.logo_path && <img src={`https://image.tmdb.org/t/p/w500${company.logo_path}`} alt='company-logo' className='w-8 h-4 md:w-16 md:h-10' />)}
+                              </div>
+                            </div>
                           ))}
                         </div>
                       </div>
