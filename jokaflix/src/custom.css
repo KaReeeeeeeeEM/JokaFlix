@@ -1,0 +1,12 @@
+/* customStyles.css */
+.custom-tabs .tabs-underline {
+    @apply border-b-2 border-orange-600; /* Change underline color */
+  }
+  
+  .custom-tabs .tabs-underline .tab-item.active {
+    @apply text-orange-600 border-b-2 border-orange-600; /* Active tab color */
+  }
+  
+  .custom-tabs .tabs-underline .tab-item {
+    @apply hover:text-orange-600; /* Hover color */
+  }

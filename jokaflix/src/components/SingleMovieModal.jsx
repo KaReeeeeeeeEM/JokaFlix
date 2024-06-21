@@ -2,6 +2,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react';
 import { XCircleIcon } from '@heroicons/react/24/outline';
+import MovieDescriptionTabs from './MovieDescriptionTabs'
 import axios from 'axios';
 import Card from './Card';
 import imdb from '../assets/imdb.png'
@@ -219,6 +220,9 @@ export default function MovieModal({ toggler, title, type, movieId, onClose, mov
                               </div> 
                               <div className='flex items-center w-full justify-around mt-8'>
                                   {result.production_companies.map(company => company.logo_path && <img src={`https://image.tmdb.org/t/p/w500${company.logo_path}`} alt='company-logo' className='w-8 h-4 md:w-20 md:h-full rounded-lg md:border-2 md:border-gray-800 md:p-2' />)}
+                              </div>
+                              <div className='mt-4 md:mt-16'>
+                                <MovieDescriptionTabs movieID={movieId} />
                               </div>
                             </div>
                           ))}
