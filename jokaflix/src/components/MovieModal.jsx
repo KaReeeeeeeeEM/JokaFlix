@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react';
 import { XCircleIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
@@ -17,13 +17,6 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
   const [movieTitle, setMovieTitle] = useState("");
   const [openMovieModal, setOpenMovieModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const searchInputRef = useRef(null);
-
-  useEffect(() => {
-    if (type === 'search' && open) {
-      searchInputRef.current.focus();
-    }
-  }, [open, type]);
 
   useEffect(() => {
     setOpen(toggler); 
@@ -155,7 +148,7 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                             setSearchParam(e.target.value);
                             searchMovie();
                           }}
-                          ref={searchInputRef}
+                          autoFocus={true}
                         />
                       </form>
                   <DialogPanel className="relative transform overflow-y-auto rounded-lg bg-transparent text-left shadow-xl transition-all w-[96vw] lg:w-[80vw] h-[95vh] lg:h-[90vh]">
