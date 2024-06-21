@@ -201,9 +201,10 @@ export default function MovieModal({ toggler, title, type, movieId, onClose, mov
                                   <h3 className='text-lg text-gray-500'>{result.runtime > 60 ? Math.floor(result.runtime/60) + "hrs " + (result.runtime%60) + "mins " : result.runtime + "mins"}</h3>
                                 </div>
                                 <div className='flex items-center flex-wrap w-full justify-start my-2'>
-                                    {result.genres.map(genre => genre.name && <h1 className='px-2 md:px-8 md:py-2 text-orange-200 font-bold rounded-full border-2 border-orange-200 text-center mx-1 hover:bg-orange-500 transition ease-in-out duration-700 cursor-pointer'>{genre.name}</h1>)}
+                                    {result.genres.map(genre => genre.name && <h1 className='px-2 md:px-8 md:py-2 my-1 text-orange-200 font-bold rounded-full border-2 border-orange-200 text-center mx-1 hover:bg-orange-500 transition ease-in-out duration-700 cursor-pointer'>{genre.name}</h1>)}
                                 </div>
-                                <p className='text-sm mt-4 text-gray-400'>{result.overview}</p>
+                                {result.tagline&&<span className='ml-1 md:ml-0 text-orange-300 italic text-sm'>{result.tagline}</span>}
+                                <p className='text-sm text-gray-400 ml-1 md:ml-0'>{result.overview}</p>
                               </div>
                               <div className='w-full px-2 md:px-0 flex items-center justify-start lg:text-lg'>
                                   <button className='px-12 py-2  bg-orange-500 text-center text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
