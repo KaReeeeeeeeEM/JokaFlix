@@ -141,7 +141,7 @@ export default function MovieDescriptionTabs({movieID}) {
           </div>
         )}
         
-        <div className="mt-4 rounded h-[30vh] overflow-y-auto fixed">
+        <div className="mt-4 rounded h-[50vh] overflow-y-auto fixed">
         {activeTab === 1 && (
           <div className="flex flex-wrap items-center justify-center">
             {relatedMovies.map(movie => (
