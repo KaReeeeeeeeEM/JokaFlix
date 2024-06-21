@@ -117,7 +117,7 @@ export default function MovieModal({ toggler, title, type, movieId, onClose, mov
           <div className="fixed inset-0 bg-gray-900 bg-opacity-95 transition-opacity" />
         </TransitionChild>
 
-        <div className="fixed inset-0 z-50 w-screen overflow-y-auto">
+        <div className="fixed inset-0 w-screen overflow-y-auto">
           <div
             className="fixed top-0 left-0 z-50 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10 cursor-pointer"
             onClick={closeModal}
@@ -185,19 +185,39 @@ export default function MovieModal({ toggler, title, type, movieId, onClose, mov
                             <div className='w-screen md:w-full h-auto flex flex-col mx-2'>
                               <div className='w-[93vw] h-[50vh] lg:h-[70vh]'>
                                 <div className="absolute top-8 right-0 h-[55vh] lg:h-[70vh] w-full inset-0 bg-opacity-60 bg-gray-900 blur-md"></div>
-                                <div style={{backgroundImage:`url(https://image.tmdb.org/t/p/original${result.poster_path})`}} className='w-full h-full bg-center bg-cover'></div>
+                                <div style={{backgroundImage:`url(https://image.tmdb.org/t/p/original${result.poster_path})`}} className='w-full h-full bg-center bg-cover rounded-lg'></div>
                               </div>
                               <div className='flex items-center'>
-                                <img src={imdb} alt='imdb' className='w-[4rem] h-[4rem] mx-2' />
+                                <img src={imdb} alt='imdb' className='w-[4rem] h-[4rem]' />
                                 {result.vote_average && <h1 className='flex items-center text-lg text-white font-bold mx-2'><span className='w-6 h-4'><img src={star} alt="star" className='w-4 h-4 ml-1' /></span>{result.vote_average < 1 ? 5.2 : Math.ceil(result.vote_average * 10)/10} <span className='mx-2 text-orange-600'>|</span> </h1>}
-                                <p className='text-lg font-bold text-orange-300'>{result.release_date.slice(0,4)}</p>
+                                <p className='text-xl font-bold text-orange-300'>{result.release_date.slice(0,4)}</p>
+                                <span className='mx-2 text-lg font-bold text-orange-600'></span>
                               </div>
                               <div className='flex flex-col justify-center items-start text-left'>
                                 <p className='text-xl font-bold lg:text-2xl text-orange-600'>{result.title}</p>
-                                <p className='text-sm text-gray-400'>{result.overview}</p>
+                                <div className='flex mb-2'>
+                                  <h2 className='uppercase text-orange-300 text-lg'>{result.original_language}</h2>
+                                  <span className='mx-2 text-lg font-bold text-orange-300'>-</span>
+                                  <h3 className='text-lg text-gray-500'>{result.runtime > 60 ? Math.floor(result.runtime/60) + "hrs " + (result.runtime%60) + "mins " : result.runtime + "mins"}</h3>
+                                </div>
+                                <div className='flex items-center flex-wrap w-full justify-start my-2'>
+                                    {result.genres.map(genre => genre.name && <h1 className='px-2 md:px-8 md:py-2 text-orange-200 font-bold rounded-full border-2 border-orange-200 text-center mx-1 hover:bg-orange-500 transition ease-in-out duration-700 cursor-pointer'>{genre.name}</h1>)}
+                                </div>
+                                <p className='text-sm mt-4 text-gray-400'>{result.overview}</p>
                               </div>
+                              <div className='w-full px-2 md:px-0 flex items-center justify-start lg:text-lg'>
+                                  <button className='px-12 py-2  bg-orange-500 text-center text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
+                                      Watch Now
+                                  </button>
+                                    <h2 className='text-xl text-white mx-4 my-8'> | </h2>
+                                  <button className='py-2 px-4 mx-4 md:py-4 md:px-4 bg-gray-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" class="size-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                                    </svg>
+                                  </button>
+                              </div> 
                               <div className='flex items-center w-full justify-around mt-8'>
-                                  {result.production_companies.map(company => company.logo_path && <img src={`https://image.tmdb.org/t/p/w500${company.logo_path}`} alt='company-logo' className='w-8 h-4 md:w-16 md:h-10' />)}
+                                  {result.production_companies.map(company => company.logo_path && <img src={`https://image.tmdb.org/t/p/w500${company.logo_path}`} alt='company-logo' className='w-8 h-4 md:w-20 md:h-full rounded-lg md:border-2 md:border-gray-800 md:p-2' />)}
                               </div>
                             </div>
                           ))}
