@@ -100,7 +100,7 @@ export default function MovieDescriptionTabs({movieID}) {
           ))}
         </ul>
       </div>
-      <div className="mt-4 p-4 rounded w-full h-[30vh] overflow-y-auto fixed ">
+      <div className="mt-4 p-4 rounded w-full h-[30vh] overflow-y-auto ">
         {activeTab === 0 && moviesByCategory.map(movie => movie.title)}
         
         <div className="mt-4 rounded h-[30vh] overflow-y-auto fixed">
