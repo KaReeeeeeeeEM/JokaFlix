@@ -9,10 +9,32 @@ export default function MovieDescriptionTabs({movieID}) {
   const [activeTab, setActiveTab] = useState(0);
   const [moviesByCategory, setMoviesByCategory] = useState([]);
   const [movieId, setMovieId] = useState("");
+  const [trailers, setTrailers] = useState([]);
   const [movieTitle, setMovieTitle] = useState("");
   const [openMovieModal, setOpenMovieModal] = useState(false);
   const [relatedMovies, setRelatedMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const getTrailers = async () => {
+      const trailerList = await fetchTrailers(movieID);
+      setTrailers(trailerList);
+    };
+
+    if (activeTab === 0) {
+      getTrailers();
+    }
+  }, [movieID, activeTab]);
+
+  const fetchTrailers = async (movieId) => {
+    try {
+      const response = await axios.get(`https://api.themoviedb.org/3/${movieId}/videos?api_key=035c0f1a7347b310a5b95929826fc81f`);
+      return response.data.results.filter(video => video.type === 'Trailer');
+    } catch (error) {
+      console.error('Error fetching trailers:', error);
+      return [];
+    }
+  };
 
   useEffect(() => {
     const getRelatedMovies = async () => {
@@ -101,7 +123,23 @@ export default function MovieDescriptionTabs({movieID}) {
         </ul>
       </div>
       <div className="mt-4 p-4 rounded w-full h-[30vh] overflow-y-auto ">
-        {activeTab === 0 && moviesByCategory.map(movie => movie.title)}
+      {activeTab === 0 && (
+          <div className="flex flex-col md:flex-row flex-wrap items-start md:items-center justify-center md:justify-start">
+            {trailers.map(trailer => (
+              <div key={trailer.id} className="w-[85vw] rounded-lg m-auto mb-3 md:mx-8 md:w-[20vw]">
+                <iframe
+                  width="100%"
+                  height="169"
+                  src={`https://www.youtube.com/embed/${trailer.key}`}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  title={trailer.name}
+                ></iframe>
+              </div>
+            ))}
+          </div>
+        )}
         
         <div className="mt-4 rounded h-[30vh] overflow-y-auto fixed">
         {activeTab === 1 && (
