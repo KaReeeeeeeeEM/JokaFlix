@@ -3,6 +3,7 @@ import React, { useState,useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Card from './Card';
+import PlainCard from './PlainCard';
 import SingleMovieModal from './SingleMovieModal'
 
 export default function MovieDescriptionTabs({movieID}) {
@@ -14,6 +15,22 @@ export default function MovieDescriptionTabs({movieID}) {
   const [openMovieModal, setOpenMovieModal] = useState(false);
   const [relatedMovies, setRelatedMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [cast, setCast] = useState([]);
+
+  useEffect(() => {
+    const fetchCast = async () => {
+      try {
+        const response = await axios.get(
+          `https://api.themoviedb.org/3/${movieID}/credits?api_key=035c0f1a7347b310a5b95929826fc81f`
+        );
+        setCast(response.data.cast.filter(cast => cast.known_for_department === 'Acting'));
+      } catch (error) {
+        console.error('Error fetching movie cast:', error);
+      }
+    };
+
+    fetchCast();
+  }, [movieID]);
 
   useEffect(() => {
     const getTrailers = async () => {
@@ -122,7 +139,7 @@ export default function MovieDescriptionTabs({movieID}) {
           ))}
         </ul>
       </div>
-      <div className="mt-4 p-4 rounded w-full h-[30vh] overflow-y-auto ">
+      <div className="mt-4 p-4 rounded w-full h-[50vh] overflow-y-auto ">
       {activeTab === 0 && (
           <div className="flex flex-col md:flex-row flex-wrap items-start md:items-center justify-center md:justify-start">
             {trailers.map(trailer => (
@@ -181,6 +198,18 @@ export default function MovieDescriptionTabs({movieID}) {
                     <h1 className='text-white font-bold'>Year</h1>
                     <p className='text-gray-600'>{moviesByCategory.map(movie => movie.release_date && <span className='pr-2'>{movie.release_date.slice(0,4)}</span>)}</p>
                 </div>
+            </div>
+            <div className=' w-[80vw] md:w-full md:px-[4rem]'>
+              <h2 className='text-center text-orange-500 font-bold mt-8 md:mt-12'>Cast</h2>
+              <div className='flex justify-start overflow-x-auto w-full items-center mt-4'>
+                {cast.slice(0,6).map(actor => (
+                  <div key={actor.cast_id} className='flex flex-col flex-wrap justify-start items-start'>
+                    {actor.profile_path&&<PlainCard src={`https://image.tmdb.org/t/p/w500${actor.profile_path}`} />}
+                    <span className='text-white ml-2'>{actor.name}</span>
+                    <span className='text-gray-500 ml-2'>{actor.gender === 2? "Actor" : "Actress"}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
             ))}
