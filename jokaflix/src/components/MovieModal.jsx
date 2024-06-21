@@ -19,6 +19,23 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (type === 'search' && open) {
+      const input = document.querySelector('input[type="search"]');
+      if (input) {
+        input.focus();
+      }
+    }
+  }, [open, type]);
+
+  const focusSearch = () =>{
+    
+      const input = document.querySelector('input[type="search"]');
+      if (input) {
+        input.focus();
+    }
+  }
+
+  useEffect(() => {
     setOpen(toggler); 
   }, [toggler]);
 
@@ -102,7 +119,7 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
 
   return (
     <Transition show={open}>
-      <Dialog className="relative z-50" onClose={openModal}>
+      <Dialog className="relative z-50" onClose={focusSearch}>
         <TransitionChild
           enter="ease-in-out duration-300"
           enterFrom="absolute top-[100vh] opacity-0"
@@ -148,7 +165,6 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                             setSearchParam(e.target.value);
                             searchMovie();
                           }}
-                          autoFocus={true}
                         />
                       </form>
                   <DialogPanel className="relative transform overflow-y-auto rounded-lg bg-transparent text-left shadow-xl transition-all w-[96vw] lg:w-[80vw] h-[95vh] lg:h-[90vh]">
