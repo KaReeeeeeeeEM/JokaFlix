@@ -192,7 +192,6 @@ export default function MovieDescriptionTabs({movieID}) {
           </div>
         )}
       </div>
-
         {activeTab === 2 && moviesByCategory.map(movie => (
           <div className='overflow-y-auto overflow-x-hidden'>
             <div className='flex justify-between items-center md:px-[4rem]'>
