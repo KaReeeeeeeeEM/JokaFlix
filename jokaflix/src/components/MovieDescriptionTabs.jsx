@@ -96,7 +96,7 @@ export default function MovieDescriptionTabs({movieID}) {
   }, [movieID, activeTab]);
 
   const fetchRelatedMovies = async (movieId) => {
-    const response = await axios.get(`https://api.themoviedb.org/3${movieID}/similar?api_key=035c0f1a7347b310a5b95929826fc81f`);
+    const response = await axios.get(`https://api.themoviedb.org/3${movieId}/similar?api_key=035c0f1a7347b310a5b95929826fc81f`);
     return response.data.results;
   };
 
@@ -257,13 +257,13 @@ export default function MovieDescriptionTabs({movieID}) {
               <h2 className='text-center text-orange-500 font-bold mt-8 md:mt-12'>Backdrops</h2>
               <div className='flex justify-start overflow-x-auto w-full items-center mt-4'>
                 {images.backdrops.map((backdrop, index) => (
-                  <img src={`https://image.tmdb.org/t/p/original/${backdrop.file_path}}`} alt="poster" className='w-[250px] h-[150px] md:w-[400px] md:h-[250px] border-4 border-orange-400 rounded-lg mr-2' />
+                  <img key={index} src={`https://image.tmdb.org/t/p/original/${backdrop.file_path}}`} alt="poster" className='w-[250px] h-[150px] md:w-[400px] md:h-[250px] border-4 border-orange-400 rounded-lg mr-2' />
                 ))}
               </div>
               <h2 className='text-center text-orange-500 font-bold mt-8 md:mt-12'>Posters</h2>
               <div className='flex justify-start overflow-x-auto w-full items-center mt-4'>
                 {images.posters.map((poster, index) => (
-                    <PlainCard src={`https://image.tmdb.org/t/p/w500${poster.file_path}`} />
+                    <PlainCard key={index} src={`https://image.tmdb.org/t/p/w500${poster.file_path}`} />
                 ))}
               </div>
             </div>
