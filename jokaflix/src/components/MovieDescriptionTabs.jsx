@@ -218,7 +218,7 @@ export default function MovieDescriptionTabs({movieID}) {
               <h2 className='text-center text-orange-500 font-bold mt-8 md:mt-12'>Cast</h2>
               <div className='flex justify-start overflow-x-auto w-full items-center mt-4'>
                 {cast.slice(0,6).map(actor => (
-                  actor.profile_path && <div key={actor.cast_id} className='flex flex-col flex-wrap justify-start items-start'>
+                  actor.profile_path !== null && <div key={actor.cast_id} className='flex flex-col flex-wrap justify-start items-start'>
                     {actor.profile_path !== null &&<PlainCard src={`https://image.tmdb.org/t/p/w500${actor.profile_path}`} />}
                     <span className='text-white ml-2'>{actor.name}</span>
                     <span className='text-gray-500 ml-2'>{actor.gender === 2? "Actor" : "Actress"}</span>
