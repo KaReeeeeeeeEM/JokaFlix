@@ -1,10 +1,12 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useState, useEffect } from 'react';
+import SingleSeriesModal from './SingleSeriesModal';
 import axios from 'axios';
 import Card from './Card';
-import MovieModal from './MovieModal';
+import SeriesModal from './SeriesModal';
 import progress from '../assets/progress.png';
+import { Link } from 'react-router-dom';
 
 const Series = () => {
   const [popularSeries, setPopularSeries] = useState([]);
@@ -12,18 +14,19 @@ const Series = () => {
   const [nowPlaying, setNowPlaying] = useState([]);
   const [coverMovie, setCoverMovie] = useState(0);
   const [openModal, setOpenModal] = useState(false);
+  const [seriesId, setSeriesId] = useState("");
+  const [seriesTitle, setSeriesTitle] = useState("");
+  const [openSeriesModal, setOpenSeriesModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const id = Math.ceil(Math.random() * 10);
     setCoverMovie(id);
 
-    const fetchMovies = async () => {
+    const fetchSeries = async () => {
       try {
         setIsLoading(true);
-        await fetchMoviesByCategory("popular", 10);
-        await fetchMoviesByCategory("top_rated", 5);
-        await fetchMoviesByCategory("now_playing", 5);
+        await fetchSeriesByCategory("popular", 10);
       } catch (error) {
         setIsLoading(false);
         console.error("Error fetching movies:", error);
@@ -32,12 +35,12 @@ const Series = () => {
       }
     };
 
-    fetchMovies();
+    fetchSeries();
   }, []);
 
-  const fetchMoviesByCategory = async (category, pageCount) => {
+  const fetchSeriesByCategory = async (category, pageCount) => {
     try {
-      let allMovies = [];
+      let allSeries = [];
       setIsLoading(true);
 
       for (let page = 1; page <= pageCount; page++) {
@@ -45,31 +48,35 @@ const Series = () => {
           `https://api.themoviedb.org/3/tv/${category}?api_key=035c0f1a7347b310a5b95929826fc81f&language=en-US&page=${page}`
         );
 
-        const moviesData = response.data.results;
-        allMovies = [...allMovies, ...moviesData];
+        const seriesData = response.data.results;
+        allSeries = [...allSeries, ...seriesData];
       }
 
       if (category === "popular") {
-        setPopularSeries((prev) => [...prev, ...allMovies]);
-      } else if (category === "trending") {
-        setTrendingMovies((prev) => [...prev, ...allMovies]);
-      } else if (category === "now_playing") {
-        setNowPlaying((prev) => [...prev, ...allMovies]);
-      }
+        setPopularSeries((prev) => [...prev, ...allSeries]);
+      } 
     } catch (error) {
       setIsLoading(false);
-      console.error(`Error fetching ${category} movies:`, error);
+      console.error(`Error fetching ${category} series:`, error);
     }
   };
 
   return (
     <div className='flex flex-col items-left px-8 md:px-40 my-6 md:my-24 w-[95vw]'>
       {openModal && (
-        <MovieModal
+        <SeriesModal
           toggler={openModal}
           title="Popular Series"
-          movieCategory="/tv/popular"
+          seriesCategory="/tv/popular"
           onClose={() => setOpenModal(false)}
+        />
+      )}
+      {openSeriesModal && (
+        <SingleSeriesModal
+          toggler={openSeriesModal}
+          title={seriesTitle}
+          seriesId={`/tv/${seriesId}`}
+          onClose={() => setOpenSeriesModal(false)}
         />
       )}
       <div className='flex items-center justify-between text-white font-semibold mb-8'>
@@ -91,8 +98,15 @@ const Series = () => {
           </div>
         ) : (
           <div className='flex items-center justify-start flex-nowrap whitespace-nowrap'>
-            {popularSeries.map((upcoming) => (
-              <Card key={upcoming.id} src={upcoming.poster_path} rating={upcoming.vote_average < 2 ? "5.2" : upcoming.vote_average} />
+            {popularSeries.map((series) => (
+               <Link
+                onClick={() => {
+                setSeriesId(series.id)
+                setSeriesTitle(series.original_title)
+                setOpenSeriesModal(true)
+               }} >
+                <Card key={series.id} src={series.poster_path} rating={series.vote_average < 2 ? "5.2" : series.vote_average} />
+              </Link>
             ))}
           </div>
         )}
