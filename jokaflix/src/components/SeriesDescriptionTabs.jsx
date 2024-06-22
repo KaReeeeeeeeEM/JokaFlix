@@ -146,6 +146,7 @@ export default function SeriesDescriptionTabs({seriesID}) {
     { title: "Trailers" },
     { title: "More Like This"},
     { title: "About"},
+    { title: "Seasons"}
   ];
 
   return (
@@ -279,6 +280,22 @@ export default function SeriesDescriptionTabs({seriesID}) {
             </div>
           </div>
             ))}
+            {activeTab === 3 && (
+          <div className="flex flex-col md:flex-row flex-wrap items-start md:items-center justify-center md:justify-start">
+            {seriesByCategory.map((season,index) => (
+                    <div key={index} className="w-[85vw] md:flex md:w-full md:justify-start md:overflow-x-auto rounded-lg m-auto mb-3 md:mx-8">
+                        {season.seasons!==null && season.seasons.map(poster => 
+                        poster.poster_path !== null &&
+                        (<div className='flex flex-col justify-start items-start mr-2'>
+                            <div key={poster.id} style={{background:`url(https://image.tmdb.org/t/p/original${poster.poster_path}})`,backgroundPosition:"center", backgroundSize:"cover"}} alt="poster" className='w-full h-[200px] md:w-[400px] md:h-[250px] rounded-lg mr-2'></div>
+                            <h1 className='font-bold text-white'>{poster.name}</h1>
+                            <p className='mb-8 text-gray-600'>{poster.episode_count + " episodes"}</p>
+                        </div>)
+                        )}
+                    </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
