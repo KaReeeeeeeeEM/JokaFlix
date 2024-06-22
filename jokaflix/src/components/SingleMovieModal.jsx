@@ -93,8 +93,18 @@ export default function MovieModal({ toggler, title, type, movieId, onClose, mov
     try {
       setIsLoading(true); 
       const response = await axios.get(
-        `https://api.themoviedb.org/3/search/movie?api_key=035c0f1a7347b310a5b95929826fc81f&query=${searchParam}`
+        `https://api.themoviedb.org/3/search/multi?api_key=035c0f1a7347b310a5b95929826fc81f&query=${searchParam}`
       );
+
+      // const response = await axios.get(`https://api.themoviedb.org/3/search/multi`, {
+      //   params: {
+      //     api_key: '035c0f1a7347b310a5b95929826fc81f',
+      //     query: `${searchParam}`,
+      //     language: 'en-US',
+      //     page: 1 
+      //   }
+      // })
+
       setSearchResults(response.data.results); 
     } catch (error) {
       setIsLoading(false); 

@@ -5,6 +5,7 @@ import { XCircleIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
 import Card from './Card';
 import SingleMovieModal from './SingleMovieModal';
+import SingleSeriesModal from './SingleSeriesModal';
 import progress from '../assets/progress.png';
 import { Link } from 'react-router-dom';
 
@@ -14,8 +15,11 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
   const [searchParam, setSearchParam] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [movieId, setMovieId] = useState("");
+  const [seriesId, setSeriesId] = useState("");
   const [movieTitle, setMovieTitle] = useState("");
+  const [seriesTitle, setSeriesTitle] = useState("");
   const [openMovieModal, setOpenMovieModal] = useState(false);
+  const [openSeriesModal, setOpenSeriesModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -106,7 +110,7 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
     try {
       setIsLoading(true); 
       const response = await axios.get(
-        `https://api.themoviedb.org/3/search/movie?api_key=035c0f1a7347b310a5b95929826fc81f&query=${searchParam}`
+        `https://api.themoviedb.org/3/search/multi?api_key=035c0f1a7347b310a5b95929826fc81f&query=${searchParam}`
       );
       setSearchResults(response.data.results); 
     } catch (error) {
@@ -182,6 +186,14 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                           onClose={() => setOpenMovieModal(false)}
                         />
                       )}
+                      {openSeriesModal && (
+                        <SingleSeriesModal
+                          toggler={openSeriesModal}
+                          title={seriesTitle}
+                          seriesId={`/tv/${seriesId}`}
+                          onClose={() => setOpenSeriesModal(false)}
+                        />
+                      )}
                       <div className="sm:flex sm:items-start">
                         <div className="text-center sm:mt-0 sm:text-left">
                           <div className="flex flex-wrap items-center justify-center mt-2 w-full">
@@ -189,18 +201,33 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                               (result.poster_path === null && result.backdrop_path === null) ?
                                 ""
                                 :
-                                <Link
+                                result.media_type === "movie" ? (
+                                    <Link
+                                      onClick={() => {
+                                      setMovieId(result.id)
+                                      setMovieTitle(result.title)
+                                      setOpenMovieModal(true)
+                                      }} >
+                                        <Card
+                                          key={result.id}
+                                          src={result.poster_path || result.backdrop_path}
+                                          rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
+                                        />
+                                    </Link>
+                                ) : (
+                                  <Link
                                   onClick={() => {
-                                  setMovieId(result.id)
-                                  setMovieTitle(result.original_title)
-                                  setOpenMovieModal(true)
+                                  setSeriesId(result.id)
+                                  setSeriesTitle(result.title)
+                                  setOpenSeriesModal(true)
                                   }} >
-                                    <Card
-                                      key={result.id}
-                                      src={result.poster_path || result.backdrop_path}
-                                      rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
-                                    />
-                                </Link>
+                                      <Card
+                                        key={result.id}
+                                        src={result.poster_path || result.backdrop_path}
+                                        rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
+                                      />
+                                  </Link>
+                                )
                             ))}
                           </div>
                         </div>
