@@ -16,6 +16,22 @@ export default function MovieDescriptionTabs({movieID}) {
   const [relatedMovies, setRelatedMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [cast, setCast] = useState([]);
+  const [images, setImages] = useState({ backdrops: [], posters: [] });
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const response = await axios.get(
+          `https://api.themoviedb.org/3/${movieID}/images?api_key=035c0f1a7347b310a5b95929826fc81f`
+        );
+        setImages(response.data);
+      } catch (error) {
+        console.error('Error fetching movie images:', error);
+      }
+    };
+
+    fetchImages();
+  }, [movieID]);
 
   useEffect(() => {
     const fetchCast = async () => {
@@ -203,11 +219,35 @@ export default function MovieDescriptionTabs({movieID}) {
               <h2 className='text-center text-orange-500 font-bold mt-8 md:mt-12'>Cast</h2>
               <div className='flex justify-start overflow-x-auto w-full items-center mt-4'>
                 {cast.slice(0,6).map(actor => (
-                  <div key={actor.cast_id} className='flex flex-col flex-wrap justify-start items-start'>
-                    {actor.profile_path&&<PlainCard src={`https://image.tmdb.org/t/p/w500${actor.profile_path}`} />}
+                  actor.profile_path && <div key={actor.cast_id} className='flex flex-col flex-wrap justify-start items-start'>
+                    {actor.profile_path !== null &&<PlainCard src={`https://image.tmdb.org/t/p/w500${actor.profile_path}`} />}
                     <span className='text-white ml-2'>{actor.name}</span>
                     <span className='text-gray-500 ml-2'>{actor.gender === 2? "Actor" : "Actress"}</span>
                   </div>
+                ))}
+              </div>
+            </div>
+            <div className='w-[80vw] md:w-full md:px-[4rem]'>
+              <h2 className='text-center text-orange-500 font-bold mt-8 md:mt-12'>Backdrops</h2>
+              <div className='flex justify-start overflow-x-auto w-full items-center mt-4'>
+                {images.backdrops.map((backdrop, index) => (
+                  <img
+                    key={index}
+                    src={`https://image.tmdb.org/t/p/original${backdrop.file_path}`}
+                    alt={`Backdrop ${index + 1}`}
+                    style={{ width: '200px',height: '120px', borderRadius: '1rem' , marginRight: '10px' }}
+                  />
+                ))}
+              </div>
+              <h2 className='text-center text-orange-500 font-bold mt-8 md:mt-12'>Posters</h2>
+              <div className='flex justify-start overflow-x-auto w-full items-center mt-4'>
+                {images.posters.map((poster, index) => (
+                  <img
+                    key={index}
+                    src={`https://image.tmdb.org/t/p/original${poster.file_path}`}
+                    alt={`Poster ${index + 1}`}
+                    style={{ width: '150px',height: '200px', borderRadius: '1rem' , marginRight: '10px' }}
+                  />
                 ))}
               </div>
             </div>
