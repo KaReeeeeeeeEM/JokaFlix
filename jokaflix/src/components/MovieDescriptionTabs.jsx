@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom';
 import Card from './Card';
 import PlainCard from './PlainCard';
 import SingleMovieModal from './SingleMovieModal'
+import CardLoader from './CardLoader';
+import progress from '../assets/progress.png';
 
 export default function MovieDescriptionTabs({movieID}) {
   const [activeTab, setActiveTab] = useState(0);
@@ -21,12 +23,16 @@ export default function MovieDescriptionTabs({movieID}) {
   useEffect(() => {
     const fetchImages = async () => {
       try {
+        setIsLoading(true);
         const response = await axios.get(
           `https://api.themoviedb.org/3/${movieID}/images?api_key=035c0f1a7347b310a5b95929826fc81f`
         );
         setImages(response.data);
       } catch (error) {
+        setIsLoading(false);
         console.error('Error fetching movie images:', error);
+      } finally{
+        setIsLoading(false);
       }
     };
 
@@ -36,12 +42,16 @@ export default function MovieDescriptionTabs({movieID}) {
   useEffect(() => {
     const fetchCast = async () => {
       try {
+        setIsLoading(true);
         const response = await axios.get(
           `https://api.themoviedb.org/3/${movieID}/credits?api_key=035c0f1a7347b310a5b95929826fc81f`
         );
         setCast(response.data.cast.filter(cast => cast.known_for_department === 'Acting'));
       } catch (error) {
+        setIsLoading(false);
         console.error('Error fetching movie cast:', error);
+      }finally{
+        setIsLoading(false);
       }
     };
 
@@ -61,11 +71,15 @@ export default function MovieDescriptionTabs({movieID}) {
 
   const fetchTrailers = async (movieId) => {
     try {
+      setIsLoading(true);
       const response = await axios.get(`https://api.themoviedb.org/3/${movieId}/videos?api_key=035c0f1a7347b310a5b95929826fc81f`);
       return response.data.results.filter(video => video.type === 'Trailer');
     } catch (error) {
+      setIsLoading(false);
       console.error('Error fetching trailers:', error);
       return [];
+    }finally{
+      setIsLoading(false);
     }
   };
 
@@ -90,9 +104,11 @@ export default function MovieDescriptionTabs({movieID}) {
     const fetchMovies = async () => {
       try {
         setIsLoading(true);
+        setIsLoading(true);
         const moviesByCat = await fetchMoviesByCategory(movieID);
         setMoviesByCategory(moviesByCat);
       } catch (error) {
+        setIsLoading(false);
         console.error("Error fetching movies:", error);
       } finally {
         setIsLoading(false);
@@ -105,6 +121,7 @@ export default function MovieDescriptionTabs({movieID}) {
   const fetchMoviesByCategory = async (id) => {
     if (id != null) {
       try {
+        setIsLoading(true);
         let movieDetails = [];
         setIsLoading(true);
         const response = await axios.get(
@@ -115,8 +132,11 @@ export default function MovieDescriptionTabs({movieID}) {
         return movieDetails;
       } catch (error) {
         setIsLoading(false);
+        setIsLoading(false);
         console.error(`Error fetching movie:`, error);
         return [];
+      }finally{
+        setIsLoading(false);
       }
     }
     return [];
@@ -216,8 +236,14 @@ export default function MovieDescriptionTabs({movieID}) {
             </div>
             <div className=' w-[80vw] md:w-full md:px-[4rem]'>
               <h2 className='text-center text-orange-500 font-bold mt-8 md:mt-12'>Cast</h2>
+              {isLoading ? (
+                <div className='flex items-center justify-center bg-transparent h-[15rem] w-full lg:h-[20rem]'>
+                  <img src={progress} alt="progress" className='animate-spin w-8 h-8' />
+                </div>
+              ) 
+              : (
               <div className='flex justify-start overflow-x-auto w-full items-center mt-4'>
-                {cast.slice(0,6).map(actor => (
+                {cast.map(actor => (
                   actor.profile_path !== null && <div key={actor.cast_id} className='flex flex-col flex-wrap justify-start items-start'>
                     {actor.profile_path !== null &&<PlainCard src={`https://image.tmdb.org/t/p/w500${actor.profile_path}`} />}
                     <span className='text-white ml-2'>{actor.name}</span>
@@ -225,28 +251,19 @@ export default function MovieDescriptionTabs({movieID}) {
                   </div>
                 ))}
               </div>
+            )}
             </div>
             <div className='w-[80vw] md:w-full md:px-[4rem]'>
               <h2 className='text-center text-orange-500 font-bold mt-8 md:mt-12'>Backdrops</h2>
               <div className='flex justify-start overflow-x-auto w-full items-center mt-4'>
                 {images.backdrops.map((backdrop, index) => (
-                  <img
-                    key={index}
-                    src={`https://image.tmdb.org/t/p/original${backdrop.file_path}`}
-                    alt={`Backdrop ${index + 1}`}
-                    style={{ width: '200px',height: '120px', borderRadius: '1rem' , marginRight: '10px' }}
-                  />
+                  <img src={`https://image.tmdb.org/t/p/original/${backdrop.file_path}}`} alt="poster" className='w-[250px] h-[150px] md:w-[400px] md:h-[250px] border-4 border-orange-400 rounded-lg mr-2' />
                 ))}
               </div>
               <h2 className='text-center text-orange-500 font-bold mt-8 md:mt-12'>Posters</h2>
               <div className='flex justify-start overflow-x-auto w-full items-center mt-4'>
                 {images.posters.map((poster, index) => (
-                  <img
-                    key={index}
-                    src={`https://image.tmdb.org/t/p/original${poster.file_path}`}
-                    alt={`Poster ${index + 1}`}
-                    style={{ width: '150px',height: '200px', borderRadius: '1rem' , marginRight: '10px' }}
-                  />
+                    <PlainCard src={`https://image.tmdb.org/t/p/w500${poster.file_path}`} />
                 ))}
               </div>
             </div>
