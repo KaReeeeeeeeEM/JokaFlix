@@ -20,6 +20,9 @@ export default function MovieDescriptionTabs({movieID}) {
   const [cast, setCast] = useState([]);
   const [images, setImages] = useState({ backdrops: [], posters: [] });
 
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [selectedImageUrl, setSelectedImageUrl] = useState("");
+
   useEffect(() => {
     const fetchImages = async () => {
       try {
@@ -148,6 +151,11 @@ export default function MovieDescriptionTabs({movieID}) {
     { title: "About"},
   ];
 
+  const handleImageClick = (imageUrl) => {
+    setSelectedImageUrl(imageUrl);
+    setIsImageModalOpen(true);
+  };
+
   return (
     <div className="w-full md:w-[93vw] mt-10">
       <div className="border-b-2 border-orange-600">
@@ -257,7 +265,13 @@ export default function MovieDescriptionTabs({movieID}) {
               <h2 className='text-center text-orange-500 font-bold mt-8 md:mt-12'>Backdrops</h2>
               <div className='flex justify-start overflow-x-auto w-full items-center mt-4'>
                 {images.backdrops.map((backdrop, index) => (
-                  <img key={index} src={`https://image.tmdb.org/t/p/original/${backdrop.file_path}}`} alt="poster" className='w-[250px] h-[150px] md:w-[400px] md:h-[250px] border-4 border-orange-400 rounded-lg mr-2' />
+                  <img 
+                    key={index}
+                    src={`https://image.tmdb.org/t/p/original/${backdrop.file_path}`}
+                    alt="backdrop"
+                    className='w-[250px] h-[150px] md:w-[400px] md:h-[250px] border-4 border-orange-400 rounded-lg mr-2'
+                    onClick={() => handleImageClick(`https://image.tmdb.org/t/p/original/${backdrop.file_path}`)}
+                      />
                 ))}
               </div>
               <h2 className='text-center text-orange-500 font-bold mt-8 md:mt-12'>Posters</h2>
@@ -270,6 +284,17 @@ export default function MovieDescriptionTabs({movieID}) {
           </div>
             ))}
       </div>
+      {isImageModalOpen && (
+        <div className="fixed top-[69vh] lg:top-[60vh] left-0 w-full h-full lg:h-[200vh] flex items-center justify-center bg-gray-900 bg-opacity-60 lg:bg-opacity-95 z-50">
+          <div className="relative">
+            <button className="absolute top-0 right-0 text-white text-2xl" onClick={() => setIsImageModalOpen(false)}>×</button>
+            <img src={selectedImageUrl} alt="Selected" className="max-w-full lg:w-[80vw] lg:h-[70vh] max-h-full" />
+            <div className="text-center mt-4">
+              <a href='#' download className="bg-orange-600 text-white py-2 px-4 rounded">Download</a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
