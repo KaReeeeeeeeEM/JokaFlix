@@ -322,7 +322,7 @@ export default function SeriesDescriptionTabs({ seriesID }) {
             <button className="absolute top-0 right-0 text-white text-2xl" onClick={() => setIsImageModalOpen(false)}>×</button>
             <img src={selectedImageUrl} alt="Selected" className="max-w-full lg:w-[80vw] lg:h-[70vh] max-h-full" />
             <div className="text-center mt-4">
-              <a href='#' download className="bg-orange-600 text-white py-2 px-4 rounded">Download</a>
+              {/* <a href='#' download className="bg-orange-600 text-white py-2 px-4 rounded">Download</a> */}
             </div>
           </div>
         </div>
