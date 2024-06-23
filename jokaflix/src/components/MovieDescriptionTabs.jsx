@@ -195,9 +195,9 @@ export default function MovieDescriptionTabs({ movieID }) {
       </div>
       <div className="mt-4 p-4 rounded w-full h-[50vh] overflow-y-auto ">
         {activeTab === 0 && (
-          <div className="flex flex-col md:flex-row flex-wrap items-start md:items-center justify-center md:justify-start">
+          <div className="flex flex-col md:flex-row md:flex-wrap items-start md:items-center justify-center md:justify-center">
             {trailers.map(trailer => (
-              <div key={trailer.id} className="w-[85vw] rounded-lg m-auto mb-3 md:mx-8 md:w-[20vw]">
+              <div key={trailer.id} className="w-[85vw] rounded-lg m-auto md:mx-2 mb-3 md:w-[20vw]">
                 <iframe
                   width="100%"
                   height="169"
