@@ -298,7 +298,7 @@ export default function MovieDescriptionTabs({ movieID }) {
       {isImageModalOpen && (
         <div className="fixed top-[69vh] lg:top-[50vh] left-0 w-full h-full lg:h-[200vh] flex items-center justify-center bg-gray-900 bg-opacity-60 lg:bg-opacity-95 z-50">
           <div className="relative">
-            <button className="absolute top-0 right-0 text-white text-2xl" onClick={() => setIsImageModalOpen(false)}>×</button>
+            <button className="absolute top-0 right-0 w-9 text-2xl" onClick={() => setIsImageModalOpen(false)}>×</button>
             <img src={selectedImageUrl} alt="Selected" className="max-w-full lg:w-[80vw] lg:h-[70vh] max-h-full" />
             <div className="text-center mt-4">
               {/* <a onClick={downloadImage} className="bg-orange-600 text-white py-2 px-4 rounded">Download</a> */}
