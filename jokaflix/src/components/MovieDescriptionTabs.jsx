@@ -194,13 +194,14 @@ export default function MovieDescriptionTabs({ movieID }) {
         </ul>
       </div>
       <div className="mt-4 p-4 rounded w-full h-[50vh] overflow-y-auto ">
-        {activeTab === 0 && (
-          <div className="flex flex-col md:flex-row md:flex-wrap items-start md:items-center justify-center md:justify-center">
+      {activeTab === 0 && (
+          <div className="flex flex-col md:flex-row md:flex-wrap items-start md:items-center justify-center md:justify-start">
             {trailers.map(trailer => (
-              <div key={trailer.id} className="w-[85vw] rounded-lg m-auto md:mx-2 mb-3 md:w-[20vw]">
+              <div key={trailer.id} className="w-[85vw] h-[200px] rounded-lg m-auto md:mx-2 mb-3 md:h-[250px] md:w-[450px]">
                 <iframe
                   width="100%"
-                  height="169"
+                  height="100%"
+                  className='rounded-lg'
                   src={`https://www.youtube.com/embed/${trailer.key}`}
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -295,7 +296,7 @@ export default function MovieDescriptionTabs({ movieID }) {
         ))}
       </div>
       {isImageModalOpen && (
-        <div className="fixed top-[69vh] lg:top-[60vh] left-0 w-full h-full lg:h-[200vh] flex items-center justify-center bg-gray-900 bg-opacity-60 lg:bg-opacity-95 z-50">
+        <div className="fixed top-[69vh] lg:top-[50vh] left-0 w-full h-full lg:h-[200vh] flex items-center justify-center bg-gray-900 bg-opacity-60 lg:bg-opacity-95 z-50">
           <div className="relative">
             <button className="absolute top-0 right-0 text-white text-2xl" onClick={() => setIsImageModalOpen(false)}>×</button>
             <img src={selectedImageUrl} alt="Selected" className="max-w-full lg:w-[80vw] lg:h-[70vh] max-h-full" />

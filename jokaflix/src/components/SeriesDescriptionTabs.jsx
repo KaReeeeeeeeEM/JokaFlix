@@ -186,13 +186,14 @@ export default function SeriesDescriptionTabs({ seriesID }) {
         </ul>
       </div>
       <div className="mt-4 p-4 rounded w-full h-[50vh] overflow-y-auto ">
-        {activeTab === 0 && (
-          <div className="flex flex-col md:flex-row flex-wrap items-start md:items-center justify-center md:justify-start">
+      {activeTab === 0 && (
+          <div className="flex flex-col md:flex-row md:flex-wrap items-start md:items-center justify-center md:justify-start">
             {trailers.map(trailer => (
-              <div key={trailer.id} className="w-[85vw] rounded-lg m-auto mb-3 md:mx-8 md:w-[20vw]">
+              <div key={trailer.id} className="w-[85vw] h-[200px] rounded-lg m-auto md:mx-2 mb-3 md:h-[250px] md:w-[450px]">
                 <iframe
                   width="100%"
-                  height="169"
+                  height="100%"
+                  className='rounded-lg'
                   src={`https://www.youtube.com/embed/${trailer.key}`}
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
