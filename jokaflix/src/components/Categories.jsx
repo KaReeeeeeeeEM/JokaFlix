@@ -45,7 +45,6 @@ const Categories = () => {
         setIsLoading(true);
         const genresCoverByCat = await fetchGenreCover();
         setGenresCover(genresCoverByCat);
-        console.log(genresCoverByCat)
       } catch (error) {
         console.error("Error fetching movies:", error);
       } finally {
