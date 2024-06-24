@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Card from './Card';
 import MovieModal from './MovieModal';
+import GenreModal from './GenresModal';
 import progress from '../assets/progress.png';
 import { Link } from 'react-router-dom';
 
@@ -17,7 +18,70 @@ const Categories = () => {
   const [coverMovie, setCoverMovie] = useState(0);
   const [openModal, setOpenModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedGenre, setSelectedGenre] = useState(null);
+  const [openGenres, setOpenGenres] = useState(false);
+  const [movies, setMovies] = useState([]);
+  const [genreId, setGenreId] = useState(null);
+  const [genres, setGenres] = useState([]);
+  const [genresCover, setGenresCover] = useState({});
 
+  useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        const response = await axios.get(
+          `https://api.themoviedb.org/3/genre/movie/list?api_key=035c0f1a7347b310a5b95929826fc81f&language=en-US`
+        );
+        setGenres(response.data.genres);
+      } catch (error) {
+        console.error('Error fetching genres:', error);
+      }
+    };
+
+    fetchGenres();
+  }, [genres]);
+
+  useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        setIsLoading(true);
+        const genresCoverByCat = await fetchGenreCover();
+        setGenresCover(genresCoverByCat);
+        console.log(genresCoverByCat)
+      } catch (error) {
+        console.error("Error fetching movies:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchMovies();
+  }, []);
+
+  const fetchGenreCover = async () => {
+    try {
+      const allGenres = await axios.get(
+        `https://api.themoviedb.org/3/genre/movie/list?api_key=035c0f1a7347b310a5b95929826fc81f&language=en-US`
+      );
+      const genresData = allGenres.data.genres;
+      const genreCovers = {};
+
+      for (const genre of genresData) {
+        const response = await axios.get(
+          `https://api.themoviedb.org/3/discover/movie?api_key=035c0f1a7347b310a5b95929826fc81f&with_genres=${genre.id}&language=en-US&page=1`
+        );
+        const moviesData = response.data.results;
+        if (moviesData.length >= 3) {
+          genreCovers[genre.id] = moviesData[2].poster_path;
+        }
+      }
+      return genreCovers;
+    } catch (error) {
+      console.error(`Error fetching genre covers:`, error);
+      return {};
+    }
+  };
+
+  // Existing code to fetch movies
   useEffect(() => {
     const id = Math.ceil(Math.random() * 10);
     setCoverMovie(id);
@@ -82,6 +146,15 @@ const Categories = () => {
           onClose={() => setOpenModal(false)}
         />
       )}
+      {openGenres && (
+        <GenreModal
+          toggler={openGenres}
+          title={selectedGenre}
+          genreId={genreId}
+          movieCategory={selectedGenre}
+          onClose={() => setOpenGenres(false)}
+        />
+      )}
       <div className='flex items-left justify-between text-white font-semibold mb-8'>
         <h1 className='flex items-center text-lg md:text-2xl'>
             <span>
@@ -129,6 +202,20 @@ const Categories = () => {
                 }}>
                 <Card key={tvShows[3].id} src={tvShows[3].poster_path} category="tv shows"  />
               </Link>
+              {
+                genres.map(
+                  (genre) => (
+                    <Link key={genre.id} onClick={() => {
+                      setGenreId(genre.id)
+                      setSelectedGenre(genre.name)
+                      setOpenGenres(true)
+                    }}>
+                      <Card key={genre.id} src={genresCover[genre.id]} category={genre.name} />
+                    </Link>
+                  )
+                )
+              }
+              
           </div>
         )}
       </div>
