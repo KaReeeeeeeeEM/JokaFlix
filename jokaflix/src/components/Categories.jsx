@@ -26,14 +26,12 @@ const Categories = () => {
 
   useEffect(() => {
     const fetchGenres = async () => {
-      setIsLoading(true);
       try {
         const response = await axios.get(
           `https://api.themoviedb.org/3/genre/movie/list?api_key=035c0f1a7347b310a5b95929826fc81f&language=en-US`
         );
         setGenres(response.data.genres);
       } catch (error) {
-        setIsLoading(false);
         console.error('Error fetching genres:', error);
       }
     };
@@ -59,7 +57,6 @@ const Categories = () => {
 
   const fetchGenreCover = async () => {
     try {
-      setIsLoading(true);
       const allGenres = await axios.get(
         `https://api.themoviedb.org/3/genre/movie/list?api_key=035c0f1a7347b310a5b95929826fc81f&language=en-US`
       );
@@ -77,7 +74,6 @@ const Categories = () => {
       }
       return genreCovers;
     } catch (error) {
-      setIsLoading(false);
       console.error(`Error fetching genre covers:`, error);
       return {};
     }finally{
@@ -199,12 +195,6 @@ const Categories = () => {
                 setOpenModal(true)
                 }}>
                 <Card key={nowPlaying[3].id} src={nowPlaying[3].poster_path} category="now playing"  />
-              </Link>
-              <Link onClick={() => {
-                setCategory("/tv/popular")
-                setOpenModal(true)
-                }}>
-                <Card key={tvShows[3].id} src={tvShows[3].poster_path} category="tv shows"  />
               </Link>
               {
                 genres.map(
