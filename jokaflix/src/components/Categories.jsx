@@ -20,7 +20,6 @@ const Categories = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedGenre, setSelectedGenre] = useState(null);
   const [openGenres, setOpenGenres] = useState(false);
-  const [movies, setMovies] = useState([]);
   const [genreId, setGenreId] = useState(null);
   const [genres, setGenres] = useState([]);
   const [genresCover, setGenresCover] = useState({});
