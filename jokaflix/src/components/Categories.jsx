@@ -57,6 +57,7 @@ const Categories = () => {
 
   const fetchGenreCover = async () => {
     try {
+      setIsLoading(true);
       const allGenres = await axios.get(
         `https://api.themoviedb.org/3/genre/movie/list?api_key=035c0f1a7347b310a5b95929826fc81f&language=en-US`
       );
@@ -74,6 +75,7 @@ const Categories = () => {
       }
       return genreCovers;
     } catch (error) {
+      setIsLoading(false);
       console.error(`Error fetching genre covers:`, error);
       return {};
     }finally{
