@@ -14,6 +14,7 @@ import Categories from './Categories';
 import NowPlaying from './NowPlaying';
 import Popular from './Popular';
 import Series from './Series';
+import MoviePlayer from './MoviePlayer';
 
 const Home = () => {
     const [popularMovies, setPopularMovies] = useState([]);
@@ -26,6 +27,7 @@ const Home = () => {
     const [openSearch, setOpenSearch] = useState(false);
     const urlSearchParams = new URLSearchParams(window.location.search);
     const profilePicture = urlSearchParams.get("profile");
+    const [selectedMovieId, setSelectedMovieId] = useState(null);
     const { user } = useParams();
 
 
@@ -93,8 +95,14 @@ const Home = () => {
         }
       };  
 
+      function playMovie(){
+        window.location.href=`https://vidsrc.xyz/embed/movie/${upcomingMovies[coverMovie].id}`;
+      }
+
   return (
     <>
+          {/* for the movie streaming */}
+        {selectedMovieId!==null && <MoviePlayer vidId={selectedMovieId} />}
         { isLoading ? <Loading /> : (
             <div className='overflow-y-auto bg-gray-900'>
             {openSearch && (
@@ -129,7 +137,7 @@ const Home = () => {
                     </h2>
                 </div>
                 <div className='w-full px-8 md:px-12 absolute top-[80vh] md:top-[80vh] lg:top-[80vh] flex items-center lg:text-lg'>
-                        <button className='py-2 pl-4 md:py-4 md:px-16 pr-6 bg-orange-500 text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
+                        <button onClick={playMovie} className='py-2 pl-4 md:py-4 md:px-16 pr-6 bg-orange-500 text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
                             <span className='px-2'>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />

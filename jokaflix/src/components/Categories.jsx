@@ -205,7 +205,6 @@ const Categories = () => {
                   )
                 )
               }
-              
           </div>
         )}
       </div>

@@ -8,6 +8,7 @@ import Card from './Card';
 import imdb from '../assets/imdb.png'
 import star from '../assets/star.png'
 import progress from '../assets/progress.png';
+import MoviePlayer from './MoviePlayer';
 
 export default function MovieModal({ toggler, title, type, movieId, onClose, movies }) {
   const [open, setOpen] = useState(toggler); 
@@ -15,6 +16,7 @@ export default function MovieModal({ toggler, title, type, movieId, onClose, mov
   const [searchParam, setSearchParam] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPlayClicked, setIsPlayClicked] = useState(false);
   const searchInputRef = useRef(null);
 
   useEffect(() => {
@@ -112,6 +114,10 @@ export default function MovieModal({ toggler, title, type, movieId, onClose, mov
     } finally {
       setIsLoading(false);
     }
+  }
+
+  function playMovie(){
+    window.location.href=`https://vidsrc.xyz/embed${movieId}`;
   }
 
   return (
@@ -218,7 +224,7 @@ export default function MovieModal({ toggler, title, type, movieId, onClose, mov
                                 <p className='text-sm md:text-lg text-gray-400 ml-1 md:ml-0'>{result.overview}</p>
                               </div>
                               <div className='w-full px-2 md:px-0 flex items-center justify-start lg:text-lg'>
-                                  <button className='px-12 py-2  bg-orange-500 text-center text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
+                                  <button onClick={playMovie} className='px-12 py-2  bg-orange-500 text-center text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
                                       Watch Now
                                   </button>
                                     <h2 className='text-xl text-white mx-4 my-8'> | </h2>
