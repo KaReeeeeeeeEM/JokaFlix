@@ -8,7 +8,6 @@ import Card from './Card';
 import imdb from '../assets/imdb.png'
 import star from '../assets/star.png'
 import progress from '../assets/progress.png';
-import MoviePlayer from './MoviePlayer';
 
 export default function MovieModal({ toggler, title, type, movieId, onClose, movies }) {
   const [open, setOpen] = useState(toggler); 

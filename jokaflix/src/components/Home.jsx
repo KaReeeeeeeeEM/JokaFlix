@@ -14,7 +14,6 @@ import Categories from './Categories';
 import NowPlaying from './NowPlaying';
 import Popular from './Popular';
 import Series from './Series';
-import MoviePlayer from './MoviePlayer';
 
 const Home = () => {
     const [popularMovies, setPopularMovies] = useState([]);
@@ -101,8 +100,6 @@ const Home = () => {
 
   return (
     <>
-          {/* for the movie streaming */}
-        {selectedMovieId!==null && <MoviePlayer vidId={selectedMovieId} />}
         { isLoading ? <Loading /> : (
             <div className='overflow-y-auto bg-gray-900'>
             {openSearch && (
