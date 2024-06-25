@@ -116,7 +116,7 @@ export default function MovieModal({ toggler, title, type, movieId, onClose, mov
   }
 
   function playMovie(){
-    window.location.href=`https://vidsrc.xyz/embed${movieId}`;
+    window.location.href=`https://autoembed.co/movie/tmdb/${movieId.slice(7,)}`;
   }
 
   return (

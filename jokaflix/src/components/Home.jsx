@@ -95,7 +95,7 @@ const Home = () => {
       };  
 
       function playMovie(){
-        window.location.href=`https://vidsrc.xyz/embed/movie/${upcomingMovies[coverMovie].id}`;
+        window.location.href=`https://autoembed.co/movie/tmdb/${upcomingMovies[coverMovie].id}`;
       }
 
   return (
