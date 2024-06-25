@@ -37,7 +37,7 @@ const Categories = () => {
     };
 
     fetchGenres();
-  }, [genres]);
+  }, []);
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -57,7 +57,6 @@ const Categories = () => {
 
   const fetchGenreCover = async () => {
     try {
-      setIsLoading(true);
       const allGenres = await axios.get(
         `https://api.themoviedb.org/3/genre/movie/list?api_key=035c0f1a7347b310a5b95929826fc81f&language=en-US`
       );
@@ -75,68 +74,58 @@ const Categories = () => {
       }
       return genreCovers;
     } catch (error) {
-      setIsLoading(false);
       console.error(`Error fetching genre covers:`, error);
       return {};
-    }finally{
-      setIsLoading(false);
     }
   };
 
-  // Existing code to fetch movies
   useEffect(() => {
-    const id = Math.ceil(Math.random() * 10);
-    setCoverMovie(id);
+    const fetchMoviesByCategory = async (category, pageCount) => {
+      try {
+        let allMovies = [];
+        for (let page = 1; page <= pageCount; page++) {
+          const response = await axios.get(
+            `https://api.themoviedb.org/3/${category}?api_key=035c0f1a7347b310a5b95929826fc81f&language=en-US&page=${page}`
+          );
+          const moviesData = response.data.results;
+          allMovies = [...allMovies, ...moviesData];
+        }
 
-    const fetchMovies = async () => {
+        if (category === "/movie/popular") {
+          setPopularMovies((prev) => [...prev, ...allMovies]);
+        } else if (category === "/movie/top_rated") {
+          setTrendingMovies((prev) => [...prev, ...allMovies]);
+        } else if (category === "/movie/upcoming") {
+          setUpcomingMovies((prev) => [...prev, ...allMovies]);
+        } else if (category === "/movie/now_playing") {
+          setNowPlaying((prev) => [...prev, ...allMovies]);
+        } else if (category === "/tv/popular") {
+          setTvShows((prev) => [...prev, ...allMovies]);
+        }
+      } catch (error) {
+        console.error(`Error fetching ${category} movies:`, error);
+      }
+    };
+
+    const fetchAllMovies = async () => {
       try {
         setIsLoading(true);
-        await fetchMoviesByCategory("/movie/popular", 5);
-        await fetchMoviesByCategory("/movie/top_rated", 5);
-        await fetchMoviesByCategory("/movie/upcoming", 5);
-        await fetchMoviesByCategory("/movie/now_playing", 5);
-        await fetchMoviesByCategory("/tv/popular", 5);
+        await Promise.all([
+          fetchMoviesByCategory("/movie/popular", 5),
+          fetchMoviesByCategory("/movie/top_rated", 5),
+          fetchMoviesByCategory("/movie/upcoming", 5),
+          fetchMoviesByCategory("/movie/now_playing", 5),
+          fetchMoviesByCategory("/tv/popular", 5)
+        ]);
       } catch (error) {
-        setIsLoading(false);
         console.error("Error fetching movies:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchMovies();
+    fetchAllMovies();
   }, []);
-
-  const fetchMoviesByCategory = async (category, pageCount) => {
-    try {
-      let allMovies = [];
-      setIsLoading(true);
-
-      for (let page = 1; page <= pageCount; page++) {
-        const response = await axios.get(
-          `https://api.themoviedb.org/3/${category}?api_key=035c0f1a7347b310a5b95929826fc81f&language=en-US&page=${page}`
-        );
-
-        const moviesData = response.data.results;
-        allMovies = [...allMovies, ...moviesData];
-      }
-
-      if (category === "/movie/popular") {
-        setPopularMovies((prev) => [...prev, ...allMovies]);
-      } else if (category === "/movie/top_rated") {
-        setTrendingMovies((prev) => [...prev, ...allMovies]);
-      } else if (category === "/movie/upcoming") {
-        setUpcomingMovies((prev) => [...prev, ...allMovies]);
-      }else if (category === "/movie/now_playing") {
-        setNowPlaying((prev) => [...prev, ...allMovies]);
-      } else if(category === "/tv/popular"){
-        setTvShows((prev) => [...prev,...allMovies]);
-      }
-    } catch (error) {
-      setIsLoading(false);
-      console.error(`Error fetching ${category} movies:`, error);
-    }
-  };
 
   return (
     <div className='flex flex-col items-left px-8 md:px-40 my-12 md:my-24 w-[98vw]'>
@@ -163,7 +152,6 @@ const Categories = () => {
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="orange" className="size-6 mr-2">
                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z" />
             </svg>
-
             </span>
             Categories</h1>
       </div>
@@ -178,25 +166,31 @@ const Categories = () => {
                 setCategory("/movie/popular")
                 setOpenModal(true)
                 }}>
-                <Card key={popularMovies[3].id} src={popularMovies[3].poster_path} category="popular" />
+                <Card key={popularMovies[3]?.id} src={popularMovies[3]?.poster_path} category="popular" />
               </Link>
               <Link onClick={() => {
                 setCategory("/movie/top_rated")
                 setOpenModal(true)
                 }}>
-                <Card key={trendingMovies[3].id} src={trendingMovies[3].poster_path} category="top rated"  />
+                <Card key={trendingMovies[3]?.id} src={trendingMovies[3]?.poster_path} category="top rated"  />
               </Link>
               <Link onClick={() => {
                 setCategory("/movie/upcoming")
                 setOpenModal(true)
                 }}>
-                <Card key={upcomingMovies[3].id} src={upcomingMovies[3].poster_path} category="upcoming" />
+                <Card key={upcomingMovies[3]?.id} src={upcomingMovies[3]?.poster_path} category="upcoming" />
               </Link>
               <Link onClick={() => {
                 setCategory("/movie/now_playing")
                 setOpenModal(true)
                 }}>
-                <Card key={nowPlaying[3].id} src={nowPlaying[3].poster_path} category="now playing"  />
+                <Card key={nowPlaying[3]?.id} src={nowPlaying[3]?.poster_path} category="now playing"  />
+              </Link>
+              <Link onClick={() => {
+                setCategory("/tv/popular")
+                setOpenModal(true)
+                }}>
+                <Card key={tvShows[3]?.id} src={tvShows[3]?.poster_path} category="tv shows"  />
               </Link>
               {
                 genres.map(
