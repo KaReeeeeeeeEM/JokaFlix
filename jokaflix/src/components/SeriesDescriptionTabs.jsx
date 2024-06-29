@@ -214,11 +214,7 @@ export default function SeriesDescriptionTabs({ seriesID }) {
         <div className="mt-4 rounded h-[50vh] overflow-y-auto fixed">
           {activeTab === 1 && (
             <div className="flex flex-wrap items-center justify-center">
-              {isLoading ? (
-                <div className="flex items-center justify-center bg-transparent w-full h-full rounded-xl mb-4 mx-1">
-                  <img src={progress} alt="progress" className="animate-spin w-8 h-8" />
-                </div>
-              ): relatedSeries.map(movie => (
+              { relatedSeries.map(movie => (
                 <Link
                   key={movie.id}
                   onClick={() => {
