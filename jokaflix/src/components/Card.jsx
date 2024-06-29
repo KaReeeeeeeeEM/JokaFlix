@@ -6,18 +6,10 @@ import star from '../assets/star.png';
 import CardLoader from './CardLoader';
 import '../card.css';
 
-const Card = ({ src, rating, loading, category, quality }) => {
+const Card = ({ src, rating, loading, category, year }) => {
   return (
     <div>
-      {loading ? (
-        <div className="card-placeholder">
-          <div className="card-placeholder-image"></div>
-          <div className="card-placeholder-content">
-            <div className="card-placeholder-rating"></div>
-            <div className="card-placeholder-category"></div>
-          </div>
-        </div>
-      ) : (
+      {(
         <div className='card-container' style={{ backgroundImage: `url(https://image.tmdb.org/t/p/w500${src})` }}>
           <div className="relative top-0 h-full w-full inset-0 bg-opacity-60 bg-gray-900 blur-md"></div>
           <div className='overlay'>
@@ -45,12 +37,7 @@ const Card = ({ src, rating, loading, category, quality }) => {
                 )}
               </div>
               <div className='w-1/2 flex justify-end pr-6 md:pr-8'>
-                {quality && (
-                  quality === 'hd' ? (
-                    <img src={hdIcon} alt='HD' className='w-[1rem] h-[1rem] md:w-[1.5rem] md:h-[1.5rem] mr-1' />
-                  ) : (
-                    <img src={video} alt='Recorded' className='w-[1rem] h-[1rem] md:w-[1.5rem] md:h-[1.5rem] mr-1' />
-                  ))}
+                {<img src={hdIcon} alt='HD' className='w-[1rem] h-[1rem] md:w-[1.5rem] md:h-[1.5rem] mr-1' />}
               </div>
             </div>
             <div>
