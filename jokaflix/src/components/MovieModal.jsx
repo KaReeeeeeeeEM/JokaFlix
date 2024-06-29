@@ -212,6 +212,7 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                                           key={result.id}
                                           src={result.poster_path || result.backdrop_path}
                                           rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
+                                          year={result.release_date}
                                         />
                                     </Link>
                                 ) : (
@@ -225,6 +226,7 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                                         key={result.id}
                                         src={result.poster_path || result.backdrop_path}
                                         rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
+                                        year={result.first_air_date}
                                       />
                                   </Link>
                                 )
@@ -278,6 +280,7 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                                       key={result.id}
                                       src={result.poster_path || result.backdrop_path}
                                       rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
+                                      year={result.first_air_date || result.release_date}
                                     />
                                 </Link>
                               )
@@ -291,6 +294,7 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                                     key={result.id}
                                     src={result.poster_path || result.backdrop_path}
                                     rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
+                                    year={result.release_date}
                                   />
                               </Link>)
                           ))}

@@ -37,6 +37,7 @@ export default function MovieModal({ toggler, title, type, movieId, onClose, mov
     setOpen(true); 
   };
 
+
   useEffect(() => {
     const fetchMovies = async () => {
       try {

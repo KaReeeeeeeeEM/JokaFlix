@@ -1,10 +1,39 @@
 import React from 'react';
 import imdb from '../assets/imdb.png';
 import hdIcon from '../assets/hdIcon.png';
+import video from '../assets/video.png';
+import comingsoon from '../assets/comingsoon.png';
 import star from '../assets/star.png';
 import '../card.css';
 
 const Card = ({ src, rating, category, year }) => {
+  
+  function determineQuality(){
+    var firstDate = new Date(year)
+    var secondDate = new Date();
+  
+    const year1 = firstDate.getFullYear();
+    const month1 = firstDate.getMonth();
+  
+    const year2 = secondDate.getFullYear();
+    const month2 = secondDate.getMonth();
+  
+    const monthsApart = (year2 - year1) * 12 + (month2 - month1);
+
+    if(year1 - year2 > 0){
+        return <img src={comingsoon} alt='hd' className='w-8 h-8' />
+    }else if (monthsApart > 3) {
+      return <img src={hdIcon} alt='hd' className='w-4 h-4' />
+    } else if (monthsApart === 1) {
+      return <img src={hdIcon} alt='hd' className='w-4 h-4' />
+    } else if(year1 > "2024"){
+      return <img src={video} alt='hd' className='w-4 h-4' />
+    } else {
+      return <img src={video} alt='hd' className='w-4 h-4' />
+    }
+  }
+  
+
   return (
     <div>
       {(
@@ -35,7 +64,7 @@ const Card = ({ src, rating, category, year }) => {
                 )}
               </div>
               <div className='w-1/2 flex justify-end pr-6 md:pr-8'>
-                {<img src={hdIcon} alt='HD' className='w-[1rem] h-[1rem] md:w-[1.5rem] md:h-[1.5rem] mr-1' />}
+                {year && determineQuality()}
               </div>
             </div>
             <div>

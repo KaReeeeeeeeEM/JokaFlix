@@ -105,7 +105,7 @@ const Series = () => {
                 setSeriesTitle(series.original_title)
                 setOpenSeriesModal(true)
                }} >
-                <Card key={series.id} src={series.poster_path} rating={series.vote_average < 2 ? "5.2" : series.vote_average} />
+                <Card key={series.id} src={series.poster_path} rating={series.vote_average < 2 ? "5.2" : series.vote_average} year={series.first_air_date} />
               </Link>
             ))}
           </div>

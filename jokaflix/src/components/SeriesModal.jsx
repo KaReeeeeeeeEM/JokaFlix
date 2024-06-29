@@ -132,6 +132,7 @@ export default function SeriesModal({ toggler, title, seriesCategory, onClose })
                               <Card
                                 src={result.poster_path || result.backdrop_path}
                                 rating={result.vote_average < 2 || result.vote_average === null ? "5.2" : result.vote_average}
+                                year={result.first_air_date}
                               />
                             </Link>
                         ))}

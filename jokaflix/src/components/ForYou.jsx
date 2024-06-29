@@ -126,7 +126,7 @@ const ForYou = () => {
                   setMovieTitle(upcoming.original_title)
                   setOpenMovieModal(true)
                   }} >
-                <Card key={upcoming.id} src={upcoming.poster_path} rating={upcoming.vote_average < 2 ? "5.2" : upcoming.vote_average} />
+                <Card key={upcoming.id} src={upcoming.poster_path} rating={upcoming.vote_average < 2 ? "5.2" : upcoming.vote_average} year={upcoming.release_date} />
               </Link>
             ))}
           </div>
