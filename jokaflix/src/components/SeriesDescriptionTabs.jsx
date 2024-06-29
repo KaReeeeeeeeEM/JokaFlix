@@ -281,7 +281,7 @@ export default function SeriesDescriptionTabs({ seriesID }) {
                 )}
             </div>
             <div className='w-[80vw] md:w-full md:px-[4rem]'>
-              <h2 className='text-center text-orange-500 font-bold mt-8 md:mt-12'>Backdrops</h2>
+              {images.backdrops.length >0 && <h2 className='text-center text-orange-500 font-bold mt-8 md:mt-12'>Backdrops</h2>}
               <div className='flex justify-start overflow-x-auto w-full items-center mt-4'>
                 {images.backdrops.map((backdrop, index) => (
                   <img
@@ -293,7 +293,7 @@ export default function SeriesDescriptionTabs({ seriesID }) {
                   />
                 ))}
               </div>
-              <h2 className='text-center text-orange-500 font-bold mt-8 md:mt-12'>Posters</h2>
+              {images.posters.length > 0 && <h2 className='text-center text-orange-500 font-bold mt-8 md:mt-12'>Posters</h2>}
               <div className='flex justify-start overflow-x-auto w-full items-center mt-4'>
                 {images.posters.map((poster, index) => (
                   <PlainCard
