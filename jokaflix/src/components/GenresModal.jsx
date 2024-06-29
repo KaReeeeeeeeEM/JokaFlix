@@ -151,6 +151,7 @@ export default function GenreModal({ toggler, title, type, onClose, genreId }) {
                                   key={result.id}
                                   src={result.poster_path || result.backdrop_path}
                                   rating={result.vote_average < 2 || result.vote_average === null ? "5.2" : result.vote_average}
+                                  year={result.release_date || result.first_air_date || result.release_air_date}
                                 />
                               </Link>
                           ))}
