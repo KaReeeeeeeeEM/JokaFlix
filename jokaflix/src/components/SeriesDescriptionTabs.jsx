@@ -188,7 +188,8 @@ export default function SeriesDescriptionTabs({ seriesID }) {
       <div className="mt-4 p-4 rounded w-full h-[50vh] overflow-y-auto ">
       {activeTab === 0 && (
           <div className="flex flex-col md:flex-row md:flex-wrap items-start md:items-center justify-center md:justify-start">
-            {trailers.map(trailer => (
+            {trailers.length > 0 ? 
+            trailers.map(trailer => (
               <div key={trailer.id} className="w-[85vw] h-[200px] rounded-lg m-auto md:mx-2 mb-3 md:h-[250px] md:w-[450px]">
                 <iframe
                   width="100%"
@@ -201,14 +202,23 @@ export default function SeriesDescriptionTabs({ seriesID }) {
                   title={trailer.name}
                 ></iframe>
               </div>
-            ))}
+            ) 
+              )  :
+              <div className='w-full h-full m-auto text-left'>
+                  <h1 className='font-bold text-orange-600'>No Trailers available</h1>
+              </div>
+          }
           </div>
         )}
 
         <div className="mt-4 rounded h-[50vh] overflow-y-auto fixed">
           {activeTab === 1 && (
             <div className="flex flex-wrap items-center justify-center">
-              {relatedSeries.map(movie => (
+              {isLoading ? (
+                <div className="flex items-center justify-center bg-transparent w-full h-full rounded-xl mb-4 mx-1">
+                  <img src={progress} alt="progress" className="animate-spin w-8 h-8" />
+                </div>
+              ): relatedSeries.map(movie => (
                 <Link
                   key={movie.id}
                   onClick={() => {

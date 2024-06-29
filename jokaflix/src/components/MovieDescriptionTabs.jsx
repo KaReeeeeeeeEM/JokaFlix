@@ -196,8 +196,9 @@ export default function MovieDescriptionTabs({ movieID }) {
       <div className="mt-4 p-4 rounded w-full h-[50vh] overflow-y-auto ">
       {activeTab === 0 && (
           <div className="flex flex-col md:flex-row md:flex-wrap items-start md:items-center justify-center md:justify-start">
-            {trailers.map(trailer => (
-              <div key={trailer.id} className="w-[85vw] h-[200px] rounded-lg m-auto md:mx-2 mb-3 md:h-[250px] md:w-[450px]">
+            {trailers.length > 0 ? 
+            trailers.map(trailer => (
+              <div key={trailer.id} className="w-[85vw] h-[200px] rounded-lg m-auto md:mx-2 mb-3 md:h-[245px] md:w-[430px]">
                 <iframe
                   width="100%"
                   height="100%"
@@ -209,7 +210,12 @@ export default function MovieDescriptionTabs({ movieID }) {
                   title={trailer.name}
                 ></iframe>
               </div>
-            ))}
+            ) 
+              )  :
+              <div className='w-full h-full m-auto text-left'>
+                  <h1 className='font-bold text-orange-600'>No Trailers available</h1>
+              </div>
+          }
           </div>
         )}
 

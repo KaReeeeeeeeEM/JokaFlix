@@ -192,6 +192,11 @@ export default function MovieModal({ toggler, title, type, movieId, onClose, mov
                 </div>
               ) : (
                 <DialogPanel className="relative transform overflow-y-auto overflow-x-hidden rounded-lg bg-transparent text-left shadow-xl transition-all w-full lg:w-[98vw] h-[95vh] lg:h-[95vh]">
+                  {isLoading && (
+                    <div className="flex items-center justify-center bg-transparent w-full h-full rounded-xl mb-4 mx-1">
+                      <img src={progress} alt="progress" className="animate-spin w-8 h-8" />
+                    </div>
+                  )}
                   <div className="bg-transparent px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                     <div className="sm:flex sm:items-start">
                       <div className="text-center  sm:text-left">

@@ -237,6 +237,11 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                 </div>
               ) : (
                 <DialogPanel className="relative transform overflow-y-auto rounded-lg bg-transparent text-left shadow-xl transition-all w-[90vw] lg:w-[80vw] h-[95vh] lg:h-[90vh]">
+                    {isLoading && (
+                      <div className="flex items-center justify-center bg-transparent w-full h-full rounded-xl mb-4 mx-1">
+                        <img src={progress} alt="progress" className="animate-spin w-8 h-8" />
+                      </div>
+                    )}  
                    {openMovieModal && (
                       <SingleMovieModal
                         toggler={openMovieModal}
@@ -245,6 +250,14 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                         onClose={() => setOpenMovieModal(false)}
                       />
                     )}
+                     {openSeriesModal && (
+                        <SingleSeriesModal
+                          toggler={openSeriesModal}
+                          title={seriesTitle}
+                          seriesId={`/tv/${seriesId}`}
+                          onClose={() => setOpenSeriesModal(false)}
+                        />
+                      )}
                   <div className="bg-transparent px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                     <div className="sm:flex sm:items-start">
                       <div className="text-center sm:ml-4 sm:mt-0 sm:text-left">
@@ -253,7 +266,22 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                             (result.poster_path === null && result.backdrop_path === null) ?
                               ""
                               :
-                              <Link
+                             movieCategory === "/tv/popular" ? 
+                              (
+                                <Link
+                                onClick={() => {
+                                setSeriesId(result.id)
+                                setSeriesTitle(result.title)
+                                setOpenSeriesModal(true)
+                                }} >
+                                    <Card
+                                      key={result.id}
+                                      src={result.poster_path || result.backdrop_path}
+                                      rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
+                                    />
+                                </Link>
+                              )
+                              : (<Link
                                 onClick={() => {
                                 setMovieId(result.id)
                                 setMovieTitle(result.original_title)
@@ -264,7 +292,7 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                                     src={result.poster_path || result.backdrop_path}
                                     rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
                                   />
-                              </Link>
+                              </Link>)
                           ))}
                         </div>
                       </div>
