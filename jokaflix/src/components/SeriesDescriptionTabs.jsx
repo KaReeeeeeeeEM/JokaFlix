@@ -223,7 +223,7 @@ export default function SeriesDescriptionTabs({ seriesID }) {
                     setOpenSeriesModal(true);
                   }}
                 >
-                  <Card key={movie.id} src={movie.poster_path} rating={movie.vote_average < 2 ? "5.2" : movie.vote_average} />
+                  <Card key={movie.id} src={movie.poster_path} rating={movie.vote_average < 2 ? "5.2" : movie.vote_average} year={movie.first_air_date || movie.release_date} />
                 </Link>
               ))}
             </div>
