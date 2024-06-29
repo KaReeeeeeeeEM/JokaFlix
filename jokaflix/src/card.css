@@ -171,14 +171,14 @@
 
 @media (min-width: 768px) and (max-width: 1024px) {
   .card-container {
-    height: 20rem;
-    width: 13rem;
+    height: 18rem;
+    width: 12rem;
   }
 }
 
 @media (min-width: 1025px) {
   .card-container {
-    height: 25rem;
-    width: 15rem;
+    height: 24rem;
+    width: 14rem;
   }
 }

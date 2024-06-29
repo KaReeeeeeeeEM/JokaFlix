@@ -1,12 +1,10 @@
 import React from 'react';
 import imdb from '../assets/imdb.png';
 import hdIcon from '../assets/hdIcon.png';
-import video from '../assets/video.png'; 
 import star from '../assets/star.png';
-import CardLoader from './CardLoader';
 import '../card.css';
 
-const Card = ({ src, rating, loading, category, year }) => {
+const Card = ({ src, rating, category, year }) => {
   return (
     <div>
       {(
