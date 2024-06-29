@@ -22,7 +22,7 @@ const Card = ({ src, rating, category, year }) => {
 
     if(year1 - year2 > 0){
         return <img src={comingsoon} alt='hd' className='w-8 h-8' />
-    }else if (monthsApart > 2) {
+    }else if (monthsApart > 1) {
       return <img src={hdIcon} alt='hd' className='w-4 h-4' />
     } else if (monthsApart === 1) {
       return <img src={hdIcon} alt='hd' className='w-4 h-4' />
