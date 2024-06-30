@@ -25,7 +25,7 @@ const Card = ({ src, rating, category, year }) => {
     }else if (monthsApart >= 2) {
       return <img src={hdIcon} alt='hd' className='w-4 h-4' />
     } else if (monthsApart === 1) {
-      return <img src={hdIcon} alt='hd' className='w-4 h-4' />
+      return <img src={video} alt='recorded' className='w-4 h-4' />
     } else if(year1 > "2024"){
       return <img src={video} alt='hd' className='w-4 h-4' />
     } else {
