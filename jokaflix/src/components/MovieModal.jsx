@@ -208,7 +208,7 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                                       setMovieTitle(result.title)
                                       setOpenMovieModal(true)
                                       }} >
-                                        {result.poster_path && <Card
+                                        {result.poster_path && result.release_date && <Card
                                                       key={result.id}
                                                       src={result.poster_path || result.backdrop_path}
                                                       rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
@@ -222,7 +222,7 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                                   setSeriesTitle(result.title)
                                   setOpenSeriesModal(true)
                                   }} >
-                                     {result.poster_path && <Card
+                                     {result.poster_path && result.first_air_date && <Card
                                                   key={result.id}
                                                   src={result.poster_path || result.backdrop_path}
                                                   rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
