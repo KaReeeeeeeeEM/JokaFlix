@@ -208,12 +208,12 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                                       setMovieTitle(result.title)
                                       setOpenMovieModal(true)
                                       }} >
-                                        <Card
-                                          key={result.id}
-                                          src={result.poster_path || result.backdrop_path}
-                                          rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
-                                          year={result.release_date}
-                                        />
+                                        {result.poster_path && <Card
+                                                      key={result.id}
+                                                      src={result.poster_path || result.backdrop_path}
+                                                      rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
+                                                      year={result.release_date}
+                                                    />}
                                     </Link>
                                 ) : (
                                   <Link
@@ -222,12 +222,12 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                                   setSeriesTitle(result.title)
                                   setOpenSeriesModal(true)
                                   }} >
-                                      <Card
-                                        key={result.id}
-                                        src={result.poster_path || result.backdrop_path}
-                                        rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
-                                        year={result.first_air_date}
-                                      />
+                                     {result.poster_path && <Card
+                                                  key={result.id}
+                                                  src={result.poster_path || result.backdrop_path}
+                                                  rating={result.vote_average < 2 || result.vote_average === null  ? "5.2" : result.vote_average}
+                                                  year={result.first_air_date}
+                                                />}
                                   </Link>
                                 )
                             ))}
