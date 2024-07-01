@@ -113,7 +113,7 @@ export default function MovieModal({ toggler, title, seriesId, seasonID, onClose
                           </div>
                           <div className="flex w-full flex-wrap">
                             <div className="w-full flex items-center flex-wrap">
-                                <div className="w-[85vw] md:flex md:w-full items-center text-center flex-wrap md:justify-start rounded-lg mx-auto mb-3 md:mx-12">
+                                <div className="w-[85vw] md:flex md:w-full items-center text-center flex-wrap md:justify-evenly rounded-lg mx-auto mb-3 md:mx-12">
                               {episodes.map((episode, index) => (
                                   <div className="flex flex-col justify-start items-start mr-2">
                                     <div
@@ -125,7 +125,9 @@ export default function MovieModal({ toggler, title, seriesId, seasonID, onClose
                                       alt="episode poster"
                                       className="w-full h-[200px] md:w-[400px] md:h-[250px] rounded-lg mr-2"
                                     >
-                                      <img src={play} alt="play icon" className="w-8 h-8 md:w-12 md:h-12 relative left-[47%] top-[47%] md:left-[44%] md:top-[44%] rounded-full" />
+                                      <a href={`https://autoembed.co/tv/tmdb/${seriesId.slice(4,)}-${title.slice(7,)}-${episode.episode_number}`}>
+                                        <img src={play} alt="play icon" className="w-8 h-8 md:w-12 md:h-12 relative left-[47%] top-[47%] md:left-[44%] md:top-[44%] rounded-full" />
+                                      </a>
                                     </div>
                                     <h1 className="font-bold text-white">
                                         Ep <span className='text-orange-600'>{episode.episode_number}</span>  |   {episode.name}
