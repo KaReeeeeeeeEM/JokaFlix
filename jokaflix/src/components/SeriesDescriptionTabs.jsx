@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import Card from './Card';
 import PlainCard from './PlainCard';
 import SingleSeriesModal from './SingleSeriesModal';
+import SingleSeasonModal from './SingleSeasonModal';
 import ImagePreviewModal from './ImagePreviewModal';  // Import the new modal
 import CardLoader from './CardLoader';
 import progress from '../assets/progress.png';
@@ -16,9 +17,11 @@ export default function SeriesDescriptionTabs({ seriesID }) {
   const [trailers, setTrailers] = useState([]);
   const [seriesTitle, setSeriesTitle] = useState("");
   const [openSeriesModal, setOpenSeriesModal] = useState(false);
+  const [openSeasonModal, setOpenSeasonModal] = useState(false);
   const [relatedSeries, setRelatedSeries] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [cast, setCast] = useState([]);
+  const [seasonId, setSeasonId] = useState(null);
   const [images, setImages] = useState({ backdrops: [], posters: [] });
 
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
@@ -170,6 +173,15 @@ export default function SeriesDescriptionTabs({ seriesID }) {
               onClose={() => setOpenSeriesModal(false)}
             />
           )}
+          {openSeasonModal && (
+            <SingleSeasonModal
+              toggler={openSeasonModal}
+              title={seriesTitle}
+              seriesId={seriesID}
+              seasonID={seasonId}
+              onClose={() => setOpenSeasonModal(false)}
+            />
+          )}
           {tabs.map((tab, index) => (
             <li
               key={index}
@@ -310,13 +322,24 @@ export default function SeriesDescriptionTabs({ seriesID }) {
           <div className="flex flex-col md:flex-row flex-wrap items-start md:items-center justify-center md:justify-start">
             {seriesByCategory.map((season, index) => (
               <div key={index} className="w-[85vw] md:flex md:w-full md:justify-start md:overflow-x-auto rounded-lg m-auto mb-3 md:mx-8">
-                {season.seasons !== null && season.seasons.map(poster =>
-                  poster.poster_path !== null &&
-                  (<div className='flex flex-col justify-start items-start mr-2'>
-                    <div key={poster.id} style={{ background: `url(https://image.tmdb.org/t/p/original${poster.poster_path})`, backgroundPosition: "center", backgroundSize: "cover" }} alt="poster" className='w-full h-[200px] md:w-[400px] md:h-[250px] rounded-lg mr-2'></div>
-                    <h1 className='font-bold text-white'>{poster.name + (poster.air_date !== null ? (" | " + poster.air_date.slice(0, 4)) : " ")}</h1>
-                    <p className='mb-8 text-gray-600'>{poster.episode_count + " episodes"}</p>
-                  </div>)
+                {season.seasons !== null && season.seasons.map((poster,key) =>
+                  poster.poster_path !== null && poster.name !== "Specials" &&
+                  (
+                  <Link 
+                      key={poster.id}
+                      onClick={() => {
+                        setSeriesId(key);
+                        setSeriesTitle(poster.name);
+                        setOpenSeasonModal(true);
+                      }}
+                      >
+                    <div className='flex flex-col justify-start items-start mr-2'>
+                      <div key={poster.id} style={{ background: `url(https://image.tmdb.org/t/p/original${poster.poster_path})`, backgroundPosition: "center", backgroundSize: "cover" }} alt="poster" className='w-full h-[200px] md:w-[400px] md:h-[250px] rounded-lg mr-2'></div>
+                      <h1 className='font-bold text-white'>{poster.name + (poster.air_date !== null ? (" | " + poster.air_date.slice(0, 4)) : " ")}</h1>
+                      <p className='mb-8 text-gray-600'>{poster.episode_count + " episodes"}</p>
+                    </div>
+                  </Link>
+                  )
                 )}
               </div>
             ))}
