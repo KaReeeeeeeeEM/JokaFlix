@@ -231,7 +231,7 @@ export default function MovieDescriptionTabs({ movieID }) {
                     setOpenMovieModal(true);
                   }}
                 >
-                  <Card key={movie.id} src={movie.poster_path} rating={movie.vote_average < 2 ? "5.2" : movie.vote_average} year={movie.release_date} />
+                  {movie.poster_path && movie.release_date && <Card key={movie.id} src={movie.poster_path} rating={movie.vote_average < 2 ? "5.2" : movie.vote_average} year={movie.release_date} />}
                 </Link>
               ))}
             </div>

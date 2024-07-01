@@ -16,7 +16,11 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
   const [searchParam, setSearchParam] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [autoplay, setAutoplay] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [trailers, setTrailers]=useState([]);
   const searchInputRef = useRef(null);
+  const videoRef = useRef(null);
 
   useEffect(() => {
     if (type === 'search' && open) {
@@ -59,7 +63,7 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
         let seriesDetails = [];
         setIsLoading(true);
         const response = await axios.get(
-          `https://api.themoviedb.org/3${id}?api_key=035c0f1a7347b310a5b95929826fc81f`
+          `https://api.themoviedb.org/3/${id}?api_key=035c0f1a7347b310a5b95929826fc81f`
         );
         const seriesData = response.data;
         seriesDetails = [seriesData];
@@ -72,7 +76,51 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
     }
     return [];
   };
+
+  useEffect(() => {
+    const getTrailers = async () => {
+      const trailerList = await fetchTrailers(seriesId);
+      setTrailers(trailerList);
+    };
+
+    
+      getTrailers();
+    
+  }, [seriesId]);
+
+  const fetchTrailers = async (seriesId) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get(`https://api.themoviedb.org/3/${seriesId}/videos?api_key=035c0f1a7347b310a5b95929826fc81f`);
+      return response.data.results.filter(video => video.type === 'Trailer');
+    } catch (error) {
+      setIsLoading(false);
+      console.error('Error fetching trailers:', error);
+      return [];
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
+  const playMovie = () => {
+    setAutoplay(true);
+  };
+
+  const handleMouseEnter = () => {
+    trailers.length>0 && setAutoplay(true);
+    if (videoRef.current) {
+      setCurrentTime(videoRef.current.currentTime);
+      videoRef.current.play();
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setAutoplay(false);
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  };
 
   return (
     <Transition show={open}>
@@ -117,11 +165,27 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
                         <div className="flex flex-wrap items-center justify-center mt-2">
                           {seriesByCategory.map((result) => (
                             // single series display
-                            <div className='w-screen md:w-full h-auto flex flex-col mx-2'>
-                              <div className='w-[93vw] h-[50vh] lg:h-[70vh]'>
-                                <div className="absolute top-8 right-0 h-[55vh] lg:h-[70vh] w-full inset-0 bg-opacity-60 bg-gray-900 blur-md"></div>
-                                <div style={{backgroundImage:`url(https://image.tmdb.org/t/p/original${result.poster_path})`}} className='w-full h-full bg-center bg-cover rounded-lg'></div>
-                              </div>
+                            <div key={result.id} className='w-screen md:w-full h-auto flex flex-col mx-2'>
+                            <div 
+                              className='relative w-[93vw] h-[50vh] lg:h-[70vh] bg-cover bg-center cursor-pointer rounded-lg' 
+                              onMouseEnter={handleMouseEnter}
+                              onMouseLeave={handleMouseLeave}
+                              style={{backgroundImage:`url(https://image.tmdb.org/t/p/original${result.poster_path})`}}
+                            >
+                             <div className="absolute right-0 h-[55vh] lg:h-[70vh] w-full inset-0 bg-opacity-60 bg-gray-900 blur-md"></div>
+                              {autoplay && trailers && (
+                                <iframe
+                                  width="100%"
+                                  height="100%"
+                                  className='absolute w-[93vw] h-[50vh] lg:h-[70vh] object-cover rounded-lg'
+                                  src={`https://www.youtube.com/embed/${trailers[0].key}?autoplay=1&start=${currentTime}`}
+                                  frameBorder="0"
+                                  allow="accelerometer; subtitles; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                  title={result.title}
+                                ></iframe>
+                              )}
+                            </div>
                               <div className='flex items-center'>
                                 <img src={imdb} alt='imdb' className='w-[4rem] h-[4rem]' />
                                 {result.vote_average && <h1 className='flex items-center text-lg text-white font-bold mx-2'><span className='w-6 h-4'><img src={star} alt="star" className='w-4 h-4 ml-1' /></span>{result.vote_average < 1 ? 5.2 : Math.ceil(result.vote_average * 10)/10} <span className='mx-2 text-orange-600'>|</span> </h1>}
