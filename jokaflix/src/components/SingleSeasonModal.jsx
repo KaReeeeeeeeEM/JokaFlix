@@ -154,7 +154,7 @@ export default function SingleSeasonModal({ toggler, title, seriesId, seasonID, 
                                             setOpenMediaPlayer(true);
                                         }}
                                         >
-                                        <img src={play} alt="play icon" className="w-8 h-8 md:w-12 md:h-12 relative left-[47%] top-[47%] md:left-[44%] md:top-[44%] cursor-pointer rounded-full" />
+                                        <img src={play} alt="play icon" className="w-8 h-8 md:w-12 md:h-12 relative left-[47%] top-[96px] md:left-[44%] md:top-[44%] cursor-pointer rounded-full" />
                                       </Link>
                                     </div>
                                     <h1 className="font-bold text-white">

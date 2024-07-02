@@ -192,7 +192,7 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
                                 <p className='text-xl font-bold text-orange-300'>{result.first_air_date.slice(0,4)}</p>
                                 <span className='mx-2 text-lg font-bold text-orange-600'></span>
                               </div>
-                              <div className='flex flex-col justify-center items-start text-left'>
+                              <div className='flex flex-col justify-center items-start text-left mx-2 md:mx-0'>
                                 <p className='text-xl font-bold lg:text-2xl text-orange-600'>{result.original_name}</p>
                                 <div className='flex mb-2'>
                                   <h2 className='uppercase text-orange-300 text-lg'>{result.original_language}</h2>
