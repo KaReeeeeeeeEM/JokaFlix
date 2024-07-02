@@ -5,14 +5,22 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react';
 import { XCircleIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
+import MediaPlayer from './MediaPlayer';
 import progress from '../assets/progress.png';
 import play from '../assets/play.gif';
+import { Link } from 'react-router-dom';
 
 export default function MovieModal({ toggler, title, seriesId, seasonID, onClose }) {
   const [open, setOpen] = useState(toggler);
   const [episodes, setEpisodes] = useState([]);
   const [backdrops, setBackdrops] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [seasonId, setSeasonId] = useState(null);
+  const [seriesID, setSeriesID] = useState(null);
+  const [seriesTitle, setSeriesTitle] = useState("");
+  const [episodeNumber, setEpisodeNumber] = useState(0);
+  const [openSeasonModal, setOpenSeasonModal] = useState(false);
+  const [openMediaPlayer, setOpenMediaPlayer] = useState(false);
 
   useEffect(() => {
     setOpen(toggler);
@@ -29,7 +37,7 @@ export default function MovieModal({ toggler, title, seriesId, seasonID, onClose
         try {
           setIsLoading(true);
           const response = await axios.get(
-            `https://api.themoviedb.org/3${seriesId}/season/${title.slice(6,)}?api_key=035c0f1a7347b310a5b95929826fc81f`
+            `https://api.themoviedb.org/3${seriesId}/season/${seasonID}?api_key=035c0f1a7347b310a5b95929826fc81f`
           );
 
           const backdropsResponse = await axios.get(
@@ -97,6 +105,18 @@ export default function MovieModal({ toggler, title, seriesId, seasonID, onClose
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
               <DialogPanel className="relative transform overflow-y-auto overflow-x-hidden rounded-lg bg-transparent text-left shadow-xl transition-all w-full lg:w-[98vw] h-[95vh] lg:h-[95vh]">
+                
+                     {openMediaPlayer && (
+                        <MediaPlayer
+                          toggler={openMediaPlayer}
+                          seriesTitle={seriesTitle}
+                          seriesId={seriesID}
+                          episodeNumber={episodeNumber}
+                          seasonId={seasonId}
+                          onClose={() => setOpenMediaPlayer(false)}
+                        />
+                      )}
+                
                 {isLoading ? (
                   <div className="flex items-center justify-center bg-transparent w-full h-full rounded-xl mb-4 mx-1">
                     <img src={progress} alt="progress" className="animate-spin w-8 h-8" />
@@ -125,9 +145,17 @@ export default function MovieModal({ toggler, title, seriesId, seasonID, onClose
                                       alt="episode poster"
                                       className="w-full h-[200px] md:w-[400px] md:h-[250px] rounded-lg mr-2"
                                     >
-                                      <a href={`https://autoembed.co/tv/tmdb/${seriesId.slice(4,)}-${title.slice(7,)}-${episode.episode_number}`}>
+                                      <Link 
+                                        onClick={() => {
+                                            setSeriesID(seriesId.slice(4,));
+                                            setSeriesTitle(`${title} E${episode.episode_number}`);
+                                            setSeasonId(index+1);
+                                            setEpisodeNumber(episode.episode_number);
+                                            setOpenMediaPlayer(true);
+                                        }}
+                                        >
                                         <img src={play} alt="play icon" className="w-8 h-8 md:w-12 md:h-12 relative left-[47%] top-[47%] md:left-[44%] md:top-[44%] rounded-full" />
-                                      </a>
+                                      </Link>
                                     </div>
                                     <h1 className="font-bold text-white">
                                         Ep <span className='text-orange-600'>{episode.episode_number}</span>  |   {episode.name}

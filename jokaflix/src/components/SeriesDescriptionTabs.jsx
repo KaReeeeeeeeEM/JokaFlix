@@ -328,7 +328,7 @@ export default function SeriesDescriptionTabs({ seriesID }) {
                   <Link 
                       key={poster.id}
                       onClick={() => {
-                        setSeriesId(key);
+                        setSeasonId(key);
                         setSeriesTitle(poster.name);
                         setOpenSeasonModal(true);
                       }}
