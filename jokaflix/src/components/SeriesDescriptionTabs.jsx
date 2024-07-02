@@ -328,12 +328,12 @@ export default function SeriesDescriptionTabs({ seriesID }) {
                   <Link 
                       key={poster.id}
                       onClick={() => {
-                        setSeasonId(key);
+                        setSeasonId(key === 0 ? key+1 : key);
                         setSeriesTitle(poster.name);
                         setOpenSeasonModal(true);
                       }}
                       >
-                    <div className='flex flex-col justify-start items-start mr-2'>
+                    <div className='flex flex-col hover:scale-105 transition ease-in-out duration-500 cursor-pointer justify-start items-start mr-2'>
                       <div key={poster.id} style={{ background: `url(https://image.tmdb.org/t/p/original${poster.poster_path})`, backgroundPosition: "center", backgroundSize: "cover" }} alt="poster" className='w-full h-[200px] md:w-[400px] md:h-[250px] rounded-lg mr-2'></div>
                       <h1 className='font-bold text-white'>{poster.name + (poster.air_date !== null ? (" | " + poster.air_date.slice(0, 4)) : " ")}</h1>
                       <p className='mb-8 text-gray-600'>{poster.episode_count + " episodes"}</p>

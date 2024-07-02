@@ -48,7 +48,7 @@ export default function MovieModal({ seriesId, seriesTitle, episodeNumber, seaso
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gray-900 bg-opacity-90 transition-opacity" />
+          <div className="fixed inset-0 bg-black bg-opacity-100 transition-opacity" />
         </TransitionChild>
 
         <div className="fixed inset-0 z-10 w-screen overflow-y-auto">

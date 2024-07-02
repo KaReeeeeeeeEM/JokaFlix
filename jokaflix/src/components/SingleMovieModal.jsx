@@ -124,7 +124,7 @@ export default function MovieModal({ toggler, title, type, movieId, onClose }) {
   };
 
   const playMovie = () => {
-    trailers.length>0 && setAutoplay(true);
+    window.location.href = `https://autoembed.co/movie/tmdb/${movieId.slice(7,)}`;
   };
 
   const handleMouseEnter = () => {

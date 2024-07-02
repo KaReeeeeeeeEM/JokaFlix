@@ -10,7 +10,7 @@ import progress from '../assets/progress.png';
 import play from '../assets/play.gif';
 import { Link } from 'react-router-dom';
 
-export default function MovieModal({ toggler, title, seriesId, seasonID, onClose }) {
+export default function SingleSeasonModal({ toggler, title, seriesId, seasonID, onClose }) {
   const [open, setOpen] = useState(toggler);
   const [episodes, setEpisodes] = useState([]);
   const [backdrops, setBackdrops] = useState([]);
@@ -112,7 +112,7 @@ export default function MovieModal({ toggler, title, seriesId, seasonID, onClose
                           seriesTitle={seriesTitle}
                           seriesId={seriesID}
                           episodeNumber={episodeNumber}
-                          seasonId={seasonId}
+                          seasonId={seasonID}
                           onClose={() => setOpenMediaPlayer(false)}
                         />
                       )}
@@ -135,7 +135,7 @@ export default function MovieModal({ toggler, title, seriesId, seasonID, onClose
                             <div className="w-full flex items-center flex-wrap">
                                 <div className="w-[85vw] md:flex md:w-full items-center text-center flex-wrap md:justify-evenly rounded-lg mx-auto mb-3 md:mx-12">
                               {episodes.map((episode, index) => (
-                                  <div className="flex flex-col justify-start items-start mr-2">
+                                  <div className="flex flex-col hover:scale-105 transition ease-in-out duration-500 justify-start items-start mr-2">
                                     <div
                                       style={{
                                         background: `url(${getEpisodeImage(episode)})`,
@@ -149,12 +149,12 @@ export default function MovieModal({ toggler, title, seriesId, seasonID, onClose
                                         onClick={() => {
                                             setSeriesID(seriesId.slice(4,));
                                             setSeriesTitle(`${title} E${episode.episode_number}`);
-                                            setSeasonId(index+1);
+                                            setSeasonId(title.slice((title.length - 1),));
                                             setEpisodeNumber(episode.episode_number);
                                             setOpenMediaPlayer(true);
                                         }}
                                         >
-                                        <img src={play} alt="play icon" className="w-8 h-8 md:w-12 md:h-12 relative left-[47%] top-[47%] md:left-[44%] md:top-[44%] rounded-full" />
+                                        <img src={play} alt="play icon" className="w-8 h-8 md:w-12 md:h-12 relative left-[47%] top-[47%] md:left-[44%] md:top-[44%] cursor-pointer rounded-full" />
                                       </Link>
                                     </div>
                                     <h1 className="font-bold text-white">
