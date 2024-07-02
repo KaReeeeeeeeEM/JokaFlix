@@ -158,7 +158,7 @@ export default function SingleSeasonModal({ toggler, title, seriesId, seasonID, 
                                       </Link>
                                     </div>
                                     <h1 className="font-bold text-white">
-                                        Ep <span className='text-orange-600'>{episode.episode_number}</span>  |   {episode.name}
+                                        Ep <span className='text-orange-600'>{episode.episode_number}</span>  |  {episode.name}
                                     </h1>
                                     <p className="mb-8 text-gray-600">
                                       {episode.runtime > 60
