@@ -28,7 +28,7 @@ const Categories = () => {
     const fetchGenres = async () => {
       try {
         const response = await axios.get(
-          `https://api.themoviedb.org/3/genre/movie/list?api_key=035c0f1a7347b310a5b95929826fc81f&language=en-US`
+          `https://api.themoviedb.org/3/genre/movie/list?api_key=${process.env.REACT_APP_TMDB_API_KEY}&language=en-US`
         );
         setGenres(response.data.genres);
       } catch (error) {
@@ -58,14 +58,14 @@ const Categories = () => {
   const fetchGenreCover = async () => {
     try {
       const allGenres = await axios.get(
-        `https://api.themoviedb.org/3/genre/movie/list?api_key=035c0f1a7347b310a5b95929826fc81f&language=en-US`
+        `https://api.themoviedb.org/3/genre/movie/list?api_key=${process.env.REACT_APP_TMDB_API_KEY}&language=en-US`
       );
       const genresData = allGenres.data.genres;
       const genreCovers = {};
 
       for (const genre of genresData) {
         const response = await axios.get(
-          `https://api.themoviedb.org/3/discover/movie?api_key=035c0f1a7347b310a5b95929826fc81f&with_genres=${genre.id}&language=en-US&page=1`
+          `https://api.themoviedb.org/3/discover/movie?api_key=${process.env.REACT_APP_TMDB_API_KEY}&with_genres=${genre.id}&language=en-US&page=1`
         );
         const moviesData = response.data.results;
         if (moviesData.length >= 3) {
@@ -85,7 +85,7 @@ const Categories = () => {
         let allMovies = [];
         for (let page = 1; page <= pageCount; page++) {
           const response = await axios.get(
-            `https://api.themoviedb.org/3/${category}?api_key=035c0f1a7347b310a5b95929826fc81f&language=en-US&page=${page}`
+            `https://api.themoviedb.org/3/${category}?api_key=${process.env.REACT_APP_TMDB_API_KEY}&language=en-US&page=${page}`
           );
           const moviesData = response.data.results;
           allMovies = [...allMovies, ...moviesData];

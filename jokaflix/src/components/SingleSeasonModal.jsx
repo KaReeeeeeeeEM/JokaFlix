@@ -37,11 +37,11 @@ export default function SingleSeasonModal({ toggler, title, seriesId, seasonID, 
         try {
           setIsLoading(true);
           const response = await axios.get(
-            `https://api.themoviedb.org/3${seriesId}/season/${seasonID}?api_key=035c0f1a7347b310a5b95929826fc81f`
+            `https://api.themoviedb.org/3${seriesId}/season/${seasonID}?api_key=${process.env.REACT_APP_TMDB_API_KEY}`
           );
 
           const backdropsResponse = await axios.get(
-            `https://api.themoviedb.org/3${seriesId}/images?api_key=035c0f1a7347b310a5b95929826fc81f`
+            `https://api.themoviedb.org/3${seriesId}/images?api_key=${process.env.REACT_APP_TMDB_API_KEY}`
           );
 
           if (response.data && response.data.episodes) {

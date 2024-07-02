@@ -51,7 +51,7 @@ const Showcase = () => {
         
         for (let page = 1; page <= pageCount; page++) {
           const response = await axios.get(
-            `https://api.themoviedb.org/3/movie/${category}?api_key=035c0f1a7347b310a5b95929826fc81f&language=en-US&page=${page}`
+            `https://api.themoviedb.org/3/movie/${category}?api_key=${process.env.REACT_APP_TMDB_API_KEY}&language=en-US&page=${page}`
           );
          
           const moviesData = response.data.results;

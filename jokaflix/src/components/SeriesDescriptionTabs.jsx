@@ -32,7 +32,7 @@ export default function SeriesDescriptionTabs({ seriesID }) {
       try {
         setIsLoading(true);
         const response = await axios.get(
-          `https://api.themoviedb.org/3/${seriesID}/images?api_key=035c0f1a7347b310a5b95929826fc81f`
+          `https://api.themoviedb.org/3/${seriesID}/images?api_key=${process.env.REACT_APP_TMDB_API_KEY}`
         );
         setImages(response.data);
       } catch (error) {
@@ -51,7 +51,7 @@ export default function SeriesDescriptionTabs({ seriesID }) {
       try {
         setIsLoading(true);
         const response = await axios.get(
-          `https://api.themoviedb.org/3/${seriesID}/credits?api_key=035c0f1a7347b310a5b95929826fc81f`
+          `https://api.themoviedb.org/3/${seriesID}/credits?api_key=${process.env.REACT_APP_TMDB_API_KEY}`
         );
         setCast(response.data.cast.filter(cast => cast.known_for_department === 'Acting'));
       } catch (error) {
@@ -79,7 +79,7 @@ export default function SeriesDescriptionTabs({ seriesID }) {
   const fetchTrailers = async (seriesId) => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`https://api.themoviedb.org/3/${seriesId}/videos?api_key=035c0f1a7347b310a5b95929826fc81f`);
+      const response = await axios.get(`https://api.themoviedb.org/3/${seriesId}/videos?api_key=${process.env.REACT_APP_TMDB_API_KEY}`);
       return response.data.results.filter(video => video.type === 'Trailer');
     } catch (error) {
       setIsLoading(false);
@@ -103,7 +103,7 @@ export default function SeriesDescriptionTabs({ seriesID }) {
   }, [seriesID, activeTab]);
 
   const fetchRelatedSeries = async (seriesId) => {
-    const response = await axios.get(`https://api.themoviedb.org/3${seriesId}/similar?api_key=035c0f1a7347b310a5b95929826fc81f`);
+    const response = await axios.get(`https://api.themoviedb.org/3${seriesId}/similar?api_key=${process.env.REACT_APP_TMDB_API_KEY}`);
     return response.data.results;
   };
 
@@ -132,7 +132,7 @@ export default function SeriesDescriptionTabs({ seriesID }) {
         let movieDetails = [];
         setIsLoading(true);
         const response = await axios.get(
-          `https://api.themoviedb.org/3${id}?api_key=035c0f1a7347b310a5b95929826fc81f`
+          `https://api.themoviedb.org/3${id}?api_key=${process.env.REACT_APP_TMDB_API_KEY}`
         );
         const moviesData = response.data;
         movieDetails = [moviesData];
