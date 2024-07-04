@@ -51,7 +51,7 @@ export default function SeriesDescriptionTabs({ seriesID }) {
       try {
         setIsLoading(true);
         const response = await axios.get(
-          `https://api.themoviedb.org/3/${seriesID}/credits?api_key=${process.env.REACT_APP_TMDB_API_KEY}`
+          `https://api.themoviedb.org/3${seriesID}/credits?api_key=${process.env.REACT_APP_TMDB_API_KEY}`
         );
         setCast(response.data.cast.filter(cast => cast.known_for_department === 'Acting'));
       } catch (error) {

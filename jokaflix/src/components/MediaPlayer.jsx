@@ -35,7 +35,7 @@ export default function MovieModal({ seriesId, seriesTitle, episodeNumber, seaso
     setOpen(true); 
   };
  
-  console.log(`https://autoembed.co/tv/tmdb/${seriesId}-${seasonId}-${episodeNumber}`);
+  // console.log(`https://autoembed.co/tv/tmdb/${seriesId}-${seasonId}-${episodeNumber}`);
 
   return (
     <Transition show={open}>
