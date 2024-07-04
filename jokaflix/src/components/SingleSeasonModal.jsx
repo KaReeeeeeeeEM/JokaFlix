@@ -161,9 +161,11 @@ export default function SingleSeasonModal({ toggler, title, seriesId, seasonID, 
                                         Ep <span className='text-orange-600'>{episode.episode_number}</span>  |  {episode.name}
                                     </h1>
                                     <p className="mb-8 text-gray-600">
-                                      {episode.runtime > 60
+                                      {episode.runtime ? (episode.runtime > 60
                                         ? Math.floor(episode.runtime / 60) + 'hrs ' + (episode.runtime % 60) + 'mins '
-                                        : episode.runtime + 'mins'}
+                                        : episode.runtime + 'mins') :
+                                        "Coming soon"
+                                        }
                                     </p>
                                   </div>
                               ))}
