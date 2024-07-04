@@ -29,7 +29,7 @@ export default function MovieDescriptionTabs({ movieID }) {
       try {
         setIsLoading(true);
         const response = await axios.get(
-          `https://api.themoviedb.org/3/${movieID}/images?api_key=${process.env.REACT_APP_TMDB_API_KEY}`
+          `https://api.themoviedb.org/3${movieID}/images?api_key=${process.env.REACT_APP_TMDB_API_KEY}`
         );
         setImages(response.data);
       } catch (error) {
@@ -48,7 +48,7 @@ export default function MovieDescriptionTabs({ movieID }) {
       try {
         setIsLoading(true);
         const response = await axios.get(
-          `https://api.themoviedb.org/3/${movieID}/credits?api_key=${process.env.REACT_APP_TMDB_API_KEY}`
+          `https://api.themoviedb.org/3${movieID}/credits?api_key=${process.env.REACT_APP_TMDB_API_KEY}`
         );
         setCast(response.data.cast.filter(cast => cast.known_for_department === 'Acting'));
       } catch (error) {
@@ -76,7 +76,7 @@ export default function MovieDescriptionTabs({ movieID }) {
   const fetchTrailers = async (movieId) => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`https://api.themoviedb.org/3/${movieId}/videos?api_key=${process.env.REACT_APP_TMDB_API_KEY}`);
+      const response = await axios.get(`https://api.themoviedb.org/3${movieId}/videos?api_key=${process.env.REACT_APP_TMDB_API_KEY}`);
       return response.data.results.filter(video => video.type === 'Trailer');
     } catch (error) {
       setIsLoading(false);

@@ -63,7 +63,7 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
         let seriesDetails = [];
         setIsLoading(true);
         const response = await axios.get(
-          `https://api.themoviedb.org/3/${id}?api_key=${process.env.REACT_APP_TMDB_API_KEY}`
+          `https://api.themoviedb.org/3${id}?api_key=${process.env.REACT_APP_TMDB_API_KEY}`
         );
         const seriesData = response.data;
         seriesDetails = [seriesData];
@@ -91,7 +91,7 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
   const fetchTrailers = async (seriesId) => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`https://api.themoviedb.org/3/${seriesId}/videos?api_key=${process.env.REACT_APP_TMDB_API_KEY}`);
+      const response = await axios.get(`https://api.themoviedb.org/3${seriesId}/videos?api_key=${process.env.REACT_APP_TMDB_API_KEY}`);
       return response.data.results.filter(video => video.type === 'Trailer');
     } catch (error) {
       setIsLoading(false);
