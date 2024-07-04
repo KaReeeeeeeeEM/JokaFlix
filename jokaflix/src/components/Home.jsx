@@ -130,7 +130,7 @@ const Home = () => {
                 <div className='w-full px-8 lg:px-12 absolute top-[65vh] md:top-[70vh] lg:top-[60vh] flex flex-col justify-between items-left'>
                     <h1 className='text-3xl md:text-4xl text-orange-400 font-extrabold'>{popularMovies[coverMovie].original_title }</h1>
                     <h2 className='text-md text-gray-300 font-semibold md:w-1/2'>
-                       {(popularMovies[coverMovie].overview).length > 20 ? (popularMovies[coverMovie].overview).slice(0,50) + " ... " : popularMovies[coverMovie].overview }
+                       {(popularMovies[coverMovie].overview).length > 20 ? (popularMovies[coverMovie].overview).slice(0,70) + " ... " : popularMovies[coverMovie].overview }
                     </h2>
                 </div>
                 <div className='w-full px-8 md:px-12 absolute top-[80vh] md:top-[80vh] lg:top-[80vh] flex items-center lg:text-lg'>
