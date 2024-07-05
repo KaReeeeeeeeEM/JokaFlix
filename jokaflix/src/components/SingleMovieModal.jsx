@@ -4,7 +4,7 @@ import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@
 import { XCircleIcon } from '@heroicons/react/24/outline';
 import MovieDescriptionTabs from './MovieDescriptionTabs';
 import axios from 'axios';
-import Card from './Card';
+import MediaPlayer from './MediaPlayer';
 import imdb from '../assets/imdb.png';
 import star from '../assets/star.png';
 import progress from '../assets/progress.png';
@@ -21,6 +21,9 @@ export default function MovieModal({ toggler, title, type, movieId, onClose }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [downloadTitle, setDownloadTitle] = useState(null);
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
+  const [openMediaPlayer,setOpenMediaPlayer] = useState(false);
+  const [movieID,setMovieID] = useState(null);
+  const [movieTitle,setMovieTitle] = useState(null);
   const searchInputRef = useRef(null);
   const videoRef = useRef(null);
 
@@ -193,6 +196,14 @@ export default function MovieModal({ toggler, title, type, movieId, onClose }) {
                             onClose={() => setOpenDownloadModal(false)}
                           />
                         )}
+                        {openMediaPlayer && (
+                            <MediaPlayer
+                              toggler={openMediaPlayer}
+                              movieTitle={movieTitle}
+                              movieId={movieID}
+                              onClose={() => setOpenMediaPlayer(false)}
+                            />
+                      )}
                         {moviesByCategory.map((result) => (
                           <div key={result.id} className='w-screen md:w-full h-auto flex flex-col mx-2'>
                             <div 
@@ -235,7 +246,11 @@ export default function MovieModal({ toggler, title, type, movieId, onClose }) {
                               <p className='text-sm md:text-lg text-gray-400 ml-1 md:ml-0'>{result.overview}</p>
                             </div>
                             <div className='w-full px-2 md:px-0 flex items-center justify-start lg:text-lg'>
-                              <button onClick={playMovie} className='px-12 py-2  bg-orange-500 text-center text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
+                              <button  onClick={() => {
+                                            setMovieTitle(title);
+                                            setMovieID(movieId.slice(7,))
+                                            setOpenMediaPlayer(true);
+                                        }} className='px-12 py-2  bg-orange-500 text-center text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
                               <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
                               </svg>

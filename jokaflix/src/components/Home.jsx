@@ -15,6 +15,7 @@ import NowPlaying from './NowPlaying';
 import Popular from './Popular';
 import Series from './Series';
 import DownloadModal from './DownloadModal';
+import MediaPlayer from './MediaPlayer';
 
 const Home = () => {
     const [popularMovies, setPopularMovies] = useState([]);
@@ -29,6 +30,7 @@ const Home = () => {
     const profilePicture = urlSearchParams.get("profile");
     const [downloadTitle, setDownloadTitle] = useState(null);
     const [openDownloadModal, setOpenDownloadModal] = useState(false);
+    const [openMediaPlayer, setOpenMediaPlayer] = useState(false);
     const [selectedMovieId, setSelectedMovieId] = useState(null);
     const { user } = useParams();
 
@@ -121,6 +123,14 @@ const Home = () => {
                 onClose={() => setOpenSearch(false)}
                 />
                 )}
+                {openMediaPlayer && (
+                      <MediaPlayer
+                        toggler={openMediaPlayer}
+                        movieTitle={popularMovies[coverMovie].original_title}
+                        movieId={popularMovies[coverMovie].id}
+                        onClose={() => setOpenMediaPlayer(false)}
+                      />
+                )}
             <div className="absolute top-0 h-screen w-full inset-0 bg-opacity-60 bg-black blur-md"></div>
             <div className='w-full h-screen bg-gray-900' style={{backgroundImage:`url(https://image.tmdb.org/t/p/original${popularMovies[coverMovie].poster_path || popularMovies[coverMovie].backdrop_path})`, backgroundPosition:"center", backgroundSize:"cover", backgroundRepeat:"no-repeat"}}>
             {/* <div className="absolute bottom-0 h-1/6 w-full inset-0 bg-opacity-60 bg-gray-900 blur-md"></div> */}
@@ -144,7 +154,7 @@ const Home = () => {
                     </h2>
                 </div>
                 <div className='w-full px-8 md:px-12 absolute top-[80vh] md:top-[80vh] lg:top-[80vh] flex items-center lg:text-lg'>
-                        <button onClick={playMovie} className='py-2 pl-4 md:py-4 md:px-16 pr-6 bg-orange-500 text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
+                        <button onClick={() => setOpenMediaPlayer(true)} className='py-2 pl-4 md:py-4 md:px-16 pr-6 bg-orange-500 text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
                             <span className='px-2'>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
