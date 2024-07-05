@@ -15,6 +15,7 @@
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.23.1",
     "react-scripts": "5.0.1",
+    "react-user-onboarding": "^0.0.3",
     "styled-components": "^6.1.11",
     "swiper": "^11.1.4",
     "tw-elements-react": "^1.0.0-alpha-end",

@@ -1,0 +1,18 @@
+/* Onboarding button customization */
+.user-onboarding-modal .btn-primary {
+    background-color: #ea580c; /* orange-600 */
+    color: #ffffff; /* white */
+  }
+  
+  /* Tooltip responsiveness */
+  @media (max-width: 600px) {
+    .user-onboarding-tooltip {
+      width: 90vw; /* Adjust the width to fit small screens */
+      left: 5vw; /* Center the tooltip */
+    }
+    
+    .user-onboarding-tooltip-content {
+      font-size: 0.875rem; /* Adjust font size for readability on small screens */
+    }
+  }
+  
