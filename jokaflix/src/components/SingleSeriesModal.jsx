@@ -10,6 +10,7 @@ import star from '../assets/star.png'
 import progress from '../assets/progress.png';
 import SeriesDescriptionTabs from './SeriesDescriptionTabs';
 import DownloadModal from './DownloadModal';
+import MediaPlayer from './MediaPlayer';
 
 export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) {
   const [open, setOpen] = useState(toggler); 
@@ -21,6 +22,7 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
   const [currentTime, setCurrentTime] = useState(0);
   const [downloadTitle, setDownloadTitle] = useState(null);
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
+  const [openMediaPlayer, setOpenMediaPlayer] = useState(false);
   const [trailers, setTrailers]=useState([]);
   const searchInputRef = useRef(null);
   const videoRef = useRef(null);
@@ -199,6 +201,16 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
                                   title={result.title}
                                 ></iframe>
                               )}
+                              {openMediaPlayer && (
+                                <MediaPlayer
+                                  toggler={openMediaPlayer}
+                                  seriesTitle={result.original_name + " S01 E1"}
+                                  episodeNumber="1"
+                                  seriesId={result.id}
+                                  seasonId="1"
+                                  onClose={() => setOpenMediaPlayer(false)}
+                                />
+                                 )}
                             </div>
                               <div className='flex items-center'>
                                 <img src={imdb} alt='imdb' className='w-[4rem] h-[4rem]' />
@@ -220,7 +232,7 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
                                 <p className='text-sm md:text-lg text-gray-400 ml-1 md:ml-0'>{result.overview}</p>
                               </div>
                               <div className='w-full px-2 md:px-0 flex items-center justify-start lg:text-lg'>
-                                  <button onClick={playEpisode} className='px-12 py-2  bg-orange-500 text-center text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
+                                  <button onClick={() => {setOpenMediaPlayer(true)}} className='px-12 py-2  bg-orange-500 text-center text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
                                   <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                       <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
                                   </svg>
