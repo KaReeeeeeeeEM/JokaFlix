@@ -140,11 +140,10 @@ const Home = () => {
                 </div>
                 <div className=' w-full h-4 px-8 my-6 flex justify-between items-center absolute top-0 right-0 z-30'>
                     <h1 className='text-xl md:text-3xl text-white font-extrabold'>Joka<span className='text-orange-400'>Flix</span></h1>
-                    <div className='flex items-center justify-between w-[6rem] lg:w-[8rem]'>
+                    <div className='flex items-center justify-between w-[2rem] lg:w-[4rem]'>
                         <button onClick={() => setOpenSearch(true)}>
                             <img src={search} alt='search' className='rounded-full w-6 h-6 md:w-8 md:h-8' />
                         </button>
-                         <Profile/>
                     </div>
                 </div>
                 <div className='w-full px-8 lg:px-12 absolute top-[65vh] md:top-[70vh] lg:top-[60vh] flex flex-col justify-between items-left'>
