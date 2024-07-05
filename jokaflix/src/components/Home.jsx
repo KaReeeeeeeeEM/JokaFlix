@@ -14,6 +14,7 @@ import Categories from './Categories';
 import NowPlaying from './NowPlaying';
 import Popular from './Popular';
 import Series from './Series';
+import DownloadModal from './DownloadModal';
 
 const Home = () => {
     const [popularMovies, setPopularMovies] = useState([]);
@@ -26,6 +27,8 @@ const Home = () => {
     const [openSearch, setOpenSearch] = useState(false);
     const urlSearchParams = new URLSearchParams(window.location.search);
     const profilePicture = urlSearchParams.get("profile");
+    const [downloadTitle, setDownloadTitle] = useState(null);
+    const [openDownloadModal, setOpenDownloadModal] = useState(false);
     const [selectedMovieId, setSelectedMovieId] = useState(null);
     const { user } = useParams();
 
@@ -102,6 +105,13 @@ const Home = () => {
     <>
         { isLoading ? <Loading /> : (
             <div className='overflow-y-auto bg-gray-900'>
+              {openDownloadModal && (
+                    <DownloadModal
+                      toggler={openDownloadModal}
+                      title={downloadTitle}
+                      onClose={() => setOpenDownloadModal(false)}
+                    />
+                  )}
             {openSearch && (
                 <MovieModal
                 toggler={openSearch}
@@ -110,7 +120,7 @@ const Home = () => {
                 searchParam="House"
                 onClose={() => setOpenSearch(false)}
                 />
-      )}
+                )}
             <div className="absolute top-0 h-screen w-full inset-0 bg-opacity-60 bg-black blur-md"></div>
             <div className='w-full h-screen bg-gray-900' style={{backgroundImage:`url(https://image.tmdb.org/t/p/original${popularMovies[coverMovie].poster_path || popularMovies[coverMovie].backdrop_path})`, backgroundPosition:"center", backgroundSize:"cover", backgroundRepeat:"no-repeat"}}>
             {/* <div className="absolute bottom-0 h-1/6 w-full inset-0 bg-opacity-60 bg-gray-900 blur-md"></div> */}
@@ -143,7 +153,10 @@ const Home = () => {
                             Watch Now
                         </button>
                         <h2 className='text-2xl text-white mx-4'> | </h2>
-                        <button className='py-2 px-4 mx-4 md:py-4 md:px-4 bg-orange-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>
+                        <button onClick={() => {
+                                            setDownloadTitle(popularMovies[coverMovie].original_title);
+                                            setOpenDownloadModal(true);
+                                        }} className='py-2 px-4 mx-4 md:py-4 md:px-4 bg-orange-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                         </svg>

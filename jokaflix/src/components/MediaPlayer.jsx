@@ -60,7 +60,7 @@ export default function MovieModal({ seriesId, seriesTitle, episodeNumber, seaso
           </div>
           <DialogTitle
             as="h3"
-            className="text-center font-semibold leading-6 mt-4 text-orange-600 text-2xl"
+            className="text-center font-semibold leading-6 mt-4 text-orange-600 md:text-2xl"
           >
             {seriesTitle}
           </DialogTitle>

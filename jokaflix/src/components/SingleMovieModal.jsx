@@ -8,6 +8,7 @@ import Card from './Card';
 import imdb from '../assets/imdb.png';
 import star from '../assets/star.png';
 import progress from '../assets/progress.png';
+import DownloadModal from './DownloadModal';
 
 export default function MovieModal({ toggler, title, type, movieId, onClose }) {
   const [open, setOpen] = useState(toggler);
@@ -18,6 +19,8 @@ export default function MovieModal({ toggler, title, type, movieId, onClose }) {
   const [isLoading, setIsLoading] = useState(true);
   const [autoplay, setAutoplay] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
+  const [downloadTitle, setDownloadTitle] = useState(null);
+  const [openDownloadModal, setOpenDownloadModal] = useState(false);
   const searchInputRef = useRef(null);
   const videoRef = useRef(null);
 
@@ -183,6 +186,13 @@ export default function MovieModal({ toggler, title, type, movieId, onClose }) {
                   <div className="sm:flex sm:items-start">
                     <div className="text-center  sm:text-left">
                       <div className="flex flex-wrap items-center justify-center mt-2">
+                      {openDownloadModal && (
+                          <DownloadModal
+                            toggler={openDownloadModal}
+                            title={downloadTitle}
+                            onClose={() => setOpenDownloadModal(false)}
+                          />
+                        )}
                         {moviesByCategory.map((result) => (
                           <div key={result.id} className='w-screen md:w-full h-auto flex flex-col mx-2'>
                             <div 
@@ -232,7 +242,10 @@ export default function MovieModal({ toggler, title, type, movieId, onClose }) {
                                 Play Movie
                               </button>
                               <h2 className='text-xl text-white mx-4 my-8'> | </h2>
-                              <button className='py-2 px-4 mx-4 md:py-4 md:px-4 bg-gray-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>
+                              <button onClick={() => {
+                                  setDownloadTitle(title);
+                                  setOpenDownloadModal(true);
+                              }} className='py-2 px-4 mx-4 md:py-4 md:px-4 bg-gray-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" className="size-6">
                                   <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                                 </svg>
