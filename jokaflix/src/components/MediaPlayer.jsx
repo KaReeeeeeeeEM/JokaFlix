@@ -60,9 +60,9 @@ export default function MovieModal({ seriesId, seriesTitle, episodeNumber, seaso
           </div>
           <DialogTitle
             as="h3"
-            className="text-center font-semibold leading-6 mt-4 text-orange-600 md:text-2xl"
+            className="text-center font-semibold leading-6 mt-4 text-orange-600 md:text-xl"
           >
-            {seriesTitle}
+            {seriesTitle}<br /><span className='mx-auto'>(Use <span className='text-white'>server-2(multi)</span> or <span className='text-white'>server-3</span> for <span className='text-white'>1080</span> quality)</span>
           </DialogTitle>
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
             <TransitionChild
