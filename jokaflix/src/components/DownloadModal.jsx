@@ -64,8 +64,8 @@ export default function DownloadModal({ toggler, title, onClose }) {
                         <div className="flex flex-col items-center justify-center mt-2">
                           <div className='flex flex-col w-full'>
                             <h1 className="text-orange-600 font-bold md:text-lg md:text-center mb-2 uppercase">{title}</h1>
-                            <img src={comingsoon} alt="coming-soon gif" className='w-56 mx-auto' />
-                            <h1 className="text-white font-bold md:text-lg mb-2 text-center">Just hang in there! The download feature is coming soon!</h1>
+                            <img width="96" height="96" className='mx-auto mt-44' src="https://img.icons8.com/badges/96/coming-soon.png" alt="coming-soon"/>
+                            <h1 className="text-white font-bold md:text-lg mb-2 text-center">Hang in there! The download feature is coming soon!</h1>
                           </div>
                         </div>
                       </div>
