@@ -45,8 +45,10 @@ const Home = () => {
     {
       component: 'modal',
       intro: true,
-      children: (<div>Welcome to <span className='text-orange-600'>Jokaflix</span> 👋, a seamless streaming platform! <br />Care to take a short tour?</div>),
-      className: 'btn-primary: bg-orange-600;'
+      children: (
+      <div>
+        Welcome to <span className='text-orange-600'>Jokaflix</span> 👋, a seamless streaming platform! <br />Care to take a short tour?
+      </div>),
     },
     {
       component: 'modal',

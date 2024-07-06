@@ -1,8 +1,24 @@
 /* Onboarding button customization */
-.user-onboarding-modal .btn-primary {
-    background-color: #ea580c; /* orange-600 */
-    color: #ffffff; /* white */
-  }
+.user-onboarding-modal button {
+  background-color: #fc9703; /* Adjust color as needed */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* UserOnboarding.module.css */
+.user-onboarding-button {
+  background-color: #fc9703 !important;
+  color: white !important;
+  padding: 10px 20px !important;
+  border: none !important;
+  border-radius: 5px !important;
+  font-weight: bold !important;
+  cursor: pointer !important;
+}
   
   /* Tooltip responsiveness */
   @media (max-width: 600px) {
