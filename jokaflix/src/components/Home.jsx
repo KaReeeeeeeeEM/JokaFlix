@@ -15,6 +15,7 @@ import Series from './Series';
 import DownloadModal from './DownloadModal';
 import MediaPlayer from './MediaPlayer';
 import Joyride from 'react-joyride';
+import PhoneMockup from './PhoneMockup';
 
 const Home = () => {
   const [popularMovies, setPopularMovies] = useState([]);

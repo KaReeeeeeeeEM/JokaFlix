@@ -4,20 +4,18 @@ import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@
 import { XCircleIcon } from '@heroicons/react/24/outline';
 
 export default function MovieModal({ seriesId, seriesTitle, episodeNumber, seasonId, movieId, movieTitle, onClose, toggler }) {
-  const [open, setOpen] = useState(toggler); 
+  const [open, setOpen] = useState(toggler);
 
   useEffect(() => {
-    setOpen(toggler); 
+    setOpen(toggler);
   }, [toggler]);
 
   const closeModal = () => {
-    setOpen(false); 
-    onClose(); 
+    setOpen(false);
+    onClose();
   };
 
   console.log(movieTitle, movieId)
- 
-  // console.log(`https://autoembed.co/tv/tmdb/${seriesId}-${seasonId}-${episodeNumber}`);
 
   return (
     <Transition show={open}>
@@ -44,7 +42,11 @@ export default function MovieModal({ seriesId, seriesTitle, episodeNumber, seaso
             as="h3"
             className="text-center font-semibold leading-6 mt-4 text-orange-600 md:text-xl"
           >
-            {seriesTitle? seriesTitle : movieTitle }<br /><span className='mx-auto text-sm'>(Use <span className='text-white'>Server 2 (then click the 3-line icon on the left select multi)</span> or <span className='text-white'>Server 3</span> for <span className='text-white'>1080</span> quality)</span>
+            {seriesTitle ? seriesTitle : movieTitle}
+            <br />
+            <span className='mx-auto text-sm'>
+              (Use <span className='text-white'>Server 2 (then click the 3-line icon on the left select multi)</span> or <span className='text-white'>Server 3</span> for <span className='text-white'>1080</span> quality)
+            </span>
           </DialogTitle>
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
             <TransitionChild
@@ -55,19 +57,20 @@ export default function MovieModal({ seriesId, seriesTitle, episodeNumber, seaso
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-                <DialogPanel className="relative transform overflow-y-auto rounded-lg bg-transparent text-left shadow-xl transition-all w-[90vw] lg:w-[100vw] h-[98vh] lg:h-[90vh]">
-                    <div className='w-[98vw] flex flex-start items-start md:items-center md:justify-center mx-auto'>
-                    <iframe 
-                        title={seriesTitle}
-                      src={seriesId? `https://autoembed.co/tv/tmdb/${seriesId}-${seasonId}-${episodeNumber}` : `https://autoembed.co/movie/tmdb/${movieId}` } 
-                        width="100%" 
-                        height="100%" 
-                        frameborder="0" 
-                        className='w-[98vw] h-[80vh] md:h-[88vh] mx-auto text-sm'
-                        allowfullscreen >
-                    </iframe>
-                    </div>
-                </DialogPanel>
+              <DialogPanel className="relative transform overflow-y-auto rounded-lg bg-transparent text-left shadow-xl transition-all w-[90vw] lg:w-[100vw] h-[98vh] lg:h-[90vh]">
+                <div className='w-[98vw] flex flex-start items-start md:items-center md:justify-center mx-auto'>
+                  <iframe
+                    title={seriesTitle}
+                    src={seriesId ? `https://autoembed.co/tv/tmdb/${seriesId}-${seasonId}-${episodeNumber}` : `https://autoembed.co/movie/tmdb/${movieId}`}
+                    width="100%"
+                    height="100%"
+                    frameBorder="0"
+                    className='w-[98vw] h-[80vh] md:h-[88vh] mx-auto text-sm'
+                    allowFullScreen
+                  >
+                  </iframe>
+                </div>
+              </DialogPanel>
             </TransitionChild>
           </div>
         </div>
