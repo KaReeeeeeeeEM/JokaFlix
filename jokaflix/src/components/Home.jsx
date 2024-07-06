@@ -1,69 +1,55 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import Profile from './Profile';
-import Showcase from './Showcase';
-import ForYou from './ForYou';
 import axios from 'axios';
 import Loading from './Loading';
 import imdb from '../assets/imdb.png';
 import star from '../assets/star.png';
 import search from '../assets/search.png';
 import MovieModal from './MovieModal';
+import Showcase from './Showcase';
 import Categories from './Categories';
 import NowPlaying from './NowPlaying';
 import Popular from './Popular';
 import Series from './Series';
 import DownloadModal from './DownloadModal';
 import MediaPlayer from './MediaPlayer';
-import UserOnboarding from 'react-user-onboarding';
-import 'react-user-onboarding/dist/index.css';
-import '../custom-onboarding.css'
+import Joyride from 'react-joyride'; // Import Joyride
 
 const Home = () => {
   const [popularMovies, setPopularMovies] = useState([]);
   const [trendingMovies, setTrendingMovies] = useState([]);
   const [upcomingMovies, setUpcomingMovies] = useState([]);
   const [coverMovie, setCoverMovie] = useState(0);
-  const [username, setUsername] = useState(null);
-  const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [openSearch, setOpenSearch] = useState(false);
   const urlSearchParams = new URLSearchParams(window.location.search);
-  const profilePicture = urlSearchParams.get("profile");
   const [downloadTitle, setDownloadTitle] = useState(null);
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
   const [openMediaPlayer, setOpenMediaPlayer] = useState(false);
-  const [selectedMovieId, setSelectedMovieId] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
-  const { user } = useParams();
 
-  const tooltip1 = useRef();
-  const play = useRef();
 
-  const story = [
+  const steps = [
     {
-      component: 'modal',
-      intro: true,
-      children: (
-      <div>
-        Welcome to <span className='text-orange-600'>Jokaflix</span> 👋, a seamless streaming platform! <br />Care to take a short tour?
-      </div>),
+      target: '.my-first-step',
+      content: 'Welcome to Jokaflix 👋, a seamless streaming platform! Care to take a short tour?',
     },
     {
-      component: 'modal',
-      ref: tooltip1,
-      children: (<div>Search for any movie and get related content by just clicking the <span className='text-orange-600'>search icon</span> on the top right.</div>),
+      target: '.my-second-step',
+      content: 'Search for any movie and get related content by clicking the search icon.',
     },
     {
-      component: 'modal',
-      ref: play,
-      children: (<div>Stream <span className='text-orange-600'>popular movies</span> displayed on the landing section on the fly, simply just a click away!</div>)
+      target: '.my-third-step',
+      content: 'Stream popular movies displayed on the landing section with a simple click!',
     },
     {
-      component: 'modal',
-      intro: false,
-      children: (<div>Now you can start watching your <span className='text-orange-600'>favourite movies</span> and <span className='text-orange-600'>series</span> for <span className='text-orange-600'>free</span>! Scroll down and Enjoy...😉</div>)
+      target: '.my-fourth-step',
+      content: 'Download your favourite movies and series easily with a single tap!',
+    },
+    {
+      target: '.my-fifth-step',
+      content: 'Now you can start watching your favorite movies and series for free! Scroll down and enjoy...😉',
     }
   ];
 
@@ -130,11 +116,22 @@ const Home = () => {
     <>
       {isLoading ? <Loading /> : (
         <div className='overflow-y-auto bg-gray-900'>
-          <UserOnboarding
-            story={story}
-            isVisible={isVisible}
-            onClose={() => setIsVisible(false)}
-          />
+         {isVisible && <Joyride
+            steps={steps}
+            continuous={true}
+            showSkipButton={true}
+            styles={{
+              options: {
+                arrowColor: '#111827',
+                backgroundColor: '#111827',
+                overlayColor: 'rgba(0, 0, 0, 0.5)',
+                primaryColor: '#e57300',
+                textColor: '#ffffff',
+                width: 300,
+                zIndex: 1000,
+              },
+            }}
+          />}
           {openDownloadModal && (
             <DownloadModal
               toggler={openDownloadModal}
@@ -166,10 +163,10 @@ const Home = () => {
               <h1 className='flex text-xl text-white font-semibold'><span className='mx-1'><img src={star} alt="star" className='w-6 h-6' /></span>{popularMovies[coverMovie].vote_average < 1 ? 5.5 : Math.ceil(popularMovies[coverMovie].vote_average * 10) / 10}</h1>
             </div>
             <div className='w-full h-4 px-8 my-6 flex justify-between items-center absolute top-0 right-0 z-30'>
-              <h1 className='text-xl md:text-3xl text-white font-extrabold'>Joka<span className='text-orange-400'>Flix</span></h1>
+              <h1 className='my-first-step text-xl md:text-3xl text-white font-extrabold'>Joka<span className='text-orange-400'>Flix</span></h1>
               <div className='flex items-center justify-between w-[2rem] lg:w-[4rem]'>
-                <button ref={tooltip1} onClick={() => setOpenSearch(true)}>
-                  <img src={search} alt='search' className=' absolute rounded-full w-6 h-6 md:w-8 md:h-8' />
+                <button onClick={() => setOpenSearch(true)}>
+                  <img src={search} alt='search' className='my-second-step absolute rounded-full w-6 h-6 md:w-8 md:h-8' />
                 </button>
               </div>
             </div>
@@ -180,7 +177,7 @@ const Home = () => {
               </h2>
             </div>
             <div className='w-full px-8 md:px-12 absolute top-[80vh] md:top-[80vh] lg:top-[80vh] flex items-center lg:text-lg'>
-              <button ref={play} onClick={() => setOpenMediaPlayer(true)} className='py-2 pl-4 md:py-4 md:px-16 pr-6 bg-orange-500 text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
+              <button onClick={() => setOpenMediaPlayer(true)} className='my-third-step py-2 pl-4 md:py-4 md:px-16 pr-6 bg-orange-500 text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
                 <span className='px-2'>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
@@ -192,21 +189,18 @@ const Home = () => {
               <button onClick={() => {
                 setDownloadTitle(popularMovies[coverMovie].original_title);
                 setOpenDownloadModal(true);
-              }} className='py-2 px-4 mx-4 md:py-4 md:px-4 bg-orange-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>
+              }} className='my-fourth-step py-2 px-4 mx-4 md:py-4 md:px-4 bg-orange-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" class="size-6">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                 </svg>
               </button>
             </div>
           </div>
-          <div className='flex items-center justify-center h-16 md:h-24 my-12 w-[20vw] md:w-[8vw] m-auto'>
+          <div className='my-fifth-step flex items-center justify-center h-16 md:h-24 my-12 w-[20vw] md:w-[8vw] m-auto'>
             <img src={imdb} alt="imdb-icon" className='w-full h-full' />
           </div>
           <div>
             <Showcase />
-          </div>
-          <div>
-            <ForYou />
           </div>
           <div>
             <Categories />
