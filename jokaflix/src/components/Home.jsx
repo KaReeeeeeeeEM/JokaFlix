@@ -8,6 +8,7 @@ import star from '../assets/star.png';
 import search from '../assets/search.png';
 import MovieModal from './MovieModal';
 import Showcase from './Showcase';
+import ForYou from './ForYou';
 import Categories from './Categories';
 import NowPlaying from './NowPlaying';
 import Popular from './Popular';
@@ -49,7 +50,27 @@ const Home = () => {
     },
     {
       target: '.my-fifth-step',
-      content: 'Now you can start watching your favorite movies and series for free! Scroll down and enjoy...😉',
+      content: 'Check out all movies that are suggested for you including the hottest and upcoming movies',
+    },
+    {
+      target: '.my-sixth-step',
+      content: 'Pick a category and select any movie eg. Animations, Comedy, Horror,...',
+    },
+    {
+      target: '.my-seventh-step',
+      content: 'Get to see the aired movies in the world',
+    },
+    {
+      target: '.my-eigth-step',
+      content: 'Get the most popular movies that are off the charts',
+    },
+    {
+      target: '.my-ninth-step',
+      content: 'Here you can see the Series and TV shows, current releases and upcoming ones',
+    },
+    {
+      target: '.my-last-step',
+      content: "You're all set! 🎊 Now you can start watching your favorite movies and series for free! Enjoy...😉",
     }
   ];
 
@@ -122,9 +143,9 @@ const Home = () => {
             showSkipButton={true}
             styles={{
               options: {
-                arrowColor: '#111827',
+                arrowColor: '#e57300',
                 backgroundColor: '#111827',
-                overlayColor: 'rgba(0, 0, 0, 0.5)',
+                overlayColor: 'rgba(0, 0, 0, 0.8)',
                 primaryColor: '#e57300',
                 textColor: '#ffffff',
                 width: 300,
@@ -196,22 +217,26 @@ const Home = () => {
               </button>
             </div>
           </div>
-          <div className='my-fifth-step flex items-center justify-center h-16 md:h-24 my-12 w-[20vw] md:w-[8vw] m-auto'>
+          <div className='flex items-center justify-center h-16 md:h-24 my-12 w-[20vw] md:w-[8vw] m-auto'>
             <img src={imdb} alt="imdb-icon" className='w-full h-full' />
           </div>
           <div>
             <Showcase />
           </div>
-          <div>
+          <div className='my-fifth-step'>
+            <ForYou />
+          </div>
+          <div className='my-sixth-step'>
             <Categories />
           </div>
-          <div>
+          <div className='my-seventh-step'>
             <NowPlaying />
           </div>
-          <div>
+          <div className='my-eigth-step'>
             <Popular />
           </div>
-          <div>
+          <span className='my-last-step ml-8'></span>
+          <div className='my-ninth-step'>
             <Series />
           </div>
         </div>
