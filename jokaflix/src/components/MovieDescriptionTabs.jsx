@@ -255,8 +255,8 @@ export default function MovieDescriptionTabs({ movieID }) {
                 <p className='text-gray-600'>{moviesByCategory.map(movie => movie.production_countries && movie.production_countries.map(country => country.name && <span className='pr-2'>{country.name}</span>))}</p>
               </div>
               <div className='ml-2 flex flex-col justify-start items-end'>
-                <h1 className='text-white font-bold'>Year</h1>
-                <p className='text-gray-600'>{moviesByCategory.map(movie => movie.release_date && <span className='pr-2'>{movie.release_date.slice(0, 4)}</span>)}</p>
+                <h1 className='text-white font-bold'>Release Date</h1>
+                <p className='text-gray-600'>{moviesByCategory.map(movie => movie.release_date && <span className='pr-2'>{movie.release_date}</span>)}</p>
               </div>
             </div>
             <div className=' w-[80vw] md:w-full md:px-[4rem]'>
