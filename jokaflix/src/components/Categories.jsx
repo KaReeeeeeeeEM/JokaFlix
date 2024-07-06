@@ -15,7 +15,6 @@ const Categories = () => {
   const [nowPlaying, setNowPlaying] = useState([]);
   const [category, setCategory] = useState("");
   const [tvShows, setTvShows] = useState([]);
-  const [coverMovie, setCoverMovie] = useState(0);
   const [openModal, setOpenModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedGenre, setSelectedGenre] = useState(null);
