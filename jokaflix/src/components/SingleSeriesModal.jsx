@@ -11,6 +11,7 @@ import progress from '../assets/progress.png';
 import SeriesDescriptionTabs from './SeriesDescriptionTabs';
 import DownloadModal from './DownloadModal';
 import MediaPlayer from './MediaPlayer';
+import ShareButton from './ShareButton';
 
 export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) {
   const [open, setOpen] = useState(toggler); 
@@ -234,15 +235,19 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
                                   </svg>
                                       Play Series
                                   </button>
-                                    <h2 className='text-xl text-white mx-4 my-8'> | </h2>
+                                    <h2 className='text-xl text-white mx-2 md:mx-8 my-8'> | </h2>
                                   <button onClick={() => {
                                             setDownloadTitle(result.original_name);
                                             setOpenDownloadModal(true);
-                                        }} className='py-2 px-4 mx-4 md:py-4 md:px-4 bg-gray-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>
+                                        }} className='py-2 px-2 mx-2 md:mx-4 md:py-4 md:px-4 bg-gray-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" class="size-6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                                     </svg>
                                   </button>
+                                  <a 
+                                    href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`I found this great series ${result.original_name} on JokaFlix! Stream for free with a high quality only on JokaFlix. Click the link to start today! https://jokaflix.vercel.app/`)}`} target='_blank' rel="noreferrer" >
+                                    <ShareButton url={`https://jokaflix.vercel.app/`} title={`Check out this movie ${result.original_name}`} text={`I found this great movie ${result.original_name} from ${result.first_air_date.slice(0,4)} on JokaFlix!`} />
+                                  </a>
                               </div> 
                               <div className='flex items-center w-full justify-around mt-8'>
                                   {result.production_companies.map(company => company.logo_path && <img src={`https://image.tmdb.org/t/p/w500${company.logo_path}`} alt='company-logo' className='w-8 h-4 md:w-20 md:h-full rounded-lg md:border-2 md:border-gray-800 md:p-2' />)}
