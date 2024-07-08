@@ -266,9 +266,9 @@ export default function MovieModal({ toggler, title, type, movieId, onClose }) {
                                   <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                                 </svg>
                               </button>
-                              <a 
+                              <a
                                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent('Stream ' + title + ' for free with a high quality only on JokaFlix. Click the link to start today! https://jokaflix.vercel.app/')}`} target='_blank' rel="noreferrer" >
-                                 <ShareButton url={`https://jokaflix.vercel.app/`} title={`Check out this movie ${title}`} text={`I found this great movie ${result.title} from ${result.release_date.slice(0,4)} on YourWebsite!`} />
+                                 <ShareButton url={`https://jokaflix.vercel.app/`} title={`Check out this movie ${title}`} text={`I found this great movie ${result.title} on JokaFlix! Stream unlimitedly for free with a high quality only on JokaFlix. Click the link to start today! https://jokaflix.vercel.app/`} />
                               </a>
                             </div> 
                             <div className='flex items-center w-full justify-around mt-8'>
