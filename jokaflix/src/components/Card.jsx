@@ -74,7 +74,7 @@ const Card = ({ src, rating, category, year }) => {
             </div>
           </div>
           {year && recent && (
-            <div className='relative bg-orange-600 w-[90%] md:w-[80%] bottom-16 h-5 md:bottom-20 rounded-md md:h-6 flex items-center justify-center uppercase text-center text-xs md:text-md mx-auto text-white font-bold'>
+            <div className='relative bg-orange-600 w-[90%] md:w-[80%] bottom-16 h-5 md:bottom-20 rounded md:h-6 flex items-center justify-center uppercase text-center text-xs md:text-md mx-auto text-white font-bold'>
               {recent}
             </div>
           )}
