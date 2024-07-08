@@ -15,7 +15,7 @@ import Series from './Series';
 import DownloadModal from './DownloadModal';
 import MediaPlayer from './MediaPlayer';
 import Joyride from 'react-joyride';
-import PhoneMockup from './PhoneMockup';
+import QRCode from './QRCode';
 
 const Home = () => {
   const [popularMovies, setPopularMovies] = useState([]);
@@ -24,6 +24,7 @@ const Home = () => {
   const [coverMovie, setCoverMovie] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [openSearch, setOpenSearch] = useState(false);
+  const [openQRCode, setOpenQRCode] = useState(false);
   const urlSearchParams = new URLSearchParams(window.location.search);
   const [downloadTitle, setDownloadTitle] = useState(null);
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
@@ -39,6 +40,10 @@ const Home = () => {
     {
       target: '.my-second-step',
       content: 'Search for any movie and get related content by clicking the search icon.',
+    },
+    {
+      target: '.share-content',
+      content: 'Easily share content by allowing friends to scan the QR Code and get access to free content.',
     },
     {
       target: '.my-third-step',
@@ -177,6 +182,12 @@ const Home = () => {
               onClose={() => setOpenMediaPlayer(false)}
             />
           )}
+          {openQRCode && (
+            <QRCode
+              toggler={openQRCode}
+              onClose={() => setOpenQRCode(false)}
+            />
+          )}
           <div className="absolute top-0 h-screen w-full inset-0 bg-opacity-60 bg-black blur-md"></div>
           <div className='w-full h-screen bg-gray-900' style={{ backgroundImage: `url(https://image.tmdb.org/t/p/original${popularMovies[coverMovie].poster_path || popularMovies[coverMovie].backdrop_path})`, backgroundPosition: "center", backgroundSize: "cover", backgroundRepeat: "no-repeat" }}>
             <div className='flex items-center justify-around absolute top-[60vh] md:top-[65vh] lg:top-[55vh] left-[1.2rem] lg:left-[2.5rem] p-2 w-[8rem] h-[2rem]'>
@@ -184,10 +195,16 @@ const Home = () => {
               <h1 className='flex text-xl text-white font-semibold'><span className='mx-1'><img src={star} alt="star" className='w-6 h-6' /></span>{popularMovies[coverMovie].vote_average < 1 ? 5.5 : Math.ceil(popularMovies[coverMovie].vote_average * 10) / 10}</h1>
             </div>
             <div className='w-full h-4 px-8 my-6 flex justify-between items-center absolute top-0 right-0 z-30'>
-              <h1 className='my-first-step text-xl md:text-3xl text-white font-extrabold'>Joka<span className='text-orange-400'>Flix</span></h1>
-              <div className='flex items-center justify-between w-[2rem] lg:w-[4rem]'>
+              <h1 className='my-first-step text-xl md:text-3xl text-white font-extrabold mt-5'>Joka<span className='text-orange-400'>Flix</span></h1>
+              <div className='flex items-center justify-between w-[2rem] lg:w-[4rem] mr-4'>
                 <button onClick={() => setOpenSearch(true)}>
                   <img src={search} alt='search' className='my-second-step absolute rounded-full w-6 h-6 md:w-8 md:h-8' />
+                </button>
+                <button onClick={() => setOpenQRCode(true)}>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="orange" className="share-content size-6 absolute rounded-full w-6 h-6 md:w-8 md:h-8 mr-8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 16.5h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75ZM13.5 13.5h.75v.75h-.75v-.75ZM13.5 19.5h.75v.75h-.75v-.75ZM19.5 13.5h.75v.75h-.75v-.75ZM19.5 19.5h.75v.75h-.75v-.75ZM16.5 16.5h.75v.75h-.75v-.75Z" />
+                  </svg>
                 </button>
               </div>
             </div>

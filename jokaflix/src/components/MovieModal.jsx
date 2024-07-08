@@ -32,7 +32,6 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
   }, [open, type]);
 
   const focusSearch = () =>{
-    
       const input = document.querySelector('input[type="search"]');
       if (input) {
         input.focus();
@@ -264,6 +263,11 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
                     <div className="sm:flex sm:items-start">
                       <div className="text-center sm:ml-4 sm:mt-0 sm:text-left">
                         <div className="flex flex-wrap items-center justify-center mt-2 w-full">
+                            {isLoading && (
+                          <div className="flex items-center justify-center bg-transparent w-full h-full rounded-xl mb-4 mx-1">
+                            <img src={progress} alt="progress" className="animate-spin w-8 h-8" />
+                          </div>
+                        )}  
                           {moviesByCategory.map((result) => (
                             (result.poster_path === null && result.backdrop_path === null) ?
                               ""
