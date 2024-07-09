@@ -68,7 +68,7 @@ const NowPlaying = () => {
   };
 
   return (
-    <div className='flex flex-col items-left px-8 md:px-40 my-6 md:my-24 w-[95vw]'>
+    <div className='flex flex-col items-left px-8 md:px-40 my-6 md:my-24 w-[98vw]'>
       {openModal && (
         <MovieModal
           toggler={openModal}

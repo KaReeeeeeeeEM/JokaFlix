@@ -83,7 +83,7 @@ const ForYou = () => {
   // ,[upcomingMovies]);
 
   return (
-    <div className='flex flex-col items-left px-8 md:px-40 my-12 md:my-24 w-[95vw]'>
+    <div className='flex flex-col items-left px-8 md:px-40 my-12 md:my-24 w-[98vw]'>
       {openModal && (
         <MovieModal
           toggler={openModal}
@@ -118,7 +118,7 @@ const ForYou = () => {
             <img src={progress} alt="progress" className='animate-spin w-8 h-8' />
           </div>
         ) : (
-          <div className='flex items-center justify-start flex-nowrap whitespace-nowrap'>
+          <div className='flex items-center justify-start w-full flex-nowrap whitespace-nowrap'>
             {upcomingMovies.map((upcoming) => (
               <Link
                   onClick={() => {
