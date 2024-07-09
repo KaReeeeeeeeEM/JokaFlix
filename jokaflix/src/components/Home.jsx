@@ -16,6 +16,7 @@ import DownloadModal from './DownloadModal';
 import MediaPlayer from './MediaPlayer';
 import Joyride from 'react-joyride';
 import QRCode from './QRCode';
+import logo from '../assets/logo-sub.png';
 import IntroAnimation from './IntroAnimation';
 
 const Home = () => {
@@ -192,7 +193,7 @@ const Home = () => {
               <h1 className='flex text-xl text-white font-semibold'><span className='mx-1'><img src={star} alt="star" className='w-6 h-6' /></span>{popularMovies[coverMovie].vote_average < 1 ? 5.5 : Math.ceil(popularMovies[coverMovie].vote_average * 10) / 10}</h1>
             </div>
             <div className='w-full h-4 px-8 my-6 flex justify-between items-center absolute top-0 right-0 z-30'>
-              <h1 className='my-first-step text-xl md:text-3xl text-white font-extrabold mt-5'>Joka<span className='text-orange-400'>Flix</span></h1>
+              <img src={logo} alt='logo' className='my-first-step w-16 h-16 md:w-32 md:h-32 mt-8  md:mt-12' />
               <div className='flex items-center justify-between w-[2rem] lg:w-[4rem] mr-4'>
                 <button onClick={() => setOpenSearch(true)}>
                   <img src={search} alt='search' className='my-second-step absolute rounded-full w-6 h-6 md:w-8 md:h-8' />
