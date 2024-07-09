@@ -16,6 +16,7 @@ import DownloadModal from './DownloadModal';
 import MediaPlayer from './MediaPlayer';
 import Joyride from 'react-joyride';
 import QRCode from './QRCode';
+import IntroAnimation from './IntroAnimation';
 
 const Home = () => {
   const [popularMovies, setPopularMovies] = useState([]);
@@ -133,14 +134,16 @@ const Home = () => {
       console.error(`Error fetching ${category} movies:`, error);
     }
   };
-
-  const playMovie = () => {
-    window.location.href = `https://autoembed.co/movie/tmdb/${upcomingMovies[coverMovie].id}`;
+  const showIntro = () => {
+    setTimeout(() => {
+      <IntroAnimation />
+    }, 3000)
   };
+
 
   return (
     <>
-      {isLoading ? <Loading /> : (
+      {isLoading ? <IntroAnimation /> : (
         <div className='overflow-y-auto bg-gray-900'>
          {isVisible && <Joyride
             steps={steps}
