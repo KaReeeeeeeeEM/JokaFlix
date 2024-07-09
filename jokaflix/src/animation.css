@@ -23,3 +23,8 @@
     }
   }
   
+  @media (max-width: 520px) {
+    .logo{
+      font-size: 2rem;
+    }
+  }
