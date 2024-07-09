@@ -139,7 +139,6 @@ export default function SeriesDescriptionTabs({ seriesID }) {
         return movieDetails;
       } catch (error) {
         setIsLoading(false);
-        setIsLoading(false);
         console.error(`Error fetching movie:`, error);
         return [];
       } finally {
