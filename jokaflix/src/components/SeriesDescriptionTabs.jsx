@@ -322,18 +322,18 @@ export default function SeriesDescriptionTabs({ seriesID }) {
             {seriesByCategory.map((season, index) => (
               <div key={index} className="w-[85vw] md:flex md:w-full md:justify-start md:overflow-x-auto rounded-lg m-auto mb-3 md:mx-8">
                 {season.seasons !== null && season.seasons.map((poster,key) =>
-                  poster.poster_path !== null && poster.name !== "Specials" &&
+                   poster.episode_count !== 0 && poster.name !== "Specials" &&
                   (
                   <Link 
                       key={poster.id}
                       onClick={() => {
-                        setSeasonId(key === 0 ? key+1 : key);
+                        setSeasonId(poster.season_number);
                         setSeriesTitle(poster.name);
                         setOpenSeasonModal(true);
                       }}
                       >
                     <div className='flex flex-col hover:scale-105 transition ease-in-out duration-500 cursor-pointer justify-start items-start mr-2'>
-                      <div key={poster.id} style={{ background: `url(https://image.tmdb.org/t/p/original${poster.poster_path})`, backgroundPosition: "center", backgroundSize: "cover" }} alt="poster" className='w-full h-[200px] md:w-[400px] md:h-[250px] rounded-lg mr-2'></div>
+                      <div key={poster.id} style={{ background: `url(https://image.tmdb.org/t/p/original${poster.poster_path ? poster.poster_path : images.posters[0].file_path})`, backgroundPosition: "center", backgroundSize: "cover" }} alt="poster" className='w-full h-[200px] md:w-[400px] md:h-[250px] rounded-lg mr-2'></div>
                       <h1 className='font-bold text-white'>{poster.name + (poster.air_date !== null ? (" | " + poster.air_date.slice(0, 4)) : " ")}</h1>
                       <p className='mb-8 text-gray-600'>{poster.episode_count + " episodes"}</p>
                     </div>
