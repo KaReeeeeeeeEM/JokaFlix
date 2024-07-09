@@ -177,7 +177,7 @@ const Categories = () => {
                 setCategory("/movie/upcoming")
                 setOpenModal(true)
                 }}>
-                <Card key={upcomingMovies[3]?.id} src={upcomingMovies[3]?.poster_path} category="upcoming" />
+                <Card key={upcomingMovies[2]?.id} src={upcomingMovies[3]?.poster_path} category="upcoming" />
               </Link>
               <Link onClick={() => {
                 setCategory("/movie/now_playing")

@@ -134,12 +134,6 @@ const Home = () => {
       console.error(`Error fetching ${category} movies:`, error);
     }
   };
-  const showIntro = () => {
-    setTimeout(() => {
-      <IntroAnimation />
-    }, 3000)
-  };
-
 
   return (
     <>
