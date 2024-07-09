@@ -1,5 +1,5 @@
 import React from 'react';
-import '../animation.css'; // Import your intro animation styles
+import '../animation.css';
 
 const IntroAnimation = () => {
   return (
