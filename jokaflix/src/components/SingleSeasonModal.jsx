@@ -149,7 +149,7 @@ export default function SingleSeasonModal({ toggler, title, seriesId, seasonID, 
                                         onClick={() => {
                                             setSeriesID(seriesId.slice(4,));
                                             setSeriesTitle(`${title} E${episode.episode_number}`);
-                                            setSeasonId(title.slice((title.length - 1),));
+                                            setSeasonId(seasonID);
                                             setEpisodeNumber(episode.episode_number);
                                             setOpenMediaPlayer(true);
                                         }}

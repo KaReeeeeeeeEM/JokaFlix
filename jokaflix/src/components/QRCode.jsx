@@ -63,8 +63,8 @@ export default function QRCode({ toggler, onClose }) {
                       <div className="text-center mx-auto sm:text-left">
                         <div className="flex flex-col items-center justify-center mt-2">
                           <div className='flex flex-col w-full'>
-                            <h1 className="text-orange-600 font-bold md:text-lg md:text-center mb-2 uppercase">Scan QR Code to share JokaFlix to friends</h1>
-                            <p className='text-white md:text-md font-italic'>Now you can scan the QR Code to open JokaFlix in your browser to enjoy free content </p>
+                            <h1 className="text-orange-400 font-bold md:text-lg md:text-center mb-2 uppercase">Scan QR Code to share JokaFlix to friends</h1>
+                            <p className='text-white md:text-md font-italic'>Now you can scan the QR Code to open <span className='text-orange-600 italic'>JokaFlix</span> in your browser to enjoy free content.</p>
                             <img width="100%" height="auto" className='mx-auto mt-12 md:mt-28' src={qrcode} alt="qrcode"/>
                           </div>
                         </div>
