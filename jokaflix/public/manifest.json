@@ -5,16 +5,16 @@
   "display": "standalone",
   "background_color": "#111827",
   "theme_color": "#d03801",
-  "description": "Discover the latest movies and series on JokaFlix, your ultimate destination for streaming and downloading high-quality content. Enjoy unlimited entertainment with our extensive collection of the newest releases and timeless classics. Whether you're into action, drama, comedy, or documentaries, JokaFlix has something for everyone. Stream your favorite movies and TV shows online, download them to watch offline, and stay updated with the freshest content available for free. Dive into the world of entertainment with JokaFlix and never miss out on the latest trends and releases in the movie industry.",
+  "description": "Enjoy unlimited entertainment with our extensive collection of the newest releases and timeless classics.",
   "icons": [
     {
-      "src": "/src/assets/favicon.png",
-      "sizes": "192x192",
+      "src": "logo-sub.png",
+      "sizes": "500x500",
       "type": "image/png"
     },
     {
-      "src": "/src/assets/logo-sub.png",
-      "sizes": "512x512",
+      "src": "favicon.png",
+      "sizes": "500x500",
       "type": "image/png"
     }
   ]
