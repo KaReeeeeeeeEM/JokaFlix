@@ -227,15 +227,15 @@ export default function MovieModal({ toggler, title, type, movieId, onClose }) {
                                 ></iframe>
                               )}
                             </div>
-                            <div className='flex items-center'>
+                            <div className='flex items-center mx-2 md:mx-0'>
                               <img src={imdb} alt='imdb' className='w-[4rem] h-[4rem]' />
                               {result.vote_average && <h1 className='flex items-center text-lg text-white font-bold mx-2'><span className='w-6 h-4'><img src={star} alt="star" className='w-4 h-4 ml-1' /></span>{result.vote_average < 1 ? 5.2 : Math.ceil(result.vote_average * 10)/10} <span className='mx-2 text-orange-600'>|</span> </h1>}
                               <p className='text-xl font-bold text-orange-300'>{result.release_date.slice(0,4)}</p>
                               <span className='mx-2 text-lg font-bold text-orange-600'></span>
                             </div>
                             <div className='flex flex-col justify-center items-start text-left'>
-                              <p className='text-xl font-bold lg:text-2xl text-orange-600'>{result.title}</p>
-                              <div className='flex mb-2'>
+                              <p className='text-xl font-bold lg:text-2xl ml-2 text-orange-600'>{result.title}</p>
+                              <div className='flex mb-2 ml-2'>
                                 <h2 className='uppercase text-orange-300 text-lg'>{result.original_language}</h2>
                                 <span className='mx-2 text-lg font-bold text-orange-300'>-</span>
                                 <h3 className='text-lg text-gray-500'>{result.runtime > 60 ? Math.floor(result.runtime/60) + "hrs " + (result.runtime%60) + "mins " : result.runtime + "mins"}</h3>

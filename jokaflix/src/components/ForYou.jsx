@@ -7,6 +7,7 @@ import MovieModal from './MovieModal';
 import SingleMovieModal from './SingleMovieModal';
 import progress from '../assets/progress.png';
 import { Link } from 'react-router-dom';
+import '../scrollbar.css';
 
 const ForYou = () => {
   const [popularMovies, setPopularMovies] = useState([]);

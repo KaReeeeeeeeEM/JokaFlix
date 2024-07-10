@@ -196,7 +196,7 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
                                 ></iframe>
                               )}
                             </div>
-                              <div className='flex items-center'>
+                              <div className='flex items-center mx-2 md:mx-0'>
                                 <img src={imdb} alt='imdb' className='w-[4rem] h-[4rem]' />
                                 {result.vote_average && <h1 className='flex items-center text-lg text-white font-bold mx-2'><span className='w-6 h-4'><img src={star} alt="star" className='w-4 h-4 ml-1' /></span>{result.vote_average < 1 ? 5.2 : Math.ceil(result.vote_average * 10)/10} <span className='mx-2 text-orange-600'>|</span> </h1>}
                                 <p className='text-xl font-bold text-orange-300'>{result.first_air_date.slice(0,4)}</p>
