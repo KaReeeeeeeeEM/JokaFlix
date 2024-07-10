@@ -1,25 +1,21 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "name": "JokaFlix",
+  "short_name": "JokaFlix",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#d03801",
+  "description": "Discover the latest movies and series on JokaFlix, your ultimate destination for streaming and downloading high-quality content. Enjoy unlimited entertainment with our extensive collection of the newest releases and timeless classics. Whether you're into action, drama, comedy, or documentaries, JokaFlix has something for everyone. Stream your favorite movies and TV shows online, download them to watch offline, and stay updated with the freshest content available for free. Dive into the world of entertainment with JokaFlix and never miss out on the latest trends and releases in the movie industry.",
   "icons": [
     {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "src": "/src/assets/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
     },
     {
-      "src": "favicon.ico",
-      "type": "image/x-icon",
-      "sizes": "192x192"
-    },
-    {
-      "src": "favicon.ico",
-      "type": "image/x-icon",
-      "sizes": "512x512"
+      "src": "/src/assets/logo-sub.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  ]
 }
