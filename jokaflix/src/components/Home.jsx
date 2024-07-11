@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import Loading from './Loading';
 import imdb from '../assets/imdb.png';
 import star from '../assets/star.png';
 import search from '../assets/search.png';
@@ -17,7 +16,7 @@ import MediaPlayer from './MediaPlayer';
 import Joyride from 'react-joyride';
 import QRCode from './QRCode';
 import logo from '../assets/logo-sub.png';
-import IntroAnimation from './IntroAnimation';
+import IntroAnimation from './IntroAnimation';  
 
 const Home = () => {
   const [popularMovies, setPopularMovies] = useState([]);
