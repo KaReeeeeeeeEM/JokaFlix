@@ -58,6 +58,10 @@ const Home = () => {
       target: '.my-fifth-step',
       content: 'Check out all movies that are suggested for you including the hottest and upcoming movies',
     },
+    {
+      target: '.my-last-step',
+      content: 'Hurrah 🎊...Congratulations for completing your first onboarding. Now you can scroll down to enjoy free movies and series of your liking!',
+    },
   ];
 
   useEffect(() => {
@@ -214,23 +218,22 @@ const Home = () => {
           <div className='flex items-center justify-center h-16 md:h-24 my-12 w-[20vw] md:w-[8vw] m-auto'>
             <img src={imdb} alt="imdb-icon" className='w-full h-full' />
           </div>
-          <div>
+          <div className='my-last-step'>
             <Showcase />
           </div>
-          <div className='my-fifth-step'>
+          <div>
             <ForYou />
           </div>
-          <div className='my-sixth-step'>
+          <div>
             <Categories />
           </div>
-          <div className='my-seventh-step'>
+          <div>
             <NowPlaying />
           </div>
-          <div className='my-eigth-step'>
+          <div>
             <Popular />
           </div>
-          <span className='my-last-step ml-8'></span>
-          <div className='my-ninth-step'>
+          <div>
             <Series />
           </div>
         </div>
