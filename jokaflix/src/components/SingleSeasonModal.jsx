@@ -76,7 +76,7 @@ export default function SingleSeasonModal({ toggler, title, seriesId, seasonID, 
 
   return (
     <Transition show={open}>
-      <Dialog className="relative z-50" onClose={closeModal}>
+      <Dialog className="relative z-[1000000000000]" onClose={closeModal}>
         <TransitionChild
           enter="ease-in-out duration-300"
           enterFrom="absolute top-[100vh] opacity-0"

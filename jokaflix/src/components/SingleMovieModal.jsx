@@ -152,7 +152,7 @@ export default function MovieModal({ toggler, title, type, movieId, onClose }) {
 
   return (
     <Transition show={open}>
-      <Dialog className="relative z-50" onClose={closeModal}>
+      <Dialog className="relative z-[10000]" onClose={closeModal}>
         <Transition.Child
           enter="ease-in-out duration-300"
           enterFrom="absolute top-[100vh] opacity-0"

@@ -68,7 +68,7 @@ export default function SeriesModal({ toggler, title, seriesCategory, onClose })
 
   return (
     <Transition show={open} as={React.Fragment}>
-      <Dialog className="relative z-50" onClose={closeModal}>
+      <Dialog className="relative z-[1000]" onClose={closeModal}>
         <Transition.Child
           enter="ease-in-out duration-300"
           enterFrom="absolute top-[100vh] opacity-0"

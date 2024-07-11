@@ -122,7 +122,7 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
 
   return (
     <Transition show={open}>
-      <Dialog className="relative z-50" onClose={focusSearch}>
+      <Dialog className="relative z-[1000]" onClose={focusSearch}>
         <TransitionChild
           enter="ease-in-out duration-300"
           enterFrom="absolute top-[100vh] opacity-0"
