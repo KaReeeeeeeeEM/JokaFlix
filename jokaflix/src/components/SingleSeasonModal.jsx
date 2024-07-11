@@ -157,7 +157,7 @@ export default function SingleSeasonModal({ toggler, title, seriesId, seasonID, 
                                         <img src={play} alt="play icon" className="w-8 h-8 md:w-12 md:h-12 relative left-[47%] top-[96px] md:left-[44%] md:top-[44%] cursor-pointer rounded-full" />
                                       </Link>
                                     </div>
-                                    <h1 className="font-bold text-white">
+                                    <h1 className="font-bold text-white text-start md:w-[400px]">
                                         Ep <span className='text-orange-600'>{episode.episode_number}</span>  |  {episode.name}
                                     </h1>
                                     <p className="mb-8 text-gray-600">
