@@ -59,26 +59,6 @@ const Home = () => {
       target: '.my-fifth-step',
       content: 'Check out all movies that are suggested for you including the hottest and upcoming movies',
     },
-    {
-      target: '.my-sixth-step',
-      content: 'Pick a category and select any movie eg. Animations, Comedy, Horror,...',
-    },
-    {
-      target: '.my-seventh-step',
-      content: 'Get to see the aired movies in the world',
-    },
-    {
-      target: '.my-eigth-step',
-      content: 'Get the most popular movies that are off the charts',
-    },
-    {
-      target: '.my-ninth-step',
-      content: 'Here you can see the Series and TV shows, current releases and upcoming ones',
-    },
-    {
-      target: '.my-last-step',
-      content: "You're all set! 🎊 Now you can start watching your favorite movies and series for free! Enjoy...😉",
-    }
   ];
 
   useEffect(() => {
