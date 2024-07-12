@@ -7,7 +7,7 @@ import Card from './Card';
 import SeriesModal from './SeriesModal';
 import progress from '../assets/progress.png';
 import { Link } from 'react-router-dom';
-import '../scrollbar.css';
+/*import '../scrollbar.css';*/
 
 const Series = () => {
   const [popularSeries, setPopularSeries] = useState([]);
