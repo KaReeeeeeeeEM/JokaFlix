@@ -24,6 +24,7 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
   const [downloadTitle, setDownloadTitle] = useState(null);
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
   const [openMediaPlayer, setOpenMediaPlayer] = useState(false);
+  const [addedToWatchlist, setAddedToWatchlist] = useState(false);
   const [trailers, setTrailers]=useState([]);
   const searchInputRef = useRef(null);
   const videoRef = useRef(null);
@@ -51,6 +52,9 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
     const fetchSeries = async () => {
       try {
         setIsLoading(true);
+        if(isInWatchlist(seriesId)){
+          setAddedToWatchlist(true);
+        }
         const seriesByCat = await fetchSeriesByCategory(seriesId);
         setSeriesByCategory(seriesByCat);
       } catch (error) {
@@ -124,6 +128,29 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
       videoRef.current.currentTime = 0;
     }
   };
+
+  const getWatchlist = () => {
+    const watchlist = localStorage.getItem('watchlist');
+    return watchlist ? JSON.parse(watchlist) : [];
+  };
+
+  const addToWatchlist = (movie) => {
+    const watchlist = getWatchlist();
+    localStorage.setItem('watchlist', JSON.stringify([...watchlist, movie]));
+    setAddedToWatchlist(true)
+  };
+
+  const removeFromWatchlist = (movieId) => {
+    const watchlist = getWatchlist().filter((movie) => movie !== movieId);
+    localStorage.setItem('watchlist', JSON.stringify(watchlist));
+    setAddedToWatchlist(false)
+  };
+
+  const isInWatchlist = (movieId) => {
+    return getWatchlist().some((movie) => movie === movieId);
+  };
+
+
 
   return (
     <Transition show={open}>
@@ -229,7 +256,7 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
                                   <button onClick={() => { 
                                           setOpenMediaPlayer(true);
                                           setAutoplay(false);
-                                          }} className='px-12 py-2  bg-orange-500 text-center text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
+                                          }} className='px-6 md:px-12 py-2  bg-orange-500 text-center text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
                                   <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                       <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
                                   </svg>
@@ -248,6 +275,23 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
                                     href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`I found this great series ${result.original_name} on JokaFlix! Stream for free with a high quality only on JokaFlix. Click the link to start today! https://jokaflix.vercel.app/`)}`} target='_blank' rel="noreferrer" >
                                     <ShareButton url={`https://jokaflix.vercel.app/`} title={`Check out this movie ${result.original_name}`} text={`I found this great movie ${result.original_name} from ${result.first_air_date.slice(0,4)} on JokaFlix!`} />
                                   </a>
+                                  {
+                              addedToWatchlist === true ? 
+                               <button onClick={() => {
+                                isInWatchlist(seriesId) === true && removeFromWatchlist(seriesId)
+                                }} className='py-2 px-2 mx-2 md:py-4 md:px-4 bg-orange-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                </svg>
+                              </button>
+                              : 
+                              <button onClick={() => {
+                                   isInWatchlist(seriesId) !== true && addToWatchlist(seriesId)
+                                }} className='py-2 px-2 mx-2 md:py-4 md:px-4 bg-orange-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>
+                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                </svg>
+                              </button>}
                               </div> 
                               <div className='flex items-center w-full justify-around mt-8'>
                                   {result.production_companies.map(company => company.logo_path && <img src={`https://image.tmdb.org/t/p/w500${company.logo_path}`} alt='company-logo' className='w-8 h-4 md:w-20 md:h-full rounded-lg md:border-2 md:border-gray-800 md:p-2' />)}
