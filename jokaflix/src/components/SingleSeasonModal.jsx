@@ -19,7 +19,6 @@ export default function SingleSeasonModal({ toggler, title, seriesId, seasonID, 
   const [seriesID, setSeriesID] = useState(null);
   const [seriesTitle, setSeriesTitle] = useState("");
   const [episodeNumber, setEpisodeNumber] = useState(0);
-  const [openSeasonModal, setOpenSeasonModal] = useState(false);
   const [openMediaPlayer, setOpenMediaPlayer] = useState(false);
 
   useEffect(() => {

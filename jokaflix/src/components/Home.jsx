@@ -17,6 +17,7 @@ import Joyride from 'react-joyride';
 import QRCode from './QRCode';
 import logo from '../assets/logo-sub.png';
 import IntroAnimation from './IntroAnimation';  
+import '../scrollbar.css';
 
 const Home = () => {
   const [popularMovies, setPopularMovies] = useState([]);
