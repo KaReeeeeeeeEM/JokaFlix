@@ -19,7 +19,7 @@ export default function MovieModal({ seriesId, seriesTitle, episodeNumber, seaso
 
   return (
     <Transition show={open}>
-      <Dialog className="relative z-[1000000000]" onClose={closeModal}>
+      <Dialog className="relative z-[10000000000000]" onClose={closeModal}>
         <TransitionChild
           enter="ease-in-out duration-300"
           enterFrom="absolute top-[100vh] opacity-0"
