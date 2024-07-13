@@ -189,7 +189,7 @@ export default function Watchlist({ toggler, onClose }) {
                 <h1 className='mt-16 md:mt-32 md:text-lg text-center mb-4 font-bold text-orange-600'>Suggestions</h1>
                 <div className="flex w-full flex-wrap items-center justify-center">
                   {suggestions.map(movie => (
-                    (!movie.media_type) ? 
+                    (!movie.media_type || movie.media_type !== "tv" || !movie.seasons) ? 
                     (<Link 
                       key={movie.id}
                       onClick={() => {
