@@ -189,7 +189,8 @@ export default function Watchlist({ toggler, onClose }) {
                 <h1 className='mt-16 md:mt-32 md:text-lg text-center mb-4 font-bold text-orange-600'>Suggestions</h1>
                 <div className="flex w-full flex-wrap items-center justify-center">
                   {suggestions.map(movie => (
-                    <Link 
+                    (!movie.media_type) ? 
+                    (<Link 
                       key={movie.id}
                       onClick={() => {
                         setMovieId(movie.id);
@@ -200,7 +201,19 @@ export default function Watchlist({ toggler, onClose }) {
                       {movie.poster_path && !watchlist.includes(`/movie/${movie.id}`) && (movie.first_air_date || movie.release_date) && (
                         <Card src={movie.poster_path} rating={movie.vote_average < 2 ? "5.2" : movie.vote_average} year={movie.first_air_date || movie.release_date} />
                       )}
+                    </Link>) 
+                    : (
+                      <Link
+                      key={movie.id}
+                      onClick={() => {
+                        setSeriesId(movie.id)
+                        setSeriesTitle(movie.original_name || movie.original_title)
+                        setOpenSeriesModal(true)
+                      }} 
+                    >
+                      <Card id={movie.id} src={movie.poster_path} rating={movie.vote_average < 2 ? "5.2" : movie.vote_average} year={movie.release_date || movie.first_air_date} />
                     </Link>
+                    )
                   ))}
                 </div>
               </DialogPanel>
