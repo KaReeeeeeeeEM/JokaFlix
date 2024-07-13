@@ -255,59 +255,61 @@ const AllCategories = ({toggler, title, onClose}) => {
                       onClose={() => setOpenMovieModal(false)}
                     />
                   )}
-                    {isLoading ? 
-                      <div className='flex items-center justify-center bg-transparent h-[15rem] w-full lg:h-[20rem]'>
-                        <img src={progress} alt="progress" className='animate-spin w-8 h-8' />
-                      </div>
-                      :  
-                        <div className="flex overflow-x-auto w-full">
-                            <div className="flex w-full items-center justify-center">
-                                <div className='flex w-full items-center justify-start flex-wrap'>
-                                    <Link onClick={() => {
-                                    setCategory("/movie/popular")
-                                    setOpenModal(true)
-                                    }}>
-                                    <Card key={popularMovies[3]?.id} src={popularMovies[3]?.poster_path} category="popular" />
-                                    </Link>
-                                    <Link onClick={() => {
-                                    setCategory("/movie/top_rated")
-                                    setOpenModal(true)
-                                    }}>
-                                    <Card key={trendingMovies[3]?.id} src={trendingMovies[3]?.poster_path} category="top rated" />
-                                    </Link>
-                                    <Link onClick={() => {
-                                    setCategory("/movie/upcoming")
-                                    setOpenModal(true)
-                                    }}>
-                                    <Card key={upcomingMovies[2]?.id} src={upcomingMovies[3]?.poster_path} category="upcoming" />
-                                    </Link>
-                                    <Link onClick={() => {
-                                    setCategory("/movie/now_playing")
-                                    setOpenModal(true)
-                                    }}>
-                                    <Card key={nowPlaying[3]?.id} src={nowPlaying[3]?.poster_path} category="now playing" />
-                                    </Link>
-                                    <Link onClick={() => {
-                                    setCategory("/tv/popular")
-                                    setOpenModal(true)
-                                    }}>
-                                    <Card key={tvShows[3]?.id} src={tvShows[3]?.poster_path} category="tv shows" />
-                                    </Link>
-                                    {
-                                    genres.map(
-                                        (genre) => 
-                                        <Link key={genre.id} onClick={() => {
-                                            setGenreId(genre.id)
-                                            setSelectedGenre(genre.name)
-                                            setOpenGenres(true)
+                    {
+                        isLoading ? 
+                        <div className='flex items-center justify-center bg-transparent h-[15rem] w-full lg:h-[20rem]'>
+                            <img src={progress} alt="progress" className='animate-spin w-8 h-8' />
+                        </div>
+                        :  
+                            <div className="flex overflow-x-auto w-full">
+                                <div className="flex w-full items-center justify-center">
+                                    <div className='flex w-full items-center justify-start flex-wrap'>
+                                        <Link onClick={() => {
+                                        setCategory("/movie/popular")
+                                        setOpenModal(true)
                                         }}>
-                                            <Card key={genre.id} src={genresCover[genre.id]} category={genre.name} />
+                                        <Card key={popularMovies[3]?.id} src={popularMovies[3]?.poster_path} category="popular" />
                                         </Link>
-                                    )
-                                }
+                                        <Link onClick={() => {
+                                        setCategory("/movie/top_rated")
+                                        setOpenModal(true)
+                                        }}>
+                                        <Card key={trendingMovies[3]?.id} src={trendingMovies[3]?.poster_path} category="top rated" />
+                                        </Link>
+                                        <Link onClick={() => {
+                                        setCategory("/movie/upcoming")
+                                        setOpenModal(true)
+                                        }}>
+                                        <Card key={upcomingMovies[2]?.id} src={upcomingMovies[3]?.poster_path} category="upcoming" />
+                                        </Link>
+                                        <Link onClick={() => {
+                                        setCategory("/movie/now_playing")
+                                        setOpenModal(true)
+                                        }}>
+                                        <Card key={nowPlaying[3]?.id} src={nowPlaying[3]?.poster_path} category="now playing" />
+                                        </Link>
+                                        <Link onClick={() => {
+                                        setCategory("/tv/popular")
+                                        setOpenModal(true)
+                                        }}>
+                                        <Card key={tvShows[3]?.id} src={tvShows[3]?.poster_path} category="tv shows" />
+                                        </Link>
+                                        {
+                                        genres.map(
+                                            (genre) => 
+                                            <Link key={genre.id} onClick={() => {
+                                                setGenreId(genre.id)
+                                                setSelectedGenre(genre.name)
+                                                setOpenGenres(true)
+                                            }}>
+                                                <Card key={genre.id} src={genresCover[genre.id]} category={genre.name} />
+                                            </Link>
+                                        )
+                                    }
+                                </div>
+                                </div>
                             </div>
-                            </div>
-                        </div>}
+                        }
                 </div>
               </DialogPanel>
             </TransitionChild>
