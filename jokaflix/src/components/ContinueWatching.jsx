@@ -90,7 +90,7 @@ const ContinueWatching = () => {
                 setOpenSeriesModal(true);
               }}
             >
-              <div className='z-[100] flex flex-col justify-start items-start hover:scale-105 hover:transition ease-in-out duration-700'>
+              <div className='flex flex-col justify-start items-start hover:scale-105 hover:transition ease-in-out duration-700'>
                 <div key={item.id} id={item.id}  style={{backgroundImage:`url(https://image.tmdb.org/t/p/original${item.poster_path})`}} className='w-[200px] h-[150px] md:w-[400px] md:h-[250px] rounded mr-4 bg-center bg-cover bg-no-repeat'></div>
                 <div className='h-1 md:h-2 rounded-full w-[200px] md:w-[400px] bg-gray-300 mt-2'>
                   <div className='h-full w-[100px] bg-orange-500 rounded-full'></div>
