@@ -15,6 +15,7 @@ export default function SingleSeasonModal({ toggler, title, seriesId, seasonID, 
   const [episodes, setEpisodes] = useState([]);
   const [backdrops, setBackdrops] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [season, setSeason] = useState(seasonID);
   const [seasonId, setSeasonId] = useState(null);
   const [seriesID, setSeriesID] = useState(null);
   const [seriesTitle, setSeriesTitle] = useState("");
@@ -110,6 +111,10 @@ export default function SingleSeasonModal({ toggler, title, seriesId, seasonID, 
                           toggler={openMediaPlayer}
                           seriesTitle={seriesTitle}
                           seriesId={seriesID}
+                          seasonID={season} 
+                          poster={backdrops[0].file_path}
+                          year={episodes.first_air_date}
+                          rating={episodes.vote_average}
                           episodeNumber={episodeNumber}
                           seasonId={seasonID}
                           onClose={() => setOpenMediaPlayer(false)}

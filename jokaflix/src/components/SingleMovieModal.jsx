@@ -24,8 +24,11 @@ export default function MovieModal({ toggler, title, type, movieId, onClose }) {
   const [downloadTitle, setDownloadTitle] = useState(null);
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
   const [openMediaPlayer,setOpenMediaPlayer] = useState(false);
+  const [moviePoster, setMoviePoster] = useState(null);
+  const [movieRelease, setMovieRelease] = useState(null);
   const [movieID,setMovieID] = useState(null);
   const [movieTitle,setMovieTitle] = useState(null);
+  const [rating, setRating] = useState(0);
   const [addedToWatchlist, setAddedToWatchlist] = useState(false);
   const searchInputRef = useRef(null);
   const videoRef = useRef(null);
@@ -230,6 +233,9 @@ export default function MovieModal({ toggler, title, type, movieId, onClose }) {
                               toggler={openMediaPlayer}
                               movieTitle={movieTitle}
                               movieId={movieID}
+                              poster={moviePoster}
+                              rating={rating}
+                              movieRelease={movieRelease}
                               onClose={() => setOpenMediaPlayer(false)}
                             />
                       )}
@@ -278,6 +284,9 @@ export default function MovieModal({ toggler, title, type, movieId, onClose }) {
                               <button  onClick={() => {
                                             setMovieTitle(title);
                                             setMovieID(movieId.slice(7,))
+                                            setMoviePoster(result.poster_path)
+                                            setRating(result.vote_average || 5.2)
+                                            setMovieRelease(result.release_date)
                                             setOpenMediaPlayer(true);
                                         }} className='px-6 md:px-12 py-2  bg-orange-500 text-center text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
                               <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">

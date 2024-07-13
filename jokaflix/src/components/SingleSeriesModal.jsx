@@ -250,6 +250,9 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
                                       seriesTitle={result.original_name + " S01 E1"}
                                       episodeNumber="1"
                                       seriesId={result.id}
+                                      rating={result.vote_average}
+                                      year={result.first_air_date}
+                                      poster={result.poster_path}
                                       seasonId="1"
                                       onClose={() => setOpenMediaPlayer(false)}
                                     />

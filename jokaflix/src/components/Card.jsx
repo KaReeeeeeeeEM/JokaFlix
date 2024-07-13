@@ -7,7 +7,7 @@ import comingsoon from '../assets/comingsoon.png';
 import star from '../assets/star.png';
 import '../card.css';
 
-const Card = ({ src, rating, category, year }) => {
+const Card = ({ src, last, rating, category, year }) => {
   const [recent, setRecent] = useState("");
   const [qualityIcon, setQualityIcon] = useState(null);
 

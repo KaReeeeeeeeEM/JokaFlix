@@ -1,21 +1,67 @@
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react';
 import { XCircleIcon } from '@heroicons/react/24/outline';
+import { getVideoProgress, saveVideoProgress, addToContinueWatching } from './progressStorage'; // Import utility functions
 
-export default function MovieModal({ seriesId, seriesTitle, episodeNumber, seasonId, movieId, movieTitle, onClose, toggler }) {
+export default function MovieModal({ seriesId, poster, rating, movieRelease, seriesTitle, episodeNumber, seasonId, movieId, movieTitle, onClose, toggler }) {
   const [open, setOpen] = useState(toggler);
+  const videoRef = useRef(null);
+  const videoId = seriesId ? `${seriesId}-${seasonId}-${episodeNumber}` : movieId;
 
   useEffect(() => {
     setOpen(toggler);
   }, [toggler]);
 
+  useEffect(() => {
+    if (videoRef.current) {
+      const savedTime = getVideoProgress(videoId);
+      videoRef.current.currentTime = savedTime;
+    }
+  }, [videoId, open]);
+
   const closeModal = () => {
+    if (videoRef.current) {
+      const currentTime = videoRef.current.currentTime;
+      const videoData = {
+        id: seriesId? seriesId : movieId,
+        title: seriesId ? seriesTitle : movieTitle,
+        type: seriesId ? 'series' : 'movie',
+        movieId: movieId,
+        seriesId: seriesId,
+        seasonId: seasonId,
+        episodeNumber: episodeNumber,
+        time: currentTime,
+        poster_path: poster,
+        rating: rating,
+        year: movieRelease
+      };
+      saveVideoProgress(videoData.id, currentTime);
+      addToContinueWatching(videoData);
+    }
     setOpen(false);
     onClose();
   };
 
-  console.log(movieTitle, movieId)
+  const handleTimeUpdate = () => {
+    if (videoRef.current) {
+      const currentTime = videoRef.current.currentTime;
+      saveVideoProgress(videoId, currentTime);
+      addToContinueWatching({
+        id: seriesId || movieId,
+        title: seriesTitle || movieTitle,
+        type: seriesId ? 'series' : 'movie',
+        time: currentTime,
+        movieId: movieId,
+        seriesId: seriesId,
+        seasonId: seasonId,
+        episodeNumber: episodeNumber,
+        poster_path: poster,
+        rating: rating,
+        year: movieRelease
+      });
+    }
+  };
 
   return (
     <Transition show={open}>
@@ -60,6 +106,7 @@ export default function MovieModal({ seriesId, seriesTitle, episodeNumber, seaso
               <DialogPanel className="relative transform overflow-y-auto rounded-lg bg-transparent text-left shadow-xl transition-all w-[90vw] lg:w-[100vw] h-[98vh] lg:h-[90vh]">
                 <div className='w-[98vw] flex flex-start items-start md:items-center md:justify-center mx-auto'>
                   <iframe
+                    ref={videoRef}
                     title={seriesTitle}
                     src={seriesId ? `https://autoembed.co/tv/tmdb/${seriesId}-${seasonId}-${episodeNumber}` : `https://autoembed.co/movie/tmdb/${movieId}`}
                     width="100%"
@@ -67,6 +114,7 @@ export default function MovieModal({ seriesId, seriesTitle, episodeNumber, seaso
                     frameBorder="0"
                     className='w-[98vw] h-[80vh] md:h-[88vh] mx-auto text-sm'
                     allowFullScreen
+                    onTimeUpdate={handleTimeUpdate} // Track time updates
                   >
                   </iframe>
                 </div>

@@ -20,6 +20,7 @@ import watchlist from '../assets/watchlist.png';
 import IntroAnimation from './IntroAnimation';  
 import '../scrollbar.css';
 import Watchlist from './Watchlist';
+import ContinueWatching from './ContinueWatching';
 
 const Home = () => {
   const [popularMovies, setPopularMovies] = useState([]);
@@ -239,6 +240,9 @@ const Home = () => {
           </div>
           <div className='my-last-step'>
             <Showcase />
+          </div>
+          <div>
+            <ContinueWatching />
           </div>
           <div>
             <ForYou />
