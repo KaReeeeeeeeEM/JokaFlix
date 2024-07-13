@@ -211,8 +211,11 @@ export default function Watchlist({ toggler, onClose }) {
                         setOpenSeriesModal(true)
                       }} 
                     >
-                      <Card id={movie.id} src={movie.poster_path} rating={movie.vote_average < 2 ? "5.2" : movie.vote_average} year={movie.release_date || movie.first_air_date} />
+                    {movie.poster_path && !watchlist.includes(`/tv/${movie.id}`) && (movie.first_air_date || movie.release_date) && (
+                      <Card id={movie.id} src={movie.poster_path || movie.backdrop_path} rating={movie.vote_average < 2 ? "5.2" : movie.vote_average} year={movie.release_date || movie.first_air_date} />
+                      )}
                     </Link>
+                    
                     )
                   ))}
                 </div>
