@@ -74,7 +74,7 @@ const ContinueWatching = () => {
                   <div className='relative flex flex-col justify-start items-start hover:scale-105 hover:transition ease-in-out duration-700'>
                     <div key={item.id} id={item.id} style={{ backgroundImage: `url(https://image.tmdb.org/t/p/original${item.poster_path})` }} className='w-[200px] h-[150px] md:w-[400px] md:h-[250px] rounded mr-4 bg-center bg-cover bg-no-repeat'>
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="rgb(0,0,0,0.6)" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" className="w-12 h-12 md:w-20 md:h-20">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="rgb(0,0,0,0.6)" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" className="w-12 h-12 md:w-20 md:h-20 text-white">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                           <path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z" />
                         </svg>
@@ -99,8 +99,8 @@ const ContinueWatching = () => {
                 >
                   <div className='relative flex flex-col justify-start items-start hover:scale-105 hover:transition ease-in-out duration-700'>
                     <div key={item.id} id={item.id} style={{ backgroundImage: `url(https://image.tmdb.org/t/p/original${item.poster_path})` }} className='w-[200px] h-[150px] md:w-[400px] md:h-[250px] rounded mr-4 bg-center bg-cover bg-no-repeat'>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-12 h-12 text-white">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="rgb(0,0,0,0.6)" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" className="w-12 h-12 md:w-20 md:h-20 text-white">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                           <path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z" />
                         </svg>
