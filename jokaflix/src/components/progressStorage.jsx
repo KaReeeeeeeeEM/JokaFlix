@@ -1,14 +1,16 @@
 // progressStorage.js
 
-export const getVideoProgress = (id) => {
-  const progress = JSON.parse(localStorage.getItem(`video-progress-${id}`)) || 0;
-  // console.log(`Retrieved progress for ${id}:`, progress);
+const getVideoProgressKey = (id, server) => `video-progress-${id}-${server}`;
+
+export const getVideoProgress = (id, server) => {
+  const progress = JSON.parse(localStorage.getItem(getVideoProgressKey(id, server))) || 0;
+  // console.log(`Retrieved progress for ${id} on server ${server}:`, progress);
   return progress;
 };
 
-export const saveVideoProgress = (id, time) => {
-  localStorage.setItem(`video-progress-${id}`, JSON.stringify(time));
-  // console.log(`Saved progress for ${id}:`, time);
+export const saveVideoProgress = (id, server, time) => {
+  localStorage.setItem(getVideoProgressKey(id, server), JSON.stringify(time));
+  // console.log(`Saved progress for ${id} on server ${server}:`, time);
 };
 
 export const getContinueWatching = () => {
@@ -19,7 +21,7 @@ export const getContinueWatching = () => {
 
 export const addToContinueWatching = (video) => {
   const continueWatching = getContinueWatching();
-  const existingIndex = continueWatching.findIndex(v => v.id === video.id);
+  const existingIndex = continueWatching.findIndex(v => v.id === video.id && v.server === video.server);
 
   if (existingIndex !== -1) {
     continueWatching[existingIndex] = { ...continueWatching[existingIndex], time: video.time };

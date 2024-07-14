@@ -15,7 +15,7 @@ const ContinueWatching = () => {
   const [movieId, setMovieId] = useState("");
   const [movieTitle, setMovieTitle] = useState("");
   const [seriesTitle, setSeriesTitle] = useState("");
-  const [updated, setUpdated] = useState(false);
+  const [fullSeries, setFullSeries] = useState(false);
   const [episodeNumber, setEpisodeNumber] = useState(0);
 
   useEffect(() => {
@@ -40,6 +40,7 @@ const ContinueWatching = () => {
           seriesTitle={seriesTitle}
           seriesId={seriesID}
           episodeNumber={episodeNumber}
+          fullSeries={fullSeries}
           seasonId={seasonId}
           onClose={() => setOpenSeriesModal(false)}
         />
@@ -64,7 +65,7 @@ const ContinueWatching = () => {
             {continueWatching.map((item) => (
               item.type === "movie" ? (
                 <Link
-                  key={item.id}
+                  key={`${item.id}-${item.server}`}
                   onClick={() => {
                     setMovieId(item.id);
                     setMovieTitle(item.title);
@@ -88,11 +89,12 @@ const ContinueWatching = () => {
                 </Link>
               ) : (
                 <Link
-                  key={item.id}
+                  key={`${item.id}-${item.server}`}
                   onClick={() => {
                     setSeriesID(item.id);
                     setSeriesTitle(item.title);
                     setSeasonId(item.seasonId);
+                    setFullSeries(item.fullSeries)
                     setEpisodeNumber(item.episodeNumber);
                     setOpenSeriesModal(true);
                   }}

@@ -17,8 +17,8 @@ import ShareButton from './ShareButton';
 export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) {
   const [open, setOpen] = useState(toggler); 
   const [seriesByCategory, setSeriesByCategory] = useState([]);
-  const [searchParam, setSearchParam] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [fullSeries, setFullSeries] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [autoplay, setAutoplay] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -247,12 +247,13 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
                                   {openMediaPlayer && (
                                     <MediaPlayer
                                       toggler={openMediaPlayer}
-                                      seriesTitle={result.original_name + " S01 E1"}
+                                      seriesTitle={result.original_name}
                                       episodeNumber="1"
                                       seriesId={result.id}
                                       rating={result.vote_average}
                                       year={result.first_air_date}
                                       poster={result.poster_path}
+                                      fullSeries={fullSeries}
                                       seasonId="1"
                                       onClose={() => setOpenMediaPlayer(false)}
                                     />
@@ -260,6 +261,7 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
                                   <button onClick={() => { 
                                           setOpenMediaPlayer(true);
                                           setAutoplay(false);
+                                          setFullSeries(true);
                                           }} className='px-6 md:px-12 py-2  bg-orange-500 text-center text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
                                   <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                       <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />

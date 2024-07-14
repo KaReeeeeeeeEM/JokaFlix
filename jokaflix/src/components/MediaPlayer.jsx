@@ -4,11 +4,12 @@ import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@
 import { XCircleIcon } from '@heroicons/react/24/outline';
 import { getVideoProgress, saveVideoProgress, addToContinueWatching } from './progressStorage'; // Import utility functions
 
-export default function MediaPlayer({ seriesId, poster, rating, movieRelease, seriesTitle, episodeNumber, seasonId, movieId, movieTitle, onClose, toggler }) {
+export default function MediaPlayer({ seriesId, fullSeries, poster, rating, movieRelease, seriesTitle, episodeNumber, seasonId, movieId, movieTitle, onClose, toggler }) {
   const [open, setOpen] = useState(toggler);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentServer, setCurrentServer] = useState('server1'); // State to track current server
   const videoRef = useRef(null);
-  const videoId = seriesId ? `${seriesId}-${seasonId}-${episodeNumber}` : movieId;
+  const videoId = seriesId ? `${seriesId}-${seasonId}-${episodeNumber}-${currentServer}` : `${movieId}-${currentServer}`;
 
   useEffect(() => {
     setOpen(toggler);
@@ -25,7 +26,7 @@ export default function MediaPlayer({ seriesId, poster, rating, movieRelease, se
     if (videoRef.current) {
       const currentTime = videoRef.current.currentTime;
       const videoData = {
-        id: seriesId? seriesId : movieId,
+        id: seriesId ? seriesId : movieId,
         title: seriesId ? seriesTitle : movieTitle,
         type: seriesId ? 'series' : 'movie',
         movieId: movieId,
@@ -33,11 +34,13 @@ export default function MediaPlayer({ seriesId, poster, rating, movieRelease, se
         seasonId: seasonId,
         episodeNumber: episodeNumber,
         time: currentTime,
+        fullSeries: fullSeries,
+        server: currentServer,
         poster_path: poster,
         rating: rating,
         year: movieRelease
       };
-      saveVideoProgress(videoData.id, currentTime);
+      saveVideoProgress(videoData.id, currentTime, currentServer);
       addToContinueWatching(videoData);
     }
     setOpen(false);
@@ -47,7 +50,7 @@ export default function MediaPlayer({ seriesId, poster, rating, movieRelease, se
   const handleTimeUpdate = () => {
     if (videoRef.current) {
       const currentTime = videoRef.current.currentTime;
-      saveVideoProgress(videoId, currentTime);
+      saveVideoProgress(videoId, currentTime, currentServer);
       addToContinueWatching({
         id: seriesId || movieId,
         title: seriesTitle || movieTitle,
@@ -57,11 +60,17 @@ export default function MediaPlayer({ seriesId, poster, rating, movieRelease, se
         seriesId: seriesId,
         seasonId: seasonId,
         episodeNumber: episodeNumber,
+        fullSeries: fullSeries,
+        server: currentServer,
         poster_path: poster,
         rating: rating,
         year: movieRelease
       });
     }
+  };
+
+  const switchServer = (server) => {
+    setCurrentServer(server);
   };
 
   return (
@@ -87,13 +96,13 @@ export default function MediaPlayer({ seriesId, poster, rating, movieRelease, se
           </div>
           <DialogTitle
             as="h3"
-            className="text-center font-semibold leading-6 mt-4 text-orange-600 md:text-xl"
+            className="text-center font-semibold leading-6 mt-4 text-white md:text-xl"
           >
-            {seriesTitle ? seriesTitle : movieTitle}
+            <span className='text-center font-semibold leading-6 mt-4 text-orange-600 md:text-xl'>{seriesTitle ? seriesTitle : movieTitle}</span>
             <br />
-            <span className='mx-auto text-sm'>
-              (Use <span className='text-white'>Server 2 (then click the 3-line icon on the left select multi)</span> or <span className='text-white'>Server 3</span> for <span className='text-white'>1080</span> quality)
-            </span>
+            {!fullSeries && <span className='mx-auto text-sm'>
+            Click the <span className='text-orange-600'> 3-line </span>icon on the left select <span className='text-orange-600'>multi</span> for better quality
+            </span>}
           </DialogTitle>
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
             <TransitionChild
@@ -109,7 +118,7 @@ export default function MediaPlayer({ seriesId, poster, rating, movieRelease, se
                   <iframe
                     ref={videoRef}
                     title={seriesTitle}
-                    src={seriesId ? `https://autoembed.co/tv/tmdb/${seriesId}-${seasonId}-${episodeNumber}` : `https://autoembed.co/movie/tmdb/${movieId}`}
+                    src={seriesId ? (fullSeries ? `https://www.2embed.skin/embedtvfull/${seriesId}` : `https://www.2embed.skin/embedtv/${seriesId}&s=${seasonId}&e=${episodeNumber}`) : `https://www.2embed.cc/embed/${movieId}`}
                     width="100%"
                     height="100%"
                     frameBorder="0"
