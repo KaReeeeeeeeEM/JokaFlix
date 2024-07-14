@@ -109,11 +109,12 @@ const Popular = () => {
           <div className='flex items-center justify-start flex-nowrap whitespace-nowrap'>
             {popularMovies.slice(8,).map((upcoming) => (
               <Link
-              onClick={() => {
-              setMovieId(upcoming.id)
-              setMovieTitle(upcoming.original_title)
-              setOpenMovieModal(true)
-              }} >
+                  key={upcoming.id}
+                  onClick={() => {
+                  setMovieId(upcoming.id)
+                  setMovieTitle(upcoming.original_title)
+                  setOpenMovieModal(true)
+                  }} >
                 <Card key={upcoming.id} src={upcoming.poster_path} rating={upcoming.vote_average < 2 ? "5.2" : upcoming.vote_average} year={upcoming.release_date} />
               </Link>
             ))}

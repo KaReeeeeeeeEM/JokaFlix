@@ -101,6 +101,7 @@ const Series = () => {
           <div className='flex items-center justify-start flex-nowrap whitespace-nowrap'>
             {popularSeries.map((series) => (
                <Link
+                key={series.id}
                 onClick={() => {
                 setSeriesId(series.id)
                 setSeriesTitle(series.original_title)

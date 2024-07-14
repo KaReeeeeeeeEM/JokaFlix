@@ -109,6 +109,7 @@ const NowPlaying = () => {
           <div className='flex items-center justify-start flex-nowrap whitespace-nowrap'>
             {nowPlaying.map((upcoming) => (
               <Link
+                key={upcoming.id}
                 onClick={() => {
                 setMovieId(upcoming.id)
                 setMovieTitle(upcoming.original_title)

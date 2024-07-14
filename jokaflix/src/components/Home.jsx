@@ -185,7 +185,7 @@ const Home = () => {
             />
           )}
           <div className="absolute top-0 h-screen w-full inset-0 bg-opacity-70 bg-black blur-md"></div>
-          <div className='w-full h-screen bg-gray-900' style={{ backgroundImage: `url(https://image.tmdb.org/t/p/original${popularMovies[coverMovie].poster_path || popularMovies[coverMovie].backdrop_path})`, backgroundPosition: "center", backgroundSize: "cover", backgroundRepeat: "no-repeat" }}>
+          <div className='w-full h-screen bg-gray-900' style={{ backgroundImage: `url(https://image.tmdb.org/t/p/original${popularMovies[coverMovie].poster_path || popularMovies[coverMovie].backdrop_path})`, backgroundSize: "cover", backgroundRepeat: "no-repeat" }}>
             <div className='flex items-center justify-around absolute top-[60vh] md:top-[65vh] lg:top-[55vh] left-[1.2rem] lg:left-[2.5rem] p-2 w-[8rem] h-[2rem]'>
               <img src={imdb} alt='imdb' className='w-[3rem] h-[3rem]' />
               <h1 className='flex text-xl text-white font-semibold'><span className='mx-1'><img src={star} alt="star" className='w-6 h-6' /></span>{popularMovies[coverMovie].vote_average < 1 ? 5.5 : Math.ceil(popularMovies[coverMovie].vote_average * 10) / 10}</h1>

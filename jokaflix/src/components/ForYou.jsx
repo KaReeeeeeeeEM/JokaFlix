@@ -121,6 +121,7 @@ const ForYou = () => {
           <div className='flex items-center justify-start w-full flex-nowrap whitespace-nowrap'>
             {upcomingMovies.map((upcoming) => (
               <Link
+                  key={upcoming.id}
                   onClick={() => {
                   setMovieId(upcoming.id)
                   setMovieTitle(upcoming.original_title)
