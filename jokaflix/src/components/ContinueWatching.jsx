@@ -21,7 +21,7 @@ const ContinueWatching = () => {
     const savedContinueWatching = getContinueWatching();
     setContinueWatching(savedContinueWatching);
     setIsLoading(false);
-  }, [continueWatching]);
+  }, [setContinueWatching]);
 
   return (
     <div className='flex flex-col items-left px-8 md:px-40 my-12 md:my-24 w-[98vw]'>
