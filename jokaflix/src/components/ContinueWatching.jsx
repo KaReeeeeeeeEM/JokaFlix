@@ -2,26 +2,26 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import progress from '../assets/progress.png';
-import { getContinueWatching } from './progressStorage';
+import { getContinueWatching} from './progressStorage';
 import MediaPlayer from './MediaPlayer';
 
 const ContinueWatching = () => {
   const [continueWatching, setContinueWatching] = useState([]);
   const [openMovieModal, setOpenMovieModal] = useState(false);
   const [openSeriesModal, setOpenSeriesModal] = useState(false);
-  const [movieId, setMovieId] = useState("");
-  const [movieTitle, setMovieTitle] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [seasonId, setSeasonId] = useState(null);
   const [seriesID, setSeriesID] = useState(null);
+  const [movieId, setMovieId] = useState("");
+  const [movieTitle, setMovieTitle] = useState("");
   const [seriesTitle, setSeriesTitle] = useState("");
   const [episodeNumber, setEpisodeNumber] = useState(0);
 
   useEffect(() => {
     const savedContinueWatching = getContinueWatching();
     setContinueWatching(savedContinueWatching);
-    setIsLoading(false);
-  }, [setContinueWatching]);
+     setIsLoading(false);
+  }, []);
 
   return (
     <div className='flex flex-col items-left px-8 md:px-40 my-12 md:my-24 w-[98vw]'>

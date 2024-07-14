@@ -4,8 +4,9 @@ import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@
 import { XCircleIcon } from '@heroicons/react/24/outline';
 import { getVideoProgress, saveVideoProgress, addToContinueWatching } from './progressStorage'; // Import utility functions
 
-export default function MovieModal({ seriesId, poster, rating, movieRelease, seriesTitle, episodeNumber, seasonId, movieId, movieTitle, onClose, toggler }) {
+export default function MediaPlayer({ seriesId, poster, rating, movieRelease, seriesTitle, episodeNumber, seasonId, movieId, movieTitle, onClose, toggler }) {
   const [open, setOpen] = useState(toggler);
+  const [isLoading, setIsLoading] = useState(false);
   const videoRef = useRef(null);
   const videoId = seriesId ? `${seriesId}-${seasonId}-${episodeNumber}` : movieId;
 
