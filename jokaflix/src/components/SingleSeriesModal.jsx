@@ -189,6 +189,7 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
                           <DownloadModal
                             toggler={openDownloadModal}
                             title={downloadTitle}
+                            seriesId={seriesId.slice(4,)}
                             onClose={() => setOpenDownloadModal(false)}
                           />
                         )}

@@ -9,8 +9,9 @@ import progress from '../assets/progress.png';
 
 const TMDB_API_KEY = '035c0f1a7347b310a5b95929826fc81f';
 const YTS_API_URL = 'https://yts.mx/api/v2';
+const API_PROXY_URL = 'https://api.allorigins.win/get?url='; // Proxy to handle CORS issues
 
-export default function DownloadModal({ toggler, title, tmdbId, onClose }) {
+export default function DownloadModal({ toggler, seriesId, movieId, title, onClose }) {
   const [open, setOpen] = useState(toggler);
   const [isLoading, setIsLoading] = useState(false);
   const [mediaInfo, setMediaInfo] = useState(null);
@@ -27,30 +28,37 @@ export default function DownloadModal({ toggler, title, tmdbId, onClose }) {
     try {
       let mediaData = null;
 
-      // Step 1: Fetch media details using TMDB ID if available
-      if (tmdbId) {
-        const tmdbResponse = await axios.get(`https://api.themoviedb.org/3/movie/${tmdbId}`, {
+      // Step 1: Fetch media details using seriesId or movieId
+      if (seriesId) {
+        const tmdbSeriesResponse = await axios.get(`https://api.themoviedb.org/3/tv/${seriesId}`, {
           params: {
             api_key: TMDB_API_KEY,
           },
         });
-        mediaData = tmdbResponse.data;
+        mediaData = await fetchSeriesTorrents(tmdbSeriesResponse.data.name || tmdbSeriesResponse.data.original_name);
+      } else if (movieId) {
+        const tmdbMovieResponse = await axios.get(`https://api.themoviedb.org/3/movie/${movieId}`, {
+          params: {
+            api_key: TMDB_API_KEY,
+          },
+        });
+        const response = await axios.get(`${YTS_API_URL}/list_movies.json`, {
+          params: { query_term: tmdbMovieResponse.data.title }
+        });
+        mediaData = response.data.data.movies ? response.data.data.movies[0] : null;
       }
 
-      // Step 2: If TMDB ID fetch is unsuccessful or not provided, fetch using title directly
-      if (!mediaData) {
+      // Step 2: If no seriesId or movieId fetch is unsuccessful or not provided, fetch using title directly
+      if (!mediaData && title) {
         const response = await axios.get(`${YTS_API_URL}/list_movies.json`, {
           params: { query_term: title }
         });
-        mediaData = response.data.data.movies[0];
+        mediaData = response.data.data.movies ? response.data.data.movies[0] : null;
       }
 
       // Step 3: If no movies found, fetch series using title
-      if (!mediaData) {
-        const response = await axios.get(`${YTS_API_URL}/list_tv_shows.json`, {
-          params: { query_term: title }
-        });
-        mediaData = response.data.data.tv_shows[0];
+      if (!mediaData && title) {
+        mediaData = await fetchSeriesTorrents(title);
       }
 
       // Step 4: Set the media info or handle no results
@@ -64,6 +72,36 @@ export default function DownloadModal({ toggler, title, tmdbId, onClose }) {
       setMediaInfo(null);
     }
     setIsLoading(false);
+  };
+
+  const fetchSeriesTorrents = async (title) => {
+    try {
+      const response = await axios.get(`${API_PROXY_URL}https://1337x.to/sort-search/${title}/time/desc/1/`, {
+        headers: { 'Access-Control-Allow-Origin': '*' },
+      });
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(response.data.contents, 'text/html');
+      const torrents = [];
+      doc.querySelectorAll('tr').forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length > 0) {
+          torrents.push({
+            title: cells[0].innerText,
+            magnet: cells[2].querySelector('a[href^="magnet"]').href,
+            seeders: cells[1].innerText,
+            leechers: cells[2].innerText,
+            size: cells[3].innerText,
+            uploader: cells[4].innerText,
+            date: cells[5].innerText,
+          });
+        }
+      });
+      return torrents.length > 0 ? torrents[0] : null;
+    } catch (error) {
+      console.error('Error fetching series torrents:', error);
+      return null;
+    }
   };
 
   const closeModal = () => {
@@ -96,7 +134,7 @@ export default function DownloadModal({ toggler, title, tmdbId, onClose }) {
           >
             <DialogPanel className="relative bg-gray-800 rounded-lg shadow-xl overflow-hidden w-full max-w-3xl">
               <div className="flex justify-between items-center p-4 border-b border-gray-700">
-                <h1 className="text-white font-bold text-lg md:text-xl">{mediaInfo ? `Torrents for ${mediaInfo.title}` : 'Torrents'}</h1>
+                <h1 className="text-white font-bold text-lg md:text-xl">{mediaInfo ? `Torrents for ${mediaInfo.title || mediaInfo.name || mediaInfo.original_name}` : 'Torrents'}</h1>
                 <button
                   className="text-gray-400 hover:text-white focus:outline-none"
                   onClick={closeModal}
@@ -116,13 +154,13 @@ export default function DownloadModal({ toggler, title, tmdbId, onClose }) {
                         <div key={index} className="p-4 border border-gray-700 rounded-lg flex items-center space-x-4">
                           <img
                             src={mediaInfo.large_cover_image}
-                            alt={mediaInfo.title}
+                            alt={mediaInfo.title || mediaInfo.name || mediaInfo.original_name}
                             className="w-20 h-auto rounded-lg"
                           />
                           <div className="flex-1">
                             <p className="text-white">{torrent.quality} - {torrent.size}</p>
                             <a
-                              href={`magnet:?xt=urn:btih:${torrent.hash}&dn=${encodeURIComponent(mediaInfo.title)}&tr=udp://open.demonii.com:1337/announce&tr=udp://tracker.openbittorrent.com:80/announce&tr=udp://tracker.coppersurfer.tk:6969/announce&tr=udp://tracker.leechers-paradise.org:6969/announce`}
+                              href={`magnet:?xt=urn:btih:${torrent.hash}&dn=${encodeURIComponent(mediaInfo.title || mediaInfo.name || mediaInfo.original_name)}&tr=udp://open.demonii.com:1337/announce&tr=udp://tracker.openbittorrent.com:80/announce&tr=udp://tracker.coppersurfer.tk:6969/announce&tr=udp://tracker.leechers-paradise.org:6969/announce`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-700 inline-block mt-2"

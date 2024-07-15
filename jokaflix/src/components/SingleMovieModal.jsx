@@ -225,6 +225,7 @@ export default function MovieModal({ toggler, title, type, movieId, onClose }) {
                           <DownloadModal
                             toggler={openDownloadModal}
                             title={downloadTitle}
+                            movieId={movieID}
                             onClose={() => setOpenDownloadModal(false)}
                           />
                         )}
