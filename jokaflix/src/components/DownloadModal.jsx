@@ -9,7 +9,7 @@ import progress from '../assets/progress.png';
 
 const TMDB_API_KEY = '035c0f1a7347b310a5b95929826fc81f';
 const YTS_API_URL = 'https://yts.mx/api/v2';
-const API_PROXY_URL = 'https://api.allorigins.win/get?url='; // Proxy to handle CORS issues
+const TORRENTAPI_URL = 'https://torrentapi.org/pubapi_v2.php';
 
 export default function DownloadModal({ toggler, seriesId, movieId, title, onClose }) {
   const [open, setOpen] = useState(toggler);
@@ -76,27 +76,14 @@ export default function DownloadModal({ toggler, seriesId, movieId, title, onClo
 
   const fetchSeriesTorrents = async (title) => {
     try {
-      const response = await axios.get(`${API_PROXY_URL}https://1337x.to/sort-search/${title}/time/desc/1/`, {
-        headers: { 'Access-Control-Allow-Origin': '*' },
-      });
+      // Step 1: Get token
+      const tokenResponse = await axios.get(`${TORRENTAPI_URL}?get_token=get_token`);
+      const token = tokenResponse.data.token;
 
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(response.data.contents, 'text/html');
-      const torrents = [];
-      doc.querySelectorAll('tr').forEach(row => {
-        const cells = row.querySelectorAll('td');
-        if (cells.length > 0) {
-          torrents.push({
-            title: cells[0].innerText,
-            magnet: cells[2].querySelector('a[href^="magnet"]').href,
-            seeders: cells[1].innerText,
-            leechers: cells[2].innerText,
-            size: cells[3].innerText,
-            uploader: cells[4].innerText,
-            date: cells[5].innerText,
-          });
-        }
-      });
+      // Step 2: Search for torrents
+      const response = await axios.get(`${TORRENTAPI_URL}?mode=search&search_string=${title}&token=${token}`);
+      const torrents = response.data.torrent_results;
+
       return torrents.length > 0 ? torrents[0] : null;
     } catch (error) {
       console.error('Error fetching series torrents:', error);
