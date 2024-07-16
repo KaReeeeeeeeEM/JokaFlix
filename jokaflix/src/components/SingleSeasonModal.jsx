@@ -137,9 +137,9 @@ export default function SingleSeasonModal({ toggler, title, seriesId, seasonID, 
                           </div>
                           <div className="flex w-full flex-wrap">
                             <div className="w-full flex items-center flex-wrap">
-                                <div className="w-[85vw] md:flex md:w-full items-center text-center flex-wrap md:justify-evenly rounded-lg mx-auto mb-3 md:mx-12">
+                                <div className="w-[85vw] md:flex md:w-full items-center text-center flex-wrap md:justify-start rounded-lg mx-auto mb-3 md:mx-12">
                               {episodes.map((episode, index) => (
-                                  <div className="flex flex-col hover:scale-105 transition ease-in-out duration-500 justify-start items-start mr-2">
+                                  <div className="flex flex-col hover:scale-105 h-auto md:w-1/3 md:h-[400px] transition ease-in-out duration-500 justify-start items-start border-2 p-3 border-gray-800 mb-4 shadow-lg rounded">
                                     <div
                                       style={{
                                         background: `url(${getEpisodeImage(episode)})`,
@@ -147,7 +147,7 @@ export default function SingleSeasonModal({ toggler, title, seriesId, seasonID, 
                                         backgroundSize: 'cover',
                                       }}
                                       alt="episode poster"
-                                      className="w-full h-[200px] md:w-[400px] md:h-[250px] rounded-lg mr-2"
+                                      className="w-full h-[150px] md:h-[180px] mb-2 rounded-lg mr-2"
                                     >
                                       <Link 
                                         onClick={() => {
@@ -158,7 +158,7 @@ export default function SingleSeasonModal({ toggler, title, seriesId, seasonID, 
                                             setOpenMediaPlayer(true);
                                         }}
                                         >
-                                          <svg xmlns="http://www.w3.org/2000/svg" fill="rgb(0,0,0,0.6)" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" className="w-12 h-12 md:w-20 md:h-20 relative left-[44%] top-[93px] md:left-[42%] md:top-[43%] cursor-pointer text-white">
+                                          <svg xmlns="http://www.w3.org/2000/svg" fill="rgb(0,0,0,0.6)" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" className="w-12 h-12 md:w-20 md:h-20 relative left-[44%] top-[43%] md:left-[40%] md:top-[38%] cursor-pointer text-white">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z" />
                                           </svg>
@@ -168,13 +168,14 @@ export default function SingleSeasonModal({ toggler, title, seriesId, seasonID, 
                                     <h1 className="font-bold text-white text-start md:w-[400px]">
                                         Ep <span className='text-orange-600'>{episode.episode_number}</span>  |  {episode.name}
                                     </h1>
-                                    <p className="mb-8 text-gray-600">
+                                    <p className="mb-2 md:mb-4 text-gray-600">
                                       {episode.runtime ? (episode.runtime > 60
                                         ? Math.floor(episode.runtime / 60) + 'hrs ' + (episode.runtime % 60) + 'mins '
                                         : episode.runtime + 'mins') :
                                         "Coming soon"
                                         }
                                     </p>
+                                    {episode.overview && <p className='text-start mb-8 text-gray-400'>{episode.overview.length > 200 ? episode.overview.slice(0,200) + '...' : episode.overview }</p>}
                                   </div>
                               ))}
                             </div>
