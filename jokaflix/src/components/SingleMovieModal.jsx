@@ -298,6 +298,7 @@ export default function MovieModal({ toggler, title, type, movieId, onClose }) {
                               <h2 className='text-xl text-white mx-2 md:mx-4 my-8'> | </h2>
                               <button onClick={() => {
                                   setDownloadTitle(title);
+                                  setMovieID(result.imdb_id)
                                   setOpenDownloadModal(true);
                               }} className='py-2 px-2 mx-2 md:py-4 md:px-4 bg-gray-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" className="size-6">

@@ -32,6 +32,7 @@ const Home = () => {
   const [openQRCode, setOpenQRCode] = useState(false);
   const urlSearchParams = new URLSearchParams(window.location.search);
   const [downloadTitle, setDownloadTitle] = useState(null);
+  const [movieId, setMovieId] = useState(null);
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
   const [openMediaPlayer, setOpenMediaPlayer] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -128,6 +129,29 @@ const Home = () => {
     }
   };
 
+  
+  const fetchMovie = async (id) => {
+    if (id != null) {
+      try {
+        let movieDetails = [];
+        const response = await axios.get(
+          `https://api.themoviedb.org/3/movie/${id}?api_key=${process.env.REACT_APP_TMDB_API_KEY}&append_to_response=videos`
+        );
+        const moviesData = response.data;
+        movieDetails = [moviesData];
+        console.log(movieDetails[0].imdb_id)
+        setMovieId(movieDetails[0].imdb_id)
+        return movieDetails;
+      } catch (error) {
+        setIsLoading(false);
+        console.error(`Error fetching movie:`, error);
+        return [];
+      }
+    }
+    return [];
+  };
+ 
+
   return (
     <>
       {isLoading ? <IntroAnimation /> : (
@@ -152,6 +176,7 @@ const Home = () => {
             <DownloadModal
               toggler={openDownloadModal}
               title={downloadTitle}
+              movieId={movieId}
               onClose={() => setOpenDownloadModal(false)}
             />
           )}
@@ -226,6 +251,7 @@ const Home = () => {
               </button>
               <h2 className='text-4xl md:text-5xl text-white mx-4'> | </h2>
               <button onClick={() => {
+                fetchMovie(popularMovies[coverMovie].id)
                 setDownloadTitle(popularMovies[coverMovie].original_title);
                 setOpenDownloadModal(true);
               }} className='my-fourth-step py-2 px-4 mx-4 md:py-6 md:px-6 bg-orange-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>

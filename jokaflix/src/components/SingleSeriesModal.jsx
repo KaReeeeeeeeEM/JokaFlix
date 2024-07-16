@@ -152,7 +152,6 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
   };
 
 
-
   return (
     <Transition show={open}>
       <Dialog className="relative z-[10000000]" onClose={openModal}>
@@ -189,7 +188,6 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
                           <DownloadModal
                             toggler={openDownloadModal}
                             title={downloadTitle}
-                            seriesId={seriesId.slice(4,)}
                             onClose={() => setOpenDownloadModal(false)}
                           />
                         )}
