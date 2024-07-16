@@ -234,7 +234,7 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
                                 <div className='flex mb-2'>
                                   <h2 className='uppercase text-orange-300 text-lg'>{result.original_language}</h2>
                                   <span className='mx-2 text-lg font-bold text-orange-300'>-</span>
-                                  <h3 className='text-lg text-gray-500'>{result.number_of_seasons + (result.number_of_seasons > 1 ?" seasons (" : " season (") + result.number_of_episodes + " episodes)"}</h3>
+                                  <h3 className='text-lg text-gray-500'>{result.number_of_seasons + (result.number_of_seasons > 1 ?" seasons " : " season ")}</h3>
                                 </div>
                                 <div className='flex items-center flex-wrap w-full justify-start my-2'>
                                     {result.genres.map(genre => genre.name && <h1 className='px-2 md:px-8 md:py-2 my-1 text-orange-200 font-bold rounded-full border-2 border-orange-200 text-center mx-1 hover:bg-orange-500 transition ease-in-out duration-700 cursor-pointer'>{genre.name}</h1>)}
