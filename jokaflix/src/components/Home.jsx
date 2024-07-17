@@ -232,7 +232,7 @@ const Home = () => {
                 </button>
               </div>
             </div>
-            <div className='w-full z-30 px-8 lg:px-40 absolute top-[65vh] md:top-[70vh] lg:top-[60vh] flex flex-col justify-between items-left'>
+            <div className='w-full z-30 px-8 lg:px-40 absolute top-[60vh] md:top-[70vh] lg:top-[60vh] flex flex-col justify-between items-left'>
             <div className='flex items-center justify-around mb-2 w-[8rem] h-[2rem]'>
               <img src={imdb} alt='imdb' className='w-[3rem] h-[3rem]' />
               <h1 className='flex text-xl text-white font-semibold'><span className='mx-1'><img src={star} alt="star" className='w-6 h-6' /></span>{popularMovies[coverMovie].vote_average < 1 ? 5.5 : Math.ceil(popularMovies[coverMovie].vote_average * 10) / 10}</h1>
@@ -242,7 +242,7 @@ const Home = () => {
                 {(popularMovies[coverMovie].overview).length > 20 ? (popularMovies[coverMovie].overview).slice(0, 95) + " ... " : popularMovies[coverMovie].overview}
               </h2>
             </div>
-            <div className='w-full z-30 px-8 md:px-40 absolute top-[85vh] md:top-[80vh] lg:top-[80vh] flex items-center lg:text-lg'>
+            <div className='w-full z-30 px-8 md:px-40 absolute top-[80vh] md:top-[80vh] lg:top-[80vh] flex items-center lg:text-lg'>
               <button onClick={() => setOpenMediaPlayer(true)} className='my-third-step px-16 py-2 pl-4 md:py-5 md:px-36 pr-6 bg-orange-600 text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
                 <span className='px-2'>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
