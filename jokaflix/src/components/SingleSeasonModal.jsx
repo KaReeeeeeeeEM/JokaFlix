@@ -7,7 +7,7 @@ import { XCircleIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
 import MediaPlayer from './MediaPlayer';
 import progress from '../assets/progress.png';
-import play from '../assets/play.gif';
+import { IoIosPlayCircle } from "react-icons/io";
 import { Link } from 'react-router-dom';
 
 export default function SingleSeasonModal({ toggler, title, seriesId, seasonID, onClose }) {
@@ -158,11 +158,7 @@ export default function SingleSeasonModal({ toggler, title, seriesId, seasonID, 
                                             setOpenMediaPlayer(true);
                                         }}
                                         >
-                                          <svg xmlns="http://www.w3.org/2000/svg" fill="rgb(0,0,0,0.6)" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" className="w-12 h-12 md:w-20 md:h-20 relative left-[44%] top-[43%] md:left-[40%] md:top-[38%] cursor-pointer text-white">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z" />
-                                          </svg>
-                                        {/* <img src={play} alt="play icon" className="w-8 h-8 md:w-12 md:h-12 relative left-[47%] top-[96px] md:left-[44%] md:top-[44%] cursor-pointer rounded-full" /> */}
+                                          <IoIosPlayCircle className="w-12 h-12 md:w-20 md:h-20 relative left-[44%] top-[43%] md:left-[40%] md:top-[38%] cursor-pointer text-white" />
                                       </Link>
                                     </div>
                                     <h1 className="font-bold text-white text-start md:w-[400px]">
