@@ -1,0 +1,10 @@
+
+.faded{
+    position:absolute;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    background: #11182700 linear-gradient(to bottom, #11182700 0%, #111827a0 75%,#111827 93%) 
+        repeat scroll 0 0;
+}

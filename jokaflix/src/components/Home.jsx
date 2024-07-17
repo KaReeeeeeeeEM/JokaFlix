@@ -19,6 +19,7 @@ import logo from '../assets/logo-sub.png';
 import watchlist from '../assets/watchlist.png';
 import IntroAnimation from './IntroAnimation';  
 import '../scrollbar.css';
+import '../blur.css';
 import Watchlist from './Watchlist';
 import ContinueWatching from './ContinueWatching';
 
@@ -155,7 +156,7 @@ const Home = () => {
   return (
     <>
       {isLoading ? <IntroAnimation /> : (
-        <div className='overflow-y-auto bg-gray-900'>
+        <div className='overflow-y-auto relative bg-gray-900'>
          {isVisible && <Joyride
             steps={steps}
             continuous={true}
@@ -209,13 +210,10 @@ const Home = () => {
               onClose={() => setOpenWatchlist(false)}
             />
           )}
-          <div className="absolute top-0 h-screen w-full inset-0 bg-opacity-70 bg-black blur-md"></div>
-          <div className='w-full h-screen bg-gray-900' style={{ backgroundImage: `url(https://image.tmdb.org/t/p/original${popularMovies[coverMovie].poster_path || popularMovies[coverMovie].backdrop_path})`, backgroundPosition: "center", backgroundSize: "cover", backgroundRepeat: "no-repeat" }}>
-            <div className='flex items-center justify-around absolute top-[60vh] md:top-[65vh] lg:top-[55vh] left-[1.2rem] lg:left-[2.5rem] p-2 w-[8rem] h-[2rem]'>
-              <img src={imdb} alt='imdb' className='w-[3rem] h-[3rem]' />
-              <h1 className='flex text-xl text-white font-semibold'><span className='mx-1'><img src={star} alt="star" className='w-6 h-6' /></span>{popularMovies[coverMovie].vote_average < 1 ? 5.5 : Math.ceil(popularMovies[coverMovie].vote_average * 10) / 10}</h1>
-            </div>
-            <div className='w-full h-4 px-8 my-6 flex justify-between items-center absolute top-0 right-0 z-30'>
+          {/* <div className="absolute top-0 h-screen w-full inset-0 bg-opacity-70 bg-black blur-md"></div> */}
+          <div className='w-full h-screen relative z-0 bg-gray-900' style={{ backgroundImage: `url(https://image.tmdb.org/t/p/original${popularMovies[coverMovie].poster_path || popularMovies[coverMovie].backdrop_path})`, backgroundPosition: "center", backgroundSize: "cover", backgroundRepeat: "no-repeat" }}>  
+          <div className='faded'></div>
+            <div className='w-full h-4 px-8 md:px-40 my-6 flex justify-between items-center absolute top-0 right-0 z-30'>
               <img src={logo} alt='logo' className='my-first-step w-16 h-16 md:w-28 md:h-28 mt-8  md:mt-24' />
               <div className='flex items-center justify-between w-[4rem] lg:w-[6rem] mr-4'>
                 <button onClick={() => setOpenSearch(true)}>
@@ -234,13 +232,17 @@ const Home = () => {
                 </button>
               </div>
             </div>
-            <div className='w-full px-8 lg:px-12 absolute top-[65vh] md:top-[70vh] lg:top-[60vh] flex flex-col justify-between items-left'>
+            <div className='w-full z-30 px-8 lg:px-40 absolute top-[65vh] md:top-[70vh] lg:top-[60vh] flex flex-col justify-between items-left'>
+            <div className='flex items-center justify-around mb-2 w-[8rem] h-[2rem]'>
+              <img src={imdb} alt='imdb' className='w-[3rem] h-[3rem]' />
+              <h1 className='flex text-xl text-white font-semibold'><span className='mx-1'><img src={star} alt="star" className='w-6 h-6' /></span>{popularMovies[coverMovie].vote_average < 1 ? 5.5 : Math.ceil(popularMovies[coverMovie].vote_average * 10) / 10}</h1>
+            </div>
               <h1 className='text-4xl md:text-6xl text-orange-400 font-extrabold'>{popularMovies[coverMovie].original_title}</h1>
               <h2 className='text-md text-gray-300 font-semibold md:w-1/2'>
-                {(popularMovies[coverMovie].overview).length > 20 ? (popularMovies[coverMovie].overview).slice(0, 50) + " ... " : popularMovies[coverMovie].overview}
+                {(popularMovies[coverMovie].overview).length > 20 ? (popularMovies[coverMovie].overview).slice(0, 95) + " ... " : popularMovies[coverMovie].overview}
               </h2>
             </div>
-            <div className='w-full px-8 md:px-12 absolute top-[80vh] md:top-[80vh] lg:top-[80vh] flex items-center lg:text-lg'>
+            <div className='w-full z-30 px-8 md:px-40 absolute top-[85vh] md:top-[80vh] lg:top-[80vh] flex items-center lg:text-lg'>
               <button onClick={() => setOpenMediaPlayer(true)} className='my-third-step px-16 py-2 pl-4 md:py-5 md:px-36 pr-6 bg-orange-600 text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
                 <span className='px-2'>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
