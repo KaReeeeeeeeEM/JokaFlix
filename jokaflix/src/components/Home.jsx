@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect} from 'react';
 import axios from 'axios';
 import imdb from '../assets/imdb.png';
 import star from '../assets/star.png';
@@ -15,8 +15,8 @@ import DownloadModal from './DownloadModal';
 import MediaPlayer from './MediaPlayer';
 import Joyride from 'react-joyride';
 import QRCode from './QRCode';
+import Footer from './Footer';
 import logo from '../assets/logo-sub.png';
-import watchlist from '../assets/watchlist.png';
 import IntroAnimation from './IntroAnimation';  
 import '../scrollbar.css';
 import '../blur.css';
@@ -286,6 +286,9 @@ const Home = () => {
           </div>
           <div>
             <Series />
+          </div>
+          <div>
+            <Footer />
           </div>
         </div>
       )}
