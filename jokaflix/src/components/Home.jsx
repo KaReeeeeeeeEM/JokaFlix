@@ -237,7 +237,7 @@ const Home = () => {
               <img src={imdb} alt='imdb' className='w-[3rem] h-[3rem]' />
               <h1 className='flex text-xl text-white font-semibold'><span className='mx-1'><img src={star} alt="star" className='w-6 h-6' /></span>{popularMovies[coverMovie].vote_average < 1 ? 5.5 : Math.ceil(popularMovies[coverMovie].vote_average * 10) / 10}</h1>
             </div>
-              <h1 className='text-4xl md:text-6xl text-orange-400 font-extrabold'>{popularMovies[coverMovie].original_title}</h1>
+              <h1 className='text-4xl md:text-6xl text-orange-400 mb-2 font-extrabold'>{popularMovies[coverMovie].original_title}</h1>
               <h2 className='text-md text-gray-300 font-semibold md:w-1/2'>
                 {(popularMovies[coverMovie].overview).length > 20 ? (popularMovies[coverMovie].overview).slice(0, 95) + " ... " : popularMovies[coverMovie].overview}
               </h2>
