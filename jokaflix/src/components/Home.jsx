@@ -232,7 +232,7 @@ const Home = () => {
                 </button>
               </div>
             </div>
-            <div className='w-full z-30 px-8 lg:px-40 absolute top-[60vh] md:top-[70vh] lg:top-[60vh] flex flex-col justify-between items-left'>
+            <div className='w-full z-30 px-8 lg:px-40 absolute top-[55vh] md:top-[70vh] lg:top-[60vh] flex flex-col justify-between items-left'>
             <div className='flex items-center justify-around mb-2 w-[8rem] h-[2rem]'>
               <img src={imdb} alt='imdb' className='w-[3rem] h-[3rem]' />
               <h1 className='flex text-xl text-white font-semibold'><span className='mx-1'><img src={star} alt="star" className='w-6 h-6' /></span>{popularMovies[coverMovie].vote_average < 1 ? 5.5 : Math.ceil(popularMovies[coverMovie].vote_average * 10) / 10}</h1>
