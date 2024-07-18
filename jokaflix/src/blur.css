@@ -8,3 +8,14 @@
     background: #11182700 linear-gradient(to bottom,#111827a0 10%,#11182700 50%, #111827a0 65%,#111827 100%) 
         repeat scroll 0 0;
 }
+
+.blur{
+    position:absolute;
+    left:-4%;
+    bottom: -10%;
+    width: 100vw;
+    height: 35%;
+    z-index: 2;
+    background: #11182700 linear-gradient(to bottom,#11182700 10%,#111827 70%) 
+        repeat scroll 0 0;
+}

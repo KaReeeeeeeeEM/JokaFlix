@@ -13,6 +13,7 @@ import SeriesDescriptionTabs from './SeriesDescriptionTabs';
 import DownloadModal from './DownloadModal';
 import MediaPlayer from './MediaPlayer';
 import ShareButton from './ShareButton';
+import '../blur.css';
 
 export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) {
   const [open, setOpen] = useState(toggler); 
@@ -209,12 +210,13 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
                               onMouseLeave={handleMouseLeave}
                               style={{backgroundImage:`url(https://image.tmdb.org/t/p/original${result.poster_path})`}}
                             >
-                             <div className="absolute right-0 h-[55vh] lg:h-[70vh] w-full inset-0 bg-opacity-60 bg-gray-900 blur-md"></div>
+                             {/* <div className="absolute right-0 h-[55vh] lg:h-[70vh] w-full inset-0 bg-opacity-60 bg-gray-900 blur-md"></div> */}
+                              <div className='blur'></div>
                               {autoplay && trailers && (
                                 <iframe
                                   width="100%"
                                   height="100%"
-                                  className='absolute w-[93vw] h-[50vh] lg:h-[70vh] object-cover rounded-lg'
+                                  className='absolute w-[93vw] h-[50vh] lg:h-[70vh] z-10 object-cover rounded-lg'
                                   src={`https://www.youtube.com/embed/${trailers[0].key}?autoplay=1&start=${currentTime}`}
                                   frameBorder="0"
                                   allow="accelerometer; subtitles; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -222,14 +224,15 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
                                   title={result.title}
                                 ></iframe>
                               )}
+                              
                             </div>
-                              <div className='flex items-center mx-2 md:mx-0'>
+                              <div className='flex items-center z-10 mx-2 md:mx-0'>
                                 <img src={imdb} alt='imdb' className='w-[4rem] h-[4rem]' />
                                 {result.vote_average && <h1 className='flex items-center text-lg text-white font-bold mx-2'><span className='w-6 h-4'><img src={star} alt="star" className='w-4 h-4 ml-1' /></span>{result.vote_average < 1 ? 5.2 : Math.ceil(result.vote_average * 10)/10} <span className='mx-2 text-orange-600'>|</span> </h1>}
                                 <p className='text-xl font-bold text-orange-300'>{result.first_air_date.slice(0,4)}</p>
                                 <span className='mx-2 text-lg font-bold text-orange-600'></span>
                               </div>
-                              <div className='flex flex-col justify-center items-start text-left mx-2 md:mx-0'>
+                              <div className='flex flex-col z-10 justify-center items-start text-left mx-2 md:mx-0'>
                                 <p className='text-xl font-bold lg:text-2xl text-orange-600'>{result.original_name}</p>
                                 <div className='flex mb-2'>
                                   <h2 className='uppercase text-orange-300 text-lg'>{result.original_language}</h2>
@@ -297,6 +300,7 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
                                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                                 </svg>
                               </button>}
+                              
                               </div> 
                               <div className='flex items-center w-full justify-around mt-8'>
                                   {result.production_companies.map(company => company.logo_path && <img src={`https://image.tmdb.org/t/p/w500${company.logo_path}`} alt='company-logo' className='w-8 h-4 md:w-20 md:h-full rounded-lg md:border-2 md:border-gray-800 md:p-2' />)}

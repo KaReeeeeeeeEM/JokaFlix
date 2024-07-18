@@ -4,18 +4,18 @@ import './index.css';
 import App from './App';
 
 
-// Import the Service Worker
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('../service-worker.js')
-      .then(registration => {
-        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-      })
-      .catch(error => {
-        console.log('ServiceWorker registration failed: ', error);
-      });
-  });
-}
+// // Import the Service Worker
+// if ('serviceWorker' in navigator) {
+//   window.addEventListener('load', () => {
+//     navigator.serviceWorker.register('../service-worker.js')
+//       .then(registration => {
+//         console.log('ServiceWorker registration successful with scope: ', registration.scope);
+//       })
+//       .catch(error => {
+//         console.log('ServiceWorker registration failed: ', error);
+//       });
+//   });
+// }
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
