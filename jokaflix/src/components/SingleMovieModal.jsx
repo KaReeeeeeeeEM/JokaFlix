@@ -255,7 +255,7 @@ export default function MovieModal({ toggler, title, type, movieId, onClose }) {
                                 <iframe
                                   width="100%"
                                   height="100%"
-                                  className='absolute w-[93vw] h-[50vh] lg:h-[70vh] object-cover rounded-lg'
+                                  className='absolute z-10 w-[93vw] h-[50vh] lg:h-[70vh] object-cover rounded-lg'
                                   src={`https://www.youtube.com/embed/${result.videos.results[0].key ? result.videos.results[0].key : (result.videos.results[1].key ? result.videos.results[1].key : (result.videos.results[2].key ? result.videos.results[2].key : result.videos.results[3].key))}?autoplay=1&start=${currentTime}`}
                                   frameBorder="0"
                                   allow="accelerometer; subtitles; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
