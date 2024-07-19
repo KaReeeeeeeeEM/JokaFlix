@@ -158,7 +158,7 @@ export default function SingleSeasonModal({ toggler, title, seriesId, seasonID, 
                                             setOpenMediaPlayer(true);
                                         }}
                                         >
-                                          <IoIosPlayCircle className="w-12 h-12 md:w-20 md:h-20 relative left-[44%] top-[43%] md:left-[40%] md:top-[38%] cursor-pointer text-white" />
+                                          <IoIosPlayCircle className="w-12 h-12 md:w-20 md:h-20 relative left-[44%] mt-[55px] md:left-[40%] md:top-[38%] cursor-pointer text-white" />
                                       </Link>
                                     </div>
                                     <h1 className="font-bold text-white text-start md:w-[400px]">
