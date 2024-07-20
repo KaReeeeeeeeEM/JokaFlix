@@ -75,7 +75,7 @@ const Showcase = () => {
 
   return (
     <div>
-        <div className='flex flex-col md:flex-row items-center h-[5rem] md:h-[15rem] my-12 w-[90vw] md:w-[80vw] m-auto'>
+        <div className='flex flex-col md:flex-row items-center h-[6rem] md:h-[17rem] lg:h-[19rem] my-12 w-[90vw] md:w-[80vw] m-auto'>
                 <Swiper
                 slidesPerView={"auto"}
                 spaceBetween={30}
@@ -93,7 +93,7 @@ const Showcase = () => {
             >
                 {popularMovies.map(popular => 
                 <SwiperSlide>
-                  <img src={`https://image.tmdb.org/t/p/original/${popular.backdrop_path || popular.backdrop_path}}`} alt="poster" className='w-full h-full border-4 border-orange-400 rounded-lg' />
+                  <img src={`https://image.tmdb.org/t/p/original/${popular.backdrop_path || popular.backdrop_path}}`} alt="poster" className='w-full h-full border-2 border-orange-400 rounded-lg' />
                 </SwiperSlide>)}
             </Swiper>
         </div>
