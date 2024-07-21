@@ -2,6 +2,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import PreCard from './PreCard';
 import Card from './Card';
 import MovieModal from './MovieModal';
 import SingleMovieModal from './SingleMovieModal';
@@ -113,11 +114,21 @@ const ForYou = () => {
         </button>
       </div>
       <div className="flex overflow-x-auto w-full">
-        {isLoading ? (
-          <div className='flex items-center justify-center bg-transparent h-[15rem] w-full lg:h-[20rem]'>
-            <img src={progress} alt="progress" className='animate-spin w-8 h-8' />
-          </div>
-        ) : (
+        {
+        isLoading ?  
+        (<div className='flex items-center justify-start w-full flex-nowrap whitespace-nowrap'>
+            <PreCard/>
+            <PreCard/>
+            <PreCard/>
+            <PreCard/>
+            <PreCard/>
+            <PreCard/>
+            <PreCard/>
+            <PreCard/>
+            <PreCard/>
+        </div>)
+         :
+        (
           <div className='flex items-center justify-start w-full flex-nowrap whitespace-nowrap'>
             {upcomingMovies.map((upcoming) => (
               <Link
@@ -126,8 +137,8 @@ const ForYou = () => {
                   setMovieId(upcoming.id)
                   setMovieTitle(upcoming.original_title)
                   setOpenMovieModal(true)
-                  }} >
-                <Card key={upcoming.id} id={upcoming.id} src={upcoming.poster_path} rating={upcoming.vote_average < 2 ? "5.2" : upcoming.vote_average} year={upcoming.release_date} />
+                  }} > 
+                    <Card key={upcoming.id} id={upcoming.id} src={upcoming.poster_path} rating={upcoming.vote_average < 2 ? "5.2" : upcoming.vote_average} year={upcoming.release_date} />
               </Link>
             ))}
           </div>

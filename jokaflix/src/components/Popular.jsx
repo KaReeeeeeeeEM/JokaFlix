@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Card from './Card';
+import PreCard from './PreCard';
 import MovieModal from './MovieModal';
 import SingleMovieModal from './SingleMovieModal';
 import progress from '../assets/progress.png';
@@ -102,9 +103,17 @@ const Popular = () => {
       </div>
       <div className="flex overflow-x-auto w-full">
         {isLoading ? (
-          <div className='flex items-center justify-center bg-transparent h-[15rem] w-full lg:h-[20rem]'>
-            <img src={progress} alt="progress" className='animate-spin w-8 h-8' />
-          </div>
+          (<div className='flex items-center justify-start w-full flex-nowrap whitespace-nowrap'>
+            <PreCard/>
+            <PreCard/>
+            <PreCard/>
+            <PreCard/>
+            <PreCard/>
+            <PreCard/>
+            <PreCard/>
+            <PreCard/>
+            <PreCard/>
+        </div>)
         ) : (
           <div className='flex items-center justify-start flex-nowrap whitespace-nowrap'>
             {popularMovies.slice(8,).map((upcoming) => (

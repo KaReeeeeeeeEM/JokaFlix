@@ -58,9 +58,17 @@ const ContinueWatching = () => {
       </div>}
       <div className="flex overflow-x-auto w-full">
         {isLoading ? (
-          <div className='flex items-center justify-center bg-transparent h-[15rem] w-full lg:h-[20rem]'>
-            <img src={progress} alt="progress" className='animate-spin w-8 h-8' />
-          </div>
+         <div className='relative bg-gray-700 flex flex-col justify-start items-start hover:scale-105 hover:transition ease-in-out duration-700'>
+           <div className='w-[200px] h-[150px] md:w-[400px] md:h-[250px] rounded mr-4 bg-center bg-cover bg-no-repeat animate-pulse'>
+             <div className="absolute inset-0 flex items-center justify-center">
+               <IoIosPlayCircle className="w-12 h-12 md:w-20 md:h-20 text-white" />
+             </div>
+           </div>
+           <div className='h-1 md:h-2 rounded-full w-[200px] md:w-[400px] bg-gray-300 mt-2'>
+             <div className={`h-full w-[50px] md:w-[100px] bg-orange-400 rounded-full animate-pulse`}></div>
+           </div>
+           <h1 className='mt-2 text-orange-200 font-bold animate-pulse'> </h1>
+         </div>
         ) : (
           <div className='flex items-center justify-start w-full flex-nowrap whitespace-nowrap'>
             {continueWatching.map((item) => (
