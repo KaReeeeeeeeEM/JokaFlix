@@ -233,34 +233,34 @@ const Home = () => {
               </div>
             </div>
             <div className='w-full z-30 px-8 lg:px-40 absolute top-[55vh] md:top-[70vh] lg:top-[60vh] flex flex-col justify-between items-left'>
-            <div className='flex items-center justify-around mb-2 w-[8rem] h-[2rem]'>
-              <img src={imdb} alt='imdb' className='w-[3rem] h-[3rem]' />
-              <h1 className='flex text-xl text-white font-semibold'><span className='mx-1'><img src={star} alt="star" className='w-6 h-6' /></span>{popularMovies[coverMovie].vote_average < 1 ? 5.5 : Math.ceil(popularMovies[coverMovie].vote_average * 10) / 10}</h1>
-            </div>
-              <h1 className='text-4xl md:text-6xl text-orange-400 mb-2 font-extrabold'>{popularMovies[coverMovie].original_title}</h1>
-              <h2 className='text-md text-gray-300 font-semibold md:w-1/2'>
-                {(popularMovies[coverMovie].overview).length > 20 ? (popularMovies[coverMovie].overview).slice(0, 95) + " ... " : popularMovies[coverMovie].overview}
-              </h2>
-            </div>
-            <div className='w-full z-30 px-8 md:px-40 absolute top-[80vh] md:top-[80vh] lg:top-[80vh] flex items-center lg:text-lg'>
-              <button onClick={() => setOpenMediaPlayer(true)} className='my-third-step px-16 py-2 pl-4 md:py-5 md:px-36 pr-6 bg-orange-600 text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
-                <span className='px-2'>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
-                  </svg>
-                </span>
-                Watch Now
-              </button>
-              <h2 className='text-4xl md:text-5xl text-white mx-4'> | </h2>
-              <button onClick={() => {
-                fetchMovie(popularMovies[coverMovie].id)
-                setDownloadTitle(popularMovies[coverMovie].original_title);
-                setOpenDownloadModal(true);
-              }} className='my-fourth-step py-2 px-4 mx-4 md:py-6 md:px-6 bg-orange-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" class="size-6">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                </svg>
-              </button>
+                <div className='flex items-center justify-around mb-2 w-[8rem] h-[2rem]'>
+                  <img src={imdb} alt='imdb' className='w-[3rem] h-[3rem]' />
+                  <h1 className='flex text-xl text-white font-semibold'><span className='mx-1'><img src={star} alt="star" className='w-6 h-6' /></span>{popularMovies[coverMovie].vote_average < 1 ? 5.5 : Math.ceil(popularMovies[coverMovie].vote_average * 10) / 10}</h1>
+                </div>
+                  <h1 className='text-4xl md:text-6xl text-orange-400 mb-2 font-extrabold'>{popularMovies[coverMovie].original_title}</h1>
+                  <h2 className='text-md text-gray-300 font-semibold md:w-1/2'>
+                    {popularMovies[coverMovie].overview.length > 150 ? popularMovies[coverMovie].overview.slice(0,150) + "..." :  popularMovies[coverMovie].overview}
+                  </h2>
+                <div className='w-full z-30 my-4 flex items-center lg:text-lg'>
+                  <button onClick={() => setOpenMediaPlayer(true)} className='my-third-step px-16 py-2 pl-4 md:py-5 md:px-36 pr-6 bg-orange-600 text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
+                    <span className='px-2'>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+                      </svg>
+                    </span>
+                    Watch Now
+                  </button>
+                  <h2 className='text-4xl md:text-5xl text-white mx-4'> | </h2>
+                  <button onClick={() => {
+                    fetchMovie(popularMovies[coverMovie].id)
+                    setDownloadTitle(popularMovies[coverMovie].original_title);
+                    setOpenDownloadModal(true);
+                  }} className='my-fourth-step py-2 px-4 mx-4 md:py-6 md:px-6 bg-orange-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" class="size-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                  </button>
+                </div>
             </div>
           </div>
           <div className='flex items-center justify-center h-16 md:h-24 my-2 md:my-12 w-[20vw] md:w-[8vw] m-auto'>
