@@ -212,7 +212,7 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
                             >
                              {/* <div className="absolute right-0 h-[55vh] lg:h-[70vh] w-full inset-0 bg-opacity-60 bg-gray-900 blur-md"></div> */}
                               <div className='blur'></div>
-                              {autoplay && trailers && (
+                              {/* {autoplay && trailers && (
                                 <iframe
                                   width="100%"
                                   height="100%"
@@ -223,7 +223,7 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
                                   allowFullScreen
                                   title={result.title}
                                 ></iframe>
-                              )}
+                              )} */}
                               
                             </div>
                               <div className='flex items-center z-10 mx-2 md:mx-0'>
