@@ -71,7 +71,7 @@ const Card = ({ src, last, rating, category, year }) => {
               )}
             </div>
             <div className='w-1/2 flex justify-end pr-6 md:pr-8'>
-              {qualityIcon}
+              {year && qualityIcon}
             </div>
           </div>
           {year && recent && (
