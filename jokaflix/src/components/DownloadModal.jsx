@@ -124,15 +124,13 @@ export default function DownloadModal({ toggler,movieId, seriesId, title, onClos
                         </div>
                       ))
                     ) : (
-                      <div className="flex flex-col items-center justify-center py-8 space-y-4">
-                        
-                        <p className="text-white text-center">No torrents available for this title.</p>
+                      <div className="flex items-center justify-center py-8">
+                        <img src={progress} alt="progress" className="animate-spin w-8 h-8" />
                       </div>
                     )}
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-8 space-y-4">
-                    
                     <p className="text-white text-center">No information available for this title.</p>
                   </div>
                 )}

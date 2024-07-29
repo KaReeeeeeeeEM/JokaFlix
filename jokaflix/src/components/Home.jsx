@@ -151,7 +151,6 @@ const Home = () => {
     }
     return [];
   };
- 
 
   return (
     <>
@@ -251,8 +250,8 @@ const Home = () => {
                     Watch Now
                   </button>
                   <h2 className='text-4xl md:text-5xl text-white mx-4'> | </h2>
-                  <button onClick={() => {
-                    fetchMovie(popularMovies[coverMovie].id)
+                  <button onClick={async () => {
+                    await fetchMovie(popularMovies[coverMovie].id)
                     setDownloadTitle(popularMovies[coverMovie].original_title);
                     setOpenDownloadModal(true);
                   }} className='my-fourth-step py-2 px-4 mx-4 md:py-6 md:px-6 bg-orange-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>
