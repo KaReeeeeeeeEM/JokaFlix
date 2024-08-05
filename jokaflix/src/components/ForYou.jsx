@@ -116,31 +116,34 @@ const ForYou = () => {
       <div className="flex overflow-x-auto w-full">
         {
         isLoading ?  
-        (<div className='flex items-center justify-start w-full flex-nowrap whitespace-nowrap'>
-            <PreCard/>
-            <PreCard/>
-            <PreCard/>
-            <PreCard/>
-            <PreCard/>
-            <PreCard/>
-            <PreCard/>
-            <PreCard/>
-            <PreCard/>
-        </div>)
-         :
         (
           <div className='flex items-center justify-start w-full flex-nowrap whitespace-nowrap'>
-            {upcomingMovies.map((upcoming) => (
-              <Link
-                  key={upcoming.id}
-                  onClick={() => {
-                  setMovieId(upcoming.id)
-                  setMovieTitle(upcoming.original_title)
-                  setOpenMovieModal(true)
-                  }} > 
-                    <Card key={upcoming.id} id={upcoming.id} src={upcoming.poster_path} rating={upcoming.vote_average < 2 ? "5.2" : upcoming.vote_average} year={upcoming.release_date} />
-              </Link>
-            ))}
+              <PreCard/>
+              <PreCard/>
+              <PreCard/>
+              <PreCard/>
+              <PreCard/>
+              <PreCard/>
+              <PreCard/>
+              <PreCard/>
+              <PreCard/>
+          </div>
+        )
+         :
+          (
+            <div className='flex items-center justify-start w-full flex-nowrap whitespace-nowrap'>
+              {upcomingMovies.map((upcoming) => (
+                <Link
+                    key={upcoming.id}
+                    onClick={() => {
+                    setMovieId(upcoming.id)
+                    setMovieTitle(upcoming.original_title)
+                    setOpenMovieModal(true)
+                    }} > 
+                      <Card key={upcoming.id} id={upcoming.id} src={upcoming.poster_path} rating={upcoming.vote_average < 2 ? "5.2" : upcoming.vote_average} year={upcoming.release_date} />
+                </Link>
+              )
+            )}
           </div>
         )}
       </div>

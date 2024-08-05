@@ -101,7 +101,7 @@ const NowPlaying = () => {
         </button>
       </div>
       <div className="flex overflow-x-auto w-full">
-        {isLoading ? (
+        {isLoading ? 
          (<div className='flex items-center justify-start w-full flex-nowrap whitespace-nowrap'>
           <PreCard/>
           <PreCard/>
@@ -113,7 +113,7 @@ const NowPlaying = () => {
           <PreCard/>
           <PreCard/>
       </div>)
-        ) : (
+         : (
           <div className='flex items-center justify-start flex-nowrap whitespace-nowrap'>
             {nowPlaying.map((upcoming) => (
               <Link

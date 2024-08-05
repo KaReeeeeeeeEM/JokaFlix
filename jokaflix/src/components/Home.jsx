@@ -1,9 +1,13 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect} from 'react';
 import axios from 'axios';
 import imdb from '../assets/imdb.png';
 import star from '../assets/star.png';
 import search from '../assets/search.png';
+import hdIcon from '../assets/hdIcon.png';
+import video from '../assets/video.png';
+import comingsoon from '../assets/comingsoon.png';
 import MovieModal from './MovieModal';
 import Showcase from './Showcase';
 import ForYou from './ForYou';
@@ -22,6 +26,7 @@ import '../scrollbar.css';
 import '../blur.css';
 import Watchlist from './Watchlist';
 import ContinueWatching from './ContinueWatching';
+import Loading from './Loading';
 
 const Home = () => {
   const [popularMovies, setPopularMovies] = useState([]);
@@ -38,6 +43,9 @@ const Home = () => {
   const [openMediaPlayer, setOpenMediaPlayer] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [openWatchlist, setOpenWatchlist] = useState(false);
+  const [qualityIcon, setQualityIcon] = useState(null);
+  const [releaseDate, setReleaseDate] = useState(null);
+  const [addedToWatchlist, setAddedToWatchlist] = useState(false);
 
 
   const steps = [
@@ -64,6 +72,10 @@ const Home = () => {
     {
       target: '.my-fourth-step',
       content: 'Download your favourite movies and series easily with a single tap!',
+    },
+    {
+      target: '.watchlist',
+      content: 'Save your movies in the watchlist for to watch them later.',
     },
     {
       target: '.my-fifth-step',
@@ -101,6 +113,14 @@ const Home = () => {
       localStorage.setItem('onboardingShown', 'true');
     }
   }, []);
+
+  useEffect(() => {
+    if (popularMovies.length > 0 && popularMovies[coverMovie]) {
+      setReleaseDate(popularMovies[coverMovie].release_date);
+      determineQuality(popularMovies[coverMovie].release_date);
+      isInWatchlist(`/movie/${popularMovies[coverMovie].id}`) === true && setAddedToWatchlist(true)
+    }
+  }, [popularMovies, coverMovie]);
 
   const fetchMoviesByCategory = async (category, pageCount) => {
     try {
@@ -150,6 +170,56 @@ const Home = () => {
       }
     }
     return [];
+  };
+
+  useEffect(() => {
+    determineQuality();
+  }, [Loading]);
+
+  const determineQuality = (releaseDate) => {
+    const firstDate = new Date(releaseDate);
+    const secondDate = new Date();
+    
+    const year1 = firstDate.getFullYear();
+    const month1 = firstDate.getMonth();
+    
+    const year2 = secondDate.getFullYear();
+    const month2 = secondDate.getMonth();
+    
+    const monthsApart = (year2 - year1) * 12 + (month2 - month1);
+    
+    if (year1 > year2) {
+      setQualityIcon(<img src={comingsoon} alt='coming soon' className='w-8 h-8' />);
+    } else if (monthsApart >= 2) {
+      setQualityIcon(<img src={hdIcon} alt='hd' className='w-4 h-4' />);
+    } else if (monthsApart === 1) {
+      setQualityIcon(<img src={video} alt='recorded' className='w-4 h-4' />);
+    } else if (year1 > 2024) {
+      setQualityIcon(<img src={video} alt='hd' className='w-4 h-4' />);
+    } else {
+      setQualityIcon(<img src={video} alt='hd' className='w-4 h-4' />);
+    }
+  };
+
+  const getWatchlist = () => {
+    const watchlist = localStorage.getItem('watchlist');
+    return watchlist ? JSON.parse(watchlist) : [];
+  };
+
+  const addToWatchlist = (movie) => {
+    const watchlist = getWatchlist();
+    localStorage.setItem('watchlist', JSON.stringify([...watchlist, movie]));
+    setAddedToWatchlist(true)
+  };
+
+  const removeFromWatchlist = (movieId) => {
+    const watchlist = getWatchlist().filter((movie) => movie !== movieId);
+    localStorage.setItem('watchlist', JSON.stringify(watchlist));
+    setAddedToWatchlist(false)
+  };
+
+  const isInWatchlist = (movieId) => {
+    return getWatchlist().some((movie) => movie === movieId);
   };
 
   return (
@@ -234,15 +304,15 @@ const Home = () => {
             <div className='w-full z-30 px-8 lg:px-40 absolute top-[55vh] md:top-[70vh] lg:top-[60vh] flex flex-col justify-between items-left'>
                 <div className='flex items-center justify-around mb-2 w-[8rem] h-[2rem]'>
                   <img src={imdb} alt='imdb' className='w-[3rem] h-[3rem]' />
-                  <h1 className='flex text-xl text-white font-semibold'><span className='mx-1'><img src={star} alt="star" className='w-6 h-6' /></span>{popularMovies[coverMovie].vote_average < 1 ? 5.5 : Math.ceil(popularMovies[coverMovie].vote_average * 10) / 10}</h1>
+                  <h1 className='flex text-xl text-white font-semibold'><span className='mx-1'><img src={star} alt="star" className='w-6 h-6' /></span>{popularMovies[coverMovie].vote_average < 1 ? 5.5 : Math.ceil(popularMovies[coverMovie].vote_average * 10) / 10}<span className='px-4'> | </span><span className='text-orange-200 flex items-center justify-between w-[23vw] md:w-[6vw]'>{popularMovies[coverMovie].release_date.slice(0,4)} {qualityIcon}</span></h1>
                 </div>
                   <h1 className='text-4xl md:text-6xl text-orange-400 mb-2 font-extrabold'>{popularMovies[coverMovie].original_title}</h1>
                   <h2 className='text-md text-gray-300 font-semibold md:w-1/2'>
                     {popularMovies[coverMovie].overview.length > 150 ? popularMovies[coverMovie].overview.slice(0,150) + "..." :  popularMovies[coverMovie].overview}
                   </h2>
                 <div className='w-full z-30 my-4 flex items-center lg:text-lg'>
-                  <button onClick={() => setOpenMediaPlayer(true)} className='my-third-step px-16 py-2 pl-4 md:py-5 md:px-36 pr-6 bg-orange-600 text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
-                    <span className='px-2'>
+                  <button onClick={() => setOpenMediaPlayer(true)} className='my-third-step px-16 py-2 pl-4 md:mr-8 md:py-5 md:px-36 pr-6 bg-orange-600 text-white font-semibold rounded-full flex hover:opacity-65 transition ease-in-out duration-700'>
+                    <span className='px-[4.5px] md:px-2'>
                       <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
                       </svg>
@@ -254,11 +324,28 @@ const Home = () => {
                     await fetchMovie(popularMovies[coverMovie].id)
                     setDownloadTitle(popularMovies[coverMovie].original_title);
                     setOpenDownloadModal(true);
-                  }} className='my-fourth-step py-2 px-4 mx-4 md:py-6 md:px-6 bg-orange-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>
+                  }} className='my-fourth-step py-3 px-3 mx-4 md:mx-8 md:py-6 md:px-6 bg-gray-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" class="size-6">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                     </svg>
                   </button>
+                  {
+                              addedToWatchlist === true ? 
+                               <button onClick={() => {
+                                isInWatchlist(`/movie/${popularMovies[coverMovie].id}`) === true && removeFromWatchlist(`/movie/${popularMovies[coverMovie].id}`)
+                                }} className='watchlist py-3 px-3 mx-4 md:py-6 md:px-6 bg-orange-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                </svg>
+                              </button>
+                              : 
+                              <button onClick={() => {
+                                   isInWatchlist(`/movie/${popularMovies[coverMovie].id}`) !== true && addToWatchlist(`/movie/${popularMovies[coverMovie].id}`)
+                                }} className='py-3 px-3 mx-4 md:py-6 md:px-6 bg-orange-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>
+                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                </svg>
+                              </button>}
                 </div>
             </div>
           </div>
