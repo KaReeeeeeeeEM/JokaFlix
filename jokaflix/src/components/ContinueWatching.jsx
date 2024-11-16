@@ -5,6 +5,7 @@ import progress from '../assets/progress.png';
 import { getContinueWatching } from './progressStorage';
 import MediaPlayer from './MediaPlayer';
 import { IoIosPlayCircle } from "react-icons/io";
+import LazyImage from "react-lazy-blur-image";
 
 const ContinueWatching = () => {
   const [continueWatching, setContinueWatching] = useState([]);

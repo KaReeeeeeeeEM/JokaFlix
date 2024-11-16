@@ -8,10 +8,11 @@ import axios from 'axios';
 import progress from '../assets/progress.png';
 
 
-export default function DownloadModal({ toggler,movieId, seriesId, title, onClose }) {
+export default function DownloadModal({ toggler,movieId, query, seriesId, title, onClose }) {
   const [open, setOpen] = useState(toggler);
   const [isLoading, setIsLoading] = useState(false);
   const [mediaInfo, setMediaInfo] = useState(null);
+  const [results, setResults] = useState([]);
 
   useEffect(() => {
     setOpen(toggler);
@@ -37,14 +38,15 @@ export default function DownloadModal({ toggler,movieId, seriesId, title, onClos
         return;
       } else {
         // Fetch series if no movies found
-        const seriesResponse = await axios.get('https://yts.mx/api/v2/list_tv_shows.json', {
-          params: { query_term: title }
+        const seriesResponse = await axios.get('https://api.allorigins.win/raw?url=${encodeURIComponent(`https://eztv.re/api/get-torrents?limit=10&query_term=94997', {
+          params: { query_term: query }
         });
-        const series = seriesResponse.data.data.tv_shows || [];
+        console.log(seriesResponse.data.torrents || []);
+        const series = seriesResponse.data.torrents || [];
   
         // If series found, set the first series info
         if (series.length > 0) {
-          setMediaInfo(series[0]);
+          setMediaInfo(series);
         } else {
           // No media found
           setMediaInfo(null);
@@ -56,6 +58,17 @@ export default function DownloadModal({ toggler,movieId, seriesId, title, onClos
     }
     setIsLoading(false);
   };
+
+  async function getTorrents(){
+    try {
+      const searchResponse = await axios.get(`https://api.allorigins.win/raw?url=${encodeURIComponent(`https://eztv.re/api/get-torrents?limit=10&query_term=94997`)}`);
+      setResults(searchResponse.data);
+      console.log(results.torrents)
+    } catch (err) {
+      console.log(err.message);
+    } finally {
+      // 
+    }}
 
   const closeModal = () => {
     setOpen(false);

@@ -27,6 +27,8 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
   const [openMediaPlayer, setOpenMediaPlayer] = useState(false);
   const [addedToWatchlist, setAddedToWatchlist] = useState(false);
+  const [results, setResults] = useState([]);
+  const [query, setQuery] = useState("");
   const [trailers, setTrailers]=useState([]);
   const searchInputRef = useRef(null);
   const videoRef = useRef(null);
@@ -152,6 +154,17 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
     return getWatchlist().some((movie) => movie === movieId);
   };
 
+  const searchTorrents = async (query) => {
+    try {
+      const searchResponse = await axios.get(`https://api.allorigins.win/raw?url=${encodeURIComponent(`https://eztv.re/api/get-torrents?limit=10&query_term=94997`)}`);
+      setResults(searchResponse.data);
+      console.log(searchResults.data.torrents)
+    } catch (err) {
+      console.log(err.message);
+    } finally {
+      // 
+    }
+  };
 
   return (
     <Transition show={open}>
@@ -189,6 +202,7 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
                           <DownloadModal
                             toggler={openDownloadModal}
                             title={downloadTitle}
+                            query = {query}
                             onClose={() => setOpenDownloadModal(false)}
                           />
                         )}
@@ -273,6 +287,7 @@ export default function SingleSeriesModal({ toggler, type, seriesId, onClose }) 
                                     <h2 className='text-xl text-white mx-2 md:mx-8 my-8'> | </h2>
                                   <button onClick={() => {
                                             setDownloadTitle(result.original_name);
+                                            setQuery(result.original_name);
                                             setOpenDownloadModal(true);
                                         }} className='py-2 px-2 mx-2 md:mx-4 md:py-4 md:px-4 bg-gray-400 text-white font-semibold rounded-full hover:opacity-65 transition ease-in-out duration-700'>
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" class="size-6">
