@@ -69,20 +69,6 @@ const ForYou = () => {
     }
   };
 
-  // useEffect(() => {
-  //   const fetchMovieDetails = async (movieId) => {
-  //       const apiKey = '${process.env.REACT_APP_TMDB_API_KEY}';
-  //       const response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}&append_to_response=videos,release_dates`);
-  //       const data = await response.json();
-  //       if (data.release_dates.results[0].release_dates[0].type === (3 || 4)) {
-  //         return 'hd';
-  //       } else {
-  //         return 'recorded';
-  //       }
-  //     };
-  //   // fetchMovieDetails(upcomingMovies.map(movie => movie.id));
-  //   }
-  // ,[upcomingMovies]);
 
   return (
     <div className="flex flex-col items-left px-8 md:px-40 my-12 md:my-24 w-[98vw]">
@@ -120,7 +106,7 @@ const ForYou = () => {
               />
             </svg>
           </span>
-          For You
+          Top Picks
         </h1>
         <button
           className="text-orange-300 text-md"

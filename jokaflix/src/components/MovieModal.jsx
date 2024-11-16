@@ -55,7 +55,7 @@ export default function MovieModal({ toggler, title, type, movieCategory, onClos
     const fetchMovies = async () => {
       try {
         setIsLoading(true);
-        const moviesByCat = await fetchMoviesByCategory(movieCategory, 5);
+        const moviesByCat = await fetchMoviesByCategory(movieCategory, 80);
         setMoviesByCategory(moviesByCat);
       } catch (error) {
         console.error("Error fetching movies:", error);

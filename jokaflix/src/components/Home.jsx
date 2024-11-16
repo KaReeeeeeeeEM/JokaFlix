@@ -88,7 +88,7 @@ const Home = () => {
   ];
 
   useEffect(() => {
-    const id = Math.ceil(Math.random() * 10);
+    const id = Math.ceil(Math.random() * 20);
     setCoverMovie(id);
 
     const fetchMovies = async () => {
@@ -225,7 +225,7 @@ const Home = () => {
   return (
     <>
       {isLoading ? <IntroAnimation /> : (
-        <div className='overflow-y-auto relative bg-gray-900'>
+        <div className='w-full h-screen overflow-y-auto relative bg-gray-900'>
          {isVisible && <Joyride
             steps={steps}
             continuous={true}
@@ -279,8 +279,7 @@ const Home = () => {
               onClose={() => setOpenWatchlist(false)}
             />
           )}
-          {/* <div className="absolute top-0 h-screen w-full inset-0 bg-opacity-70 bg-black blur-md"></div> */}
-          <div className='w-full h-screen relative z-0 bg-gray-900' style={{ backgroundImage: `url(https://image.tmdb.org/t/p/original${popularMovies[coverMovie].poster_path || popularMovies[coverMovie].backdrop_path})`, backgroundPosition: "center", backgroundSize: "cover", backgroundRepeat: "no-repeat" }}>  
+          <div className='w-full h-full relative z-0 bg-gray-900' style={{ backgroundImage: `url(https://image.tmdb.org/t/p/original${popularMovies[coverMovie].poster_path || popularMovies[coverMovie].backdrop_path})`,backgroundPosition: "top", backgroundSize: "cover", backgroundRepeat: "no-repeat" }}>  
           <div className='faded'></div>
             <div className='w-full h-4 px-8 md:px-40 my-6 flex justify-between items-center absolute top-0 right-0 z-30'>
               <img src={logo} alt='logo' className='my-first-step w-16 h-16 md:w-28 md:h-28 mt-8  md:mt-24' />

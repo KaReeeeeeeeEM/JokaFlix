@@ -244,12 +244,12 @@ export default function MovieModal({ toggler, title, type, movieId, onClose }) {
                         {moviesByCategory.map((result) => (
                           <div key={result.id} className='w-screen md:w-full h-auto flex flex-col mx-2'>
                             <div 
-                              className='relative w-[93vw] h-[50vh] lg:h-[70vh] bg-cover bg-center cursor-pointer rounded-lg' 
+                              className='relative w-[93vw] h-[50vh] lg:h-[75vh] bg-cover bg-center cursor-pointer rounded-lg' 
                               onMouseEnter={handleMouseEnter}
                               onMouseLeave={handleMouseLeave}
-                              style={{backgroundImage:`url(https://image.tmdb.org/t/p/original${result.poster_path})`}}
+                              style={{backgroundImage:`url(https://image.tmdb.org/t/p/original${result.poster_path})`,backgroundPosition: "center", backgroundSize: "cover", backgroundRepeat: "no-repeat" }}
                             >
-                             <div className="absolute right-0 h-[55vh] lg:h-[70vh] w-full inset-0 bg-opacity-60 bg-gray-900 blur-md"></div>
+                             <div className="absolute right-0 h-[55vh] lg:h-[75vh] w-full inset-0 bg-opacity-60 bg-gray-900 blur-md"></div>
                              <div className='blur'></div>
                               {/* {autoplay && result.videos.results[0] && (
                                 <iframe

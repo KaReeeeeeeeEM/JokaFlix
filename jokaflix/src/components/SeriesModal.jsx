@@ -1,14 +1,20 @@
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useState } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
-import { XCircleIcon } from '@heroicons/react/24/outline';
-import axios from 'axios';
-import Card from './Card';
-import SingleSeriesModal from './SingleSeriesModal';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { Dialog, Transition } from "@headlessui/react";
+import { XCircleIcon } from "@heroicons/react/24/outline";
+import axios from "axios";
+import Card from "./Card";
+import SingleSeriesModal from "./SingleSeriesModal";
+import { Link } from "react-router-dom";
+import progress from "../assets/progress.png";
 
-export default function SeriesModal({ toggler, title, seriesCategory, onClose }) {
-  const [open, setOpen] = useState(toggler); 
+export default function SeriesModal({
+  toggler,
+  title,
+  seriesCategory,
+  onClose,
+}) {
+  const [open, setOpen] = useState(toggler);
   const [seriesByCategory, setSeriesByCategory] = useState([]);
   const [seriesId, setSeriesId] = useState("");
   const [seriesTitle, setSeriesTitle] = useState("");
@@ -16,23 +22,23 @@ export default function SeriesModal({ toggler, title, seriesCategory, onClose })
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setOpen(toggler); 
+    setOpen(toggler);
   }, [toggler]);
 
   const closeModal = () => {
-    setOpen(false); 
-    onClose(); 
+    setOpen(false);
+    onClose();
   };
 
   const openModal = () => {
-    setOpen(true); 
+    setOpen(true);
   };
 
   useEffect(() => {
     const fetchSeries = async () => {
       try {
         setIsLoading(true);
-        const seriesByCat = await fetchSeriesByCategory(seriesCategory, 10);
+        const seriesByCat = await fetchSeriesByCategory(seriesCategory, 80);
         setSeriesByCategory(seriesByCat);
       } catch (error) {
         console.error("Error fetching series:", error);
@@ -42,7 +48,7 @@ export default function SeriesModal({ toggler, title, seriesCategory, onClose })
     };
 
     fetchSeries();
-  }, [seriesCategory]);    
+  }, [seriesCategory]);
 
   const fetchSeriesByCategory = async (category, pageCount) => {
     if (category != null) {
@@ -64,7 +70,7 @@ export default function SeriesModal({ toggler, title, seriesCategory, onClose })
       }
     }
     return [];
-  };  
+  };
 
   return (
     <Transition show={open} as={React.Fragment}>
@@ -86,7 +92,10 @@ export default function SeriesModal({ toggler, title, seriesCategory, onClose })
             className="fixed top-0 left-0 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10 cursor-pointer"
             onClick={closeModal}
           >
-            <XCircleIcon className="h-8 w-8 text-orange-600" aria-hidden="true" />
+            <XCircleIcon
+              className="h-8 w-8 text-orange-600"
+              aria-hidden="true"
+            />
           </div>
           <Dialog.Title
             as="h3"
@@ -105,6 +114,15 @@ export default function SeriesModal({ toggler, title, seriesCategory, onClose })
               as={React.Fragment}
             >
               <Dialog.Panel className="relative transform overflow-y-auto rounded-lg bg-transparent text-left shadow-xl transition-all w-[90vw] lg:w-[80vw] h-[95vh] lg:h-[90vh]">
+                {isLoading && (
+                  <div className="flex items-center justify-center bg-transparent w-full h-full rounded-xl mb-4 mx-1">
+                    <img
+                      src={progress}
+                      alt="progress"
+                      className="animate-spin w-8 h-8"
+                    />
+                  </div>
+                )}
                 {openSeriesModal && (
                   <SingleSeriesModal
                     toggler={openSeriesModal}
@@ -117,10 +135,11 @@ export default function SeriesModal({ toggler, title, seriesCategory, onClose })
                   <div className="sm:flex sm:items-start">
                     <div className="text-center sm:ml-4 sm:mt-0 sm:text-left">
                       <div className="flex flex-wrap items-center justify-center mt-2 w-full">
-                        {seriesByCategory.map((result) => (
-                          (result.poster_path === null && result.backdrop_path === null) ?
+                        {seriesByCategory.map((result) =>
+                          result.poster_path === null &&
+                          result.backdrop_path === null ? (
                             ""
-                            :
+                          ) : (
                             <Link
                               onClick={() => {
                                 setSeriesId(result.id);
@@ -131,11 +150,17 @@ export default function SeriesModal({ toggler, title, seriesCategory, onClose })
                             >
                               <Card
                                 src={result.poster_path || result.backdrop_path}
-                                rating={result.vote_average < 2 || result.vote_average === null ? "5.2" : result.vote_average}
+                                rating={
+                                  result.vote_average < 2 ||
+                                  result.vote_average === null
+                                    ? "5.2"
+                                    : result.vote_average
+                                }
                                 year={result.first_air_date}
                               />
                             </Link>
-                        ))}
+                          )
+                        )}
                       </div>
                     </div>
                   </div>

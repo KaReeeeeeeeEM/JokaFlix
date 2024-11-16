@@ -44,7 +44,7 @@
   opacity: 1;
 }
 
-.content {
+/* .content {
   position: absolute;
   bottom: 1rem;
   left: 1rem;
@@ -54,7 +54,7 @@
   box-sizing: border-box;
   text-align: center;
   z-index: 30;
-}
+} */
 
 .hover-options {
   position: absolute;
@@ -165,12 +165,36 @@
     height: 13rem;
     width: 8rem;
   }
+
+  .content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    inset: 0;
+    box-sizing: border-box;
+    text-align: center;
+    z-index: 30;
+  }
 }
 
 @media (min-width:401px) and (max-width: 640px) {
   .card-container {
     height: 15rem;
     width: 9.3rem;
+  }
+
+  .content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    inset: 0;
+    box-sizing: border-box;
+    text-align: center;
+    z-index: 30;
   }
 }
 
@@ -179,6 +203,18 @@
     height: 17rem;
     width: 11rem;
   }
+
+  .content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    inset: 0;
+    box-sizing: border-box;
+    text-align: center;
+    z-index: 30;
+  }
 }
 
 @media (min-width: 768px) and (max-width: 1024px) {
@@ -186,11 +222,35 @@
     height: 18rem;
     width: 12rem;
   }
+
+  .content {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    width: calc(100% - 1rem);
+    height: 100%;
+    padding: 1rem;
+    box-sizing: border-box;
+    text-align: center;
+    z-index: 30;
+  }
 }
 
 @media (min-width: 1025px) {
   .card-container {
     height: 24rem;
     width: 14rem;
+  }
+
+  .content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    text-align: center;
+    z-index: 30;
   }
 }

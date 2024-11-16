@@ -51,7 +51,7 @@ export default function GenreModal({ toggler, title, type, onClose, genreId }) {
     const fetchMovies = async () => {
       try {
         setIsLoading(true);
-        const moviesByCat = await fetchMoviesByCategory(genreId, 5);
+        const moviesByCat = await fetchMoviesByCategory(genreId, 80);
         setMoviesByCategory(moviesByCat);
       } catch (error) {
         console.error("Error fetching movies:", error);
@@ -125,6 +125,11 @@ export default function GenreModal({ toggler, title, type, onClose, genreId }) {
             >
               { (
                 <DialogPanel className="relative transform overflow-y-auto rounded-lg bg-transparent text-left shadow-xl transition-all w-[90vw] lg:w-[80vw] h-[95vh] lg:h-[90vh]">
+                  {isLoading && (
+                      <div className="flex items-center justify-center bg-transparent w-full h-full rounded-xl mb-4 mx-1">
+                        <img src={progress} alt="progress" className="animate-spin w-8 h-8" />
+                      </div>
+                    )}
                   {openMovieModal && (
                     <SingleMovieModal
                       toggler={openMovieModal}
