@@ -306,7 +306,7 @@ export default function SeriesDialog({
           {/* Backdrop with gradient and poster overlay */}
           <div
             className="relative w-full"
-            style={{ height: "45vh", minHeight: 320 }}
+            style={{ height: "45vh", minHeight: 420 }}
           >
             <div
               className="absolute inset-0 w-full h-full bg-center bg-cover"
