@@ -4,6 +4,9 @@ import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react"
 
 import { cn } from "../../lib/utils"
 
+// If you use a ThemeProvider from 'next-themes' or similar, wrap your app like this:
+// <ThemeProvider defaultTheme="dark" forcedTheme="dark">{children}</ThemeProvider>
+
 function DropdownMenu({
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
