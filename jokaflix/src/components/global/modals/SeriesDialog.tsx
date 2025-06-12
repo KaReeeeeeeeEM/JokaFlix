@@ -306,7 +306,7 @@ export default function SeriesDialog({
           {/* Backdrop with gradient and poster overlay */}
           <div
             className="relative w-full"
-            style={{ height: "45vh", minHeight: 220 }}
+            style={{ height: "45vh", minHeight: 320 }}
           >
             <div
               className="absolute inset-0 w-full h-full bg-center bg-cover"
@@ -319,13 +319,13 @@ export default function SeriesDialog({
             {/* Gradient overlay */}
             <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-black/10 via-black/60 to-black/95" />
             {/* Poster and title at the bottom left */}
-            <div className="relative z-10 flex items-end h-full gap-6 pb-8 md:px-8">
+            <div className="relative z-10 flex items-end h-full gap-6 px-2 pb-8 md:px-8">
               <img
                 src={`https://image.tmdb.org/t/p/w342${
                   series.poster_path || series.backdrop_path
                 }`}
                 alt={series.name}
-                className="-mb-8 rounded-lg shadow-lg w-28 md:w-44"
+                className="hidden -mb-8 rounded-lg shadow-lg w-28 md:w-44 xl:flex"
                 style={{ boxShadow: "0 8px 32px 0 rgba(0,0,0,0.7)" }}
               />
               <div className="mb-2">
@@ -348,7 +348,7 @@ export default function SeriesDialog({
                   )}
                   {/* Show vote count if available */}
                   {typeof series.vote_count === "number" && (
-                    <span className="text-xs text-gray-400">
+                    <span className="hidden text-xs text-gray-400 xl:flex">
                       {series.vote_count} votes
                     </span>
                   )}
@@ -365,7 +365,7 @@ export default function SeriesDialog({
                   )}
                   {/* Show popularity if available */}
                   {typeof series.popularity === "number" && (
-                    <span className="text-xs text-gray-400">
+                    <span className="hidden text-xs text-gray-400 xl:flex">
                       Popularity: {series.popularity.toFixed(0)}
                     </span>
                   )}
@@ -380,7 +380,7 @@ export default function SeriesDialog({
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-4 mt-2">
+                <div className="flex items-center gap-4 pt-2">
                   <Button
                     variant={"outline"}
                     className="flex items-center gap-2 px-6 py-2 font-semibold text-white transition bg-orange-600 rounded cursor-pointer hover:bg-orange-700"
