@@ -6,6 +6,10 @@ import { Button } from "../../ui/button";
 import { FaDownload, FaPlay, FaShare, FaTimes } from "react-icons/fa";
 import { MovieCard } from "../cards/MovieCard";
 import { useNavigate, useLocation } from "react-router-dom";
+import {
+  Dialog as ShadDialog,
+  DialogContent as ShadDialogContent,
+} from "../../ui/dialog";
 
 export default function MovieDialog({
   movie,
@@ -20,6 +24,7 @@ export default function MovieDialog({
   const [relatedMovies, setRelatedMovies] = React.useState<TrendingMovie[]>([]);
   const [hasMoreRelated, setHasMoreRelated] = React.useState(true);
   const [isFetchingRelated, setIsFetchingRelated] = React.useState(false);
+  const [showDownload, setShowDownload] = React.useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -62,7 +67,6 @@ export default function MovieDialog({
     text: string;
   }) {
     const handleShare = async () => {
-      // Check if the Web Share API is supported by the browser
       if (navigator.share) {
         try {
           await navigator.share({
@@ -70,16 +74,11 @@ export default function MovieDialog({
             text,
             url,
           });
-          // If successful, you might want to log it or do nothing
           console.log("Movie shared successfully!");
         } catch (error) {
-          // User cancelled the share, or there was another error
           console.error("Error sharing:", error);
-          // You could display a temporary message like "Share cancelled" or "Sharing failed"
         }
       } else {
-        // Fallback for browsers that do not support navigator.share
-        // This message is for development/debugging, you might not show it to the user
         console.warn(
           "Web Share API not supported. Please open this on a mobile device or a browser that supports it."
         );
@@ -96,10 +95,33 @@ export default function MovieDialog({
         className="flex items-center px-2 py-2 mx-2 font-semibold transition duration-700 ease-in-out bg-white rounded-md cursor-pointer md:mx-0 md:py-2 md:px-4 hover:opacity-65 hover:bg-white"
         aria-label="Share"
       >
-        <FaShare />
+        <FaShare className="mr-2" />
       </Button>
     );
   }
+
+  const { data: movieDetails, loading: movieDetailsLoading } = useFetch<any>(
+    {
+      url: `https://api.themoviedb.org/3/movie/${movie.id}?api_key=${
+        import.meta.env.VITE_TMDB_API_KEY
+      }&append_to_response=credits,external_ids`,
+    },
+    { enabled: open }
+  );
+  
+  // Fetch torrents using IMDb ID (YTS for movies)
+  const { data: ytsData, loading: ytsLoading } = useFetch<any>(
+    showDownload && movie.media_type === "movie" && movieDetails?.external_ids?.imdb_id
+      ? {
+          url: `https://yts.mx/api/v2/list_movies.json?query_term=${movieDetails.external_ids.imdb_id}`,
+        }
+      : { url: "" },
+    { enabled: showDownload && !!movieDetails?.external_ids?.imdb_id }
+  );
+ 
+  const ytsMovie = ytsData?.data?.movies?.[0];
+
+  // Fetch torrents using useFetch (EZTV for TV shows) - Removed, only YTS for movies
 
   // Fetch related movies
   const { data: relatedData, loading: relatedLoading } = useFetch<{
@@ -117,38 +139,14 @@ export default function MovieDialog({
     { enabled: open && movie.media_type === "movie" }
   );
 
-  // Fetch movie details (for runtime, production companies, languages)
-  const { data: movieDetails } = useFetch<any>(
-    movie.media_type === "movie"
-      ? {
-          url: `https://api.themoviedb.org/3/movie/${movie.id}?api_key=${
-            import.meta.env.VITE_TMDB_API_KEY
-          }&append_to_response=credits`,
-        }
-      : { url: "" },
-    { enabled: open && movie.media_type === "movie" }
-  );
-
-  // Fetch TV details (for seasons, production companies, languages, credits)
-  const { data: seriesData, loading: seriesLoading } = useFetch<any>(
-    movie.media_type === "tv"
-      ? {
-          url: `https://api.themoviedb.org/3/tv/${movie.id}?api_key=${
-            import.meta.env.VITE_TMDB_API_KEY
-          }&append_to_response=credits`,
-        }
-      : { url: "" },
-    { enabled: open && movie.media_type === "tv" }
-  );
-
   // Fetch genres list (global TMDB genres)
   const { data: genresData } = useFetch<{
     genres: { id: number; name: string }[];
   }>(
     {
-      url: `https://api.themoviedb.org/3/genre/${
-        movie.media_type === "tv" ? "tv" : "movie"
-      }/list?api_key=${import.meta.env.VITE_TMDB_API_KEY}`,
+      url: `https://api.themoviedb.org/3/genre/movie/list?api_key=${
+        import.meta.env.VITE_TMDB_API_KEY
+      }`,
     },
     { enabled: open }
   );
@@ -156,9 +154,9 @@ export default function MovieDialog({
   // Fetch videos (trailers, teasers, etc)
   const { data: videosData } = useFetch<any>(
     {
-      url: `https://api.themoviedb.org/3/${movie.media_type}/${
-        movie.id
-      }/videos?api_key=${import.meta.env.VITE_TMDB_API_KEY}`,
+      url: `https://api.themoviedb.org/3/movie/${movie.id}/videos?api_key=${
+        import.meta.env.VITE_TMDB_API_KEY
+      }`,
     },
     { enabled: open }
   );
@@ -173,7 +171,7 @@ export default function MovieDialog({
       setRelatedPage(1);
       setHasMoreRelated(true);
     }
-  }, [open, movie.id, movie.media_type]);
+  }, [open, movie.id]);
 
   React.useEffect(() => {
     if (relatedData?.results && open && movie.media_type === "movie") {
@@ -223,8 +221,8 @@ export default function MovieDialog({
     return map;
   }, [genresData]);
 
-  // Get details for display
-  const details = movie.media_type === "movie" ? movieDetails : seriesData;
+  // Get details for display (only movies now)
+  const details = movie.media_type === "movie" ? movieDetails : null;
   const productionCompanies = details?.production_companies || [];
   const spokenLanguages = details?.spoken_languages || [];
   const credits = details?.credits;
@@ -316,12 +314,7 @@ export default function MovieDialog({
                     {getRuntime(details.runtime)}
                   </span>
                 )}
-                {movie.media_type === "tv" && details?.seasons && (
-                  <span className="text-xs text-gray-400">
-                    {details.seasons.length} season
-                    {details.seasons.length > 1 ? "s" : ""}
-                  </span>
-                )}
+                {/* Removed TV specific season display */}
                 {/* Show popularity if available */}
                 {typeof movie.popularity === "number" && (
                   <span className="hidden text-xs text-gray-400 xl:flex">
@@ -347,13 +340,16 @@ export default function MovieDialog({
                 >
                   <FaPlay /> Play
                 </Button>
-                <Button className="flex items-center gap-2 px-4 py-2 font-semibold text-white transition bg-gray-700 rounded cursor-pointer hover:bg-gray-800">
+                <Button
+                  className="flex items-center gap-2 px-4 py-2 font-semibold text-white transition bg-gray-700 rounded cursor-pointer hover:bg-gray-800"
+                  onClick={() => setShowDownload(true)}
+                >
                   <FaDownload /> Download
                 </Button>
                 <ShareButton
                   url={shareUrl}
-                  title={movie.name || "JokaFlix"}
-                  text={`Watch ${movie.name} for FREE on JokaFlix`}
+                  title={movie.title || "JokaFlix"}
+                  text={`Watch ${movie.title} for FREE on JokaFlix`}
                 />
               </div>
             </div>
@@ -500,37 +496,7 @@ export default function MovieDialog({
               </div>
             </div>
           )}
-          {/* Series: Show seasons */}
-          {movie.media_type === "tv" && (
-            <div className="py-4">
-              <h3 className="mb-2 text-lg font-bold text-primary">Seasons</h3>
-              {seriesLoading ? (
-                <div className="text-gray-400">Loading seasons...</div>
-              ) : (
-                <div className="flex gap-4 overflow-x-auto">
-                  {details?.seasons?.map((season: any) => (
-                    <div
-                      key={season.id}
-                      className="flex flex-col items-center min-w-[100px]"
-                    >
-                      <img
-                        src={
-                          season.poster_path
-                            ? `https://image.tmdb.org/t/p/w185${season.poster_path}`
-                            : ""
-                        }
-                        alt={season.name}
-                        className="object-cover w-20 mb-1 bg-gray-800 rounded h-28"
-                      />
-                      <span className="text-xs text-center text-white">
-                        {season.name}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+          {/* Removed Series: Show seasons */}
           {/* Movie: Show related movies in a grid with infinite vertical scroll */}
           {movie.media_type === "movie" && (
             <div>
@@ -559,6 +525,91 @@ export default function MovieDialog({
             </div>
           )}
         </div>
+        {/* Download Modal using shadcn Dialog */}
+        <ShadDialog open={showDownload} onOpenChange={setShowDownload}>
+          <ShadDialogContent
+            className="flex flex-col p-0 bg-black rounded-lg"
+            style={{
+              width: "100vw",
+              maxWidth: "500px",
+              maxHeight: "90vh",
+              minHeight: "200px",
+              padding: 0,
+            }}
+          >
+            <Button
+              className="absolute z-20 flex items-center justify-center w-10 h-10 text-xl text-white transition rounded-full cursor-pointer top-4 right-4 bg-black/70 hover:bg-black/90"
+              onClick={() => setShowDownload(false)}
+              aria-label="Close"
+              type="button"
+            >
+              <FaTimes />
+            </Button>
+            <div className="flex flex-col flex-1 px-4 py-6 overflow-y-auto">
+              <h2 className="py-2 text-xl font-bold text-white">
+                Download Torrents
+              </h2>
+              {movieDetailsLoading || ytsLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <span className="text-4xl text-white animate-pulse">...</span>
+                </div>
+              ) : movie.media_type === "movie" && ytsMovie ? (
+                <div className="space-y-4">
+                  {ytsMovie.torrents && ytsMovie.torrents.length > 0 ? (
+                    ytsMovie.torrents.map((torrent: any, index: number) => (
+                      <div
+                        key={index}
+                        className="flex items-center p-4 pb-2 space-x-4 border border-gray-700 rounded-lg"
+                      >
+                        <img
+                          src={ytsMovie.large_cover_image}
+                          alt={ytsMovie.title}
+                          className="w-20 h-32 rounded-lg"
+                        />
+                        <div className="flex-1 px-3">
+                          <p className="text-white">
+                            {torrent.quality} - {torrent.size}
+                          </p>
+                          <p className="py-2 text-xs text-gray-400">Source: YTS</p>
+                          <a
+                            href={`magnet:?xt=urn:btih:${
+                              torrent.hash
+                            }&dn=${encodeURIComponent(
+                              ytsMovie.title
+                            )}&tr=udp://open.demonii.com:1337/announce&tr=udp://tracker.openbittorrent.com:80/announce&tr=udp://tracker.coppersurfer.tk:6969/announce&tr=udp://tracker.leechers-paradise.org:6969/announce`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            
+                          >
+                            <Button 
+                              className="w-full mt-2 bg-white cursor-pointer hover:bg-white"
+                              aria-label="Download Torrent"
+                            >
+                              <FaDownload className="mr-2" />
+                              Download Torrent
+                            </Button>
+                          </a>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="flex items-center justify-center py-8">
+                      <span className="text-white">
+                        No YTS torrents found for this movie.
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center py-8">
+                  <span className="text-white">
+                    No torrent found.
+                  </span>
+                </div>
+              )}
+            </div>
+          </ShadDialogContent>
+        </ShadDialog>
       </DialogContent>
     </Dialog>
   );

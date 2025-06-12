@@ -65,7 +65,7 @@ export default function PopularMovies() {
 
   // Initial fetch for gallery (first 8 movies)
   const { data: initialData, loading: initialLoading } = useFetch<{ results: TrendingMovie[] }>({
-    url: `https://api.themoviedb.org/3/movie/popular?api_key=${import.meta.env.VITE_TMDB_API_KEY}`,
+    url: `https://api.themoviedb.org/3/movie/popular?api_key=${import.meta.env.VITE_TMDB_API_KEY}&append_to_response=credits,external_ids,videos,images`,
   });
   const movies = initialData?.results || [];
 
