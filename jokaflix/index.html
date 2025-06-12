@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#d03801" />
+    <meta name="description" content="Discover the latest movies and series on JokaFlix, your ultimate destination for streaming and downloading high-quality content. Enjoy unlimited entertainment with our extensive collection of the newest releases and timeless classics. Whether you're into action, drama, comedy, or documentaries, JokaFlix has something for everyone. Stream your favorite movies and TV shows online, download them to watch offline, and stay updated with the freshest content available for free. Dive into the world of entertainment with JokaFlix and never miss out on the latest trends and releases in the movie industry." />
+    <meta name="msvalidate.01" content="C8DB94E37FCFEF4ECBF09C06375CAEA3" />
+    <meta name="google-site-verification" content="CfiONSZlzj5-eoWDBa34TI36BknNp20dTgwrMpLLHIo" />
+
+    <!-- Additional Meta Tags for SEO -->
+    <meta name="keywords" content="movies, series, stream, download, free content, latest movies, JokaFlix, TV shows, online streaming, high quality videos, entertainment, new releases, action movies, drama series, comedy shows, documentaries" />
+    <meta name="author" content="Johnson Nathaniel Mmbaga (JoKareem)" />
+    <meta name="robots" content="index, follow" />
+    <meta name="rating" content="General" />
+    <meta name="distribution" content="global" />
+    <meta name="coverage" content="worldwide" />
+    <meta name="expires" content="never" />
+    <meta name="revisit-after" content="7 days" />
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="JokaFlix | Home of Movies and Series" />
+    <meta property="og:description" content="Discover the latest movies and series on JokaFlix, your ultimate destination for streaming and downloading high-quality content. Enjoy unlimited entertainment with our extensive collection of the newest releases and timeless classics. Whether you're into action, drama, comedy, or documentaries, JokaFlix has something for everyone. Stream your favorite movies and TV shows online, download them to watch offline, and stay updated with the freshest content available for free. Dive into the world of entertainment with JokaFlix and never miss out on the latest trends and releases in the movie industry." />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:url" content="https://jokaflix.vercel.app" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="JokaFlix" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter Cards Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="JokaFlix | Home of Movies and Series" />
+    <meta name="twitter:description" content="Discover the latest movies and series on JokaFlix, your ultimate destination for streaming and downloading high-quality content. Enjoy unlimited entertainment with our extensive collection of the newest releases and timeless classics. Whether you're into action, drama, comedy, or documentaries, JokaFlix has something for everyone. Stream your favorite movies and TV shows online, download them to watch offline, and stay updated with the freshest content available for free. Dive into the world of entertainment with JokaFlix and never miss out on the latest trends and releases in the movie industry." />
+    <meta name="twitter:image" content="/twitter-image.png" />
+    <meta name="twitter:site" content="@JokaFlix" />
+    <meta name="twitter:creator" content="@JokaFlix" />
+
+    <!-- Dublin Core Metadata -->
+    <meta name="dcterms.title" content="JokaFlix | Home of Movies and Series" />
+    <meta name="dcterms.description" content="Discover the latest movies and series on JokaFlix, your ultimate destination for streaming and downloading high-quality content. Enjoy unlimited entertainment with our extensive collection of the newest releases and timeless classics. Whether you're into action, drama, comedy, or documentaries, JokaFlix has something for everyone. Stream your favorite movies and TV shows online, download them to watch offline, and stay updated with the freshest content available for free. Dive into the world of entertainment with JokaFlix and never miss out on the latest trends and releases in the movie industry." />
+    <meta name="dcterms.type" content="Text" />
+    <meta name="dcterms.format" content="text/html" />
+    <meta name="dcterms.identifier" content="https://jokaflix.vercel.app" />
+    <meta name="dcterms.language" content="en" />
+    <meta name="dcterms.coverage" content="worldwide" />
+    <meta name="dcterms.publisher" content="JokaFlix" />
+    <meta name="dcterms.creator" content="Johnson Nathaniel Mmbaga (JoKareem)" />
+    <meta name="dcterms.subject" content="movies, series, stream, download, free content, latest movies, TV shows, online streaming, high quality videos, entertainment, new releases, action movies, drama series, comedy shows, documentaries" />
+
+    <!-- Robots control to allow site indexing -->
+    <meta name="robots" content="index, follow">
+
+    <!-- Link Tags for Social Media and SEO -->
+    <link rel="canonical" href="https://jokaflix.vercel.app" />
+    <link rel="alternate" href="https://jokaflix.vercel.app" hreflang="en-us" />
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="https://jokaflix.vercel.app/sitemap.xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    
+    <!-- This is for the manifest.json to make JokaFlix a PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/src/index.css">
+
+    <style>
+      /* Splash screen styles */
+      #splash-screen {
+        position: fixed;
+        z-index: 9999;
+        inset: 0;
+        background: #111;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.7s cubic-bezier(.4,0,.2,1);
+        opacity: 1;
+      }
+      #splash-logo {
+        width: 220px;
+        height: 220px;
+        margin-bottom: 10px;
+        animation: splash-bounce 1.2s infinite alternate cubic-bezier(.4,0,.2,1);
+        object-fit: contain;
+        filter: drop-shadow(0 4px 32px #d03801cc);
+      }
+      #splash-slogan {
+        color: #fff;
+        font-family: 'Bebas Neue', 'Montserrat', Arial, sans-serif;
+        font-size: 2.2rem;
+        letter-spacing: 0.08em;
+        text-align: center;
+        opacity: 0.92;
+        animation: splash-fadein 1.2s 0.5s forwards;
+        font-weight: 700;
+        text-shadow: 0 2px 12px #d03801cc, 0 1px 2px #000a;
+        line-height: 1.1;
+      }
+      @keyframes splash-bounce {
+        0% { transform: scale(1) translateY(0);}
+        100% { transform: scale(1.08) translateY(-18px);}
+      }
+      @keyframes splash-fadein {
+        from { opacity: 0; transform: translateY(20px);}
+        to { opacity: 0.92; transform: translateY(0);}
+      }
+      #splash-screen.splash-hide {
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
+
+    <title>JokaFlix | Home of Movies and Series</title>
+  </head>
+  <body>
+    <!-- Splash screen overlay -->
+    <div id="splash-screen">
+      <img id="splash-logo" src="/logo-sub.png" alt="JokaFlix Logo" />
+    </div>
+
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script defer async>
+      document.addEventListener('DOMContentLoaded', function() {
+        // setting global variables
+        window.botId = 4242
+        
+        // create div with id = sarufi-chatbox
+        const div = document.createElement("div")
+        div.id = "sarufi-chatbox"
+        document.body.appendChild(div)
+    
+        // create and attach script tag
+        const script = document.createElement("script")
+        script.crossOrigin = true
+        script.type = "module"
+        script.src = "https://cdn.jsdelivr.net/gh/flexcodelabs/sarufi-chatbox/example/vanilla-js/script.js"
+        document.head.appendChild(script)
+    
+        // create and attach css
+        const style = document.createElement("link")
+        style.crossOrigin = true
+        style.rel = "stylesheet"
+        style.href = "https://cdn.jsdelivr.net/gh/flexcodelabs/sarufi-chatbox/example/vanilla-js/style.css"
+        document.head.appendChild(style)
+
+        // Splash screen fade-out logic
+        window.addEventListener('load', function() {
+          setTimeout(function() {
+            const splash = document.getElementById('splash-screen');
+            if (splash) {
+              splash.classList.add('splash-hide');
+              setTimeout(() => splash.remove(), 800);
+            }
+          }, 900); // Show splash for at least 900ms
+        });
+      });
+    </script>
+  </body>
+</html>
