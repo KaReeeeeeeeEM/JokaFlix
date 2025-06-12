@@ -11,6 +11,115 @@ import {
   DialogContent as ShadDialogContent,
 } from "../../ui/dialog";
 
+// Custom type for normalized torrent data
+interface Torrent {
+  source: string;
+  quality: string;
+  size: string;
+  hash: string;
+  magnet: string;
+  title: string;
+  coverImage?: string;
+}
+
+// Custom hook to fetch torrents from multiple sources
+function useTorrents(imdbId: string | null, enabled: boolean) {
+  // YTS fetch
+  const { data: ytsData, loading: ytsLoading } = useFetch<any>(
+    enabled && imdbId
+      ? {
+          url: `https://yts.mx/api/v2/list_movies.json?query_term=${imdbId}`,
+        }
+      : { url: "" },
+    { enabled: enabled && !!imdbId }
+  );
+
+  // 1337x fetch (hypothetical API)
+  const { data: leetxData, loading: leetxLoading } = useFetch<any>(
+    enabled && imdbId
+      ? {
+          url: `https://api.1337x.to/search?imdb=${imdbId}`,
+        }
+      : { url: "" },
+    { enabled: enabled && !!imdbId }
+  );
+
+  // RARBG fetch (hypothetical API)
+  const { data: rarbgData, loading: rarbgLoading } = useFetch<any>(
+    enabled && imdbId
+      ? {
+          url: `https://api.rarbg.to/search?imdb=${imdbId}`,
+        }
+      : { url: "" },
+    { enabled: enabled && !!imdbId }
+  );
+
+  // Normalize and combine torrents
+  const torrents = React.useMemo(() => {
+    const allTorrents: Torrent[] = [];
+
+    // Normalize YTS torrents
+    if (ytsData?.data?.movies?.[0]?.torrents) {
+      const movie = ytsData.data.movies[0];
+      movie.torrents.forEach((torrent: any) => {
+        allTorrents.push({
+          source: "YTS",
+          quality: torrent.quality,
+          size: torrent.size,
+          hash: torrent.hash,
+          magnet: `magnet:?xt=urn:btih:${torrent.hash}&dn=${encodeURIComponent(
+            movie.title
+          )}&tr=udp://open.demonii.com:1337/announce&tr=udp://tracker.openbittorrent.com:80/announce&tr=udp://tracker.coppersurfer.tk:6969/announce&tr=udp://tracker.leechers-paradise.org:6969/announce`,
+          title: movie.title,
+          coverImage: movie.large_cover_image,
+        });
+      });
+    }
+
+    // Normalize 1337x torrents (hypothetical structure)
+    if (leetxData?.results) {
+      leetxData.results.forEach((torrent: any) => {
+        allTorrents.push({
+          source: "1337x",
+          quality: torrent.quality || "Unknown",
+          size: torrent.size || "Unknown",
+          hash: torrent.hash,
+          magnet: torrent.magnet,
+          title: torrent.title,
+          coverImage: torrent.cover || ytsData?.data?.movies?.[0]?.large_cover_image,
+        });
+      });
+    }
+
+    // Normalize RARBG torrents (hypothetical structure)
+    if (rarbgData?.torrents) {
+      rarbgData.torrents.forEach((torrent: any) => {
+        allTorrents.push({
+          source: "RARBG",
+          quality: torrent.quality || "Unknown",
+          size: torrent.size || "Unknown",
+          hash: torrent.hash,
+          magnet: torrent.magnet,
+          title: torrent.title,
+          coverImage: torrent.cover || ytsData?.data?.movies?.[0]?.large_cover_image,
+        });
+      });
+    }
+
+    // Deduplicate by hash
+    const seenHashes = new Set<string>();
+    return allTorrents.filter((torrent) => {
+      if (seenHashes.has(torrent.hash)) return false;
+      seenHashes.add(torrent.hash);
+      return true;
+    });
+  }, [ytsData, leetxData, rarbgData]);
+
+  const loading = ytsLoading || leetxLoading || rarbgLoading;
+
+  return { torrents, loading };
+}
+
 export default function MovieDialog({
   movie,
   open,
@@ -50,7 +159,6 @@ export default function MovieDialog({
     );
   };
 
-  // Compose share URL for the play modal (full series)
   const shareUrl =
     window.location.origin +
     `/play/${movie.media_type === "tv" ? "tv" : "movie"}/${movie.id}?play=1${
@@ -108,22 +216,15 @@ export default function MovieDialog({
     },
     { enabled: open }
   );
-  
-  // Fetch torrents using IMDb ID (YTS for movies)
-  const { data: ytsData, loading: ytsLoading } = useFetch<any>(
-    showDownload && movie.media_type === "movie" && movieDetails?.external_ids?.imdb_id
-      ? {
-          url: `https://yts.mx/api/v2/list_movies.json?query_term=${movieDetails.external_ids.imdb_id}`,
-        }
-      : { url: "" },
-    { enabled: showDownload && !!movieDetails?.external_ids?.imdb_id }
+
+  // Fetch torrents using custom hook
+  const { torrents, loading: torrentsLoading } = useTorrents(
+    movie.media_type === "movie" && movieDetails?.external_ids?.imdb_id
+      ? movieDetails.external_ids.imdb_id
+      : null,
+    showDownload && movie.media_type === "movie"
   );
- 
-  const ytsMovie = ytsData?.data?.movies?.[0];
 
-  // Fetch torrents using useFetch (EZTV for TV shows) - Removed, only YTS for movies
-
-  // Fetch related movies
   const { data: relatedData, loading: relatedLoading } = useFetch<{
     results: TrendingMovie[];
   }>(
@@ -139,7 +240,6 @@ export default function MovieDialog({
     { enabled: open && movie.media_type === "movie" }
   );
 
-  // Fetch genres list (global TMDB genres)
   const { data: genresData } = useFetch<{
     genres: { id: number; name: string }[];
   }>(
@@ -151,7 +251,6 @@ export default function MovieDialog({
     { enabled: open }
   );
 
-  // Fetch videos (trailers, teasers, etc)
   const { data: videosData } = useFetch<any>(
     {
       url: `https://api.themoviedb.org/3/movie/${movie.id}/videos?api_key=${
@@ -213,7 +312,6 @@ export default function MovieDialog({
     return h > 0 ? `${h}h ${m}m` : `${m}m`;
   };
 
-  // Map genre ids to names
   const genreMap = React.useMemo(() => {
     if (!genresData?.genres) return {};
     const map: Record<number, string> = {};
@@ -221,14 +319,12 @@ export default function MovieDialog({
     return map;
   }, [genresData]);
 
-  // Get details for display (only movies now)
   const details = movie.media_type === "movie" ? movieDetails : null;
   const productionCompanies = details?.production_companies || [];
   const spokenLanguages = details?.spoken_languages || [];
   const credits = details?.credits;
   const actors = credits?.cast?.slice(0, 20) || [];
 
-  // Only show rating if > 0
   const showRating =
     typeof movie.vote_average === "number" && movie.vote_average > 0;
 
@@ -267,9 +363,7 @@ export default function MovieDialog({
               })`,
             }}
           />
-          {/* Gradient overlay */}
           <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-black/10 via-black/60 to-black/95" />
-          {/* Poster and title at the bottom left */}
           <div className="relative z-10 flex items-end h-full gap-6 pb-8 md:px-8">
             <img
               src={`https://image.tmdb.org/t/p/w342${
@@ -283,7 +377,6 @@ export default function MovieDialog({
               <h2 className="mb-2 text-3xl font-bold text-white drop-shadow">
                 {movie.title}
               </h2>
-              {/* Show original title if different */}
               {movie.original_title && movie.original_title !== movie.title && (
                 <div className="mb-1 text-sm italic text-gray-300">
                   Original Title: {movie.original_title}
@@ -295,7 +388,6 @@ export default function MovieDialog({
                     {movie.vote_average.toFixed(1)}
                   </span>
                 )}
-                {/* Show vote count if available */}
                 {typeof movie.vote_count === "number" && (
                   <span className="hidden text-xs text-gray-400 xl:flex">
                     {movie.vote_count} votes
@@ -314,14 +406,11 @@ export default function MovieDialog({
                     {getRuntime(details.runtime)}
                   </span>
                 )}
-                {/* Removed TV specific season display */}
-                {/* Show popularity if available */}
                 {typeof movie.popularity === "number" && (
                   <span className="hidden text-xs text-gray-400 xl:flex">
                     Popularity: {movie.popularity.toFixed(0)}
                   </span>
                 )}
-                {/* Show adult flag if present */}
                 {"adult" in movie && (
                   <span
                     className={`text-xs font-bold ${
@@ -355,10 +444,8 @@ export default function MovieDialog({
             </div>
           </div>
         </div>
-        {/* Details at the bottom */}
         <div className="px-2 overflow-y-auto md:py-8 flex-1px bg-black/90">
           <h3 className="font-semibold text-primary">Overview</h3>
-          {/* Show overview or fallback if missing */}
           <p className="mb-4 text-gray-200">
             {movie.overview && movie.overview.trim().length > 0 ? (
               movie.overview
@@ -368,7 +455,6 @@ export default function MovieDialog({
               </span>
             )}
           </p>
-          {/* Genres */}
           <div className="flex flex-wrap gap-2 py-4">
             {movie.genre_ids && movie.genre_ids.length > 0
               ? movie.genre_ids.map((id) =>
@@ -389,7 +475,6 @@ export default function MovieDialog({
                     {g.name}
                   </span>
                 ))}
-            {/* Fallback if no genres */}
             {(!movie.genre_ids || movie.genre_ids.length === 0) &&
               (!details?.genres || details.genres.length === 0) && (
                 <span className="px-2 py-1 text-xs text-gray-400 bg-gray-700 rounded">
@@ -397,7 +482,6 @@ export default function MovieDialog({
                 </span>
               )}
           </div>
-          {/* Production Companies */}
           {productionCompanies.length > 0 && (
             <div className="mb-4">
               <h4 className="py-2 text-sm font-bold text-primary">
@@ -420,7 +504,6 @@ export default function MovieDialog({
               </div>
             </div>
           )}
-          {/* Spoken Languages */}
           {spokenLanguages.length > 0 && (
             <div className="py-4">
               <h4 className="mb-1 text-sm font-bold text-primary">Languages</h4>
@@ -436,7 +519,6 @@ export default function MovieDialog({
               </div>
             </div>
           )}
-          {/* Actors */}
           {actors.length > 0 && (
             <div className="py-4">
               <h4 className="py-1 text-sm font-bold text-primary">Actors</h4>
@@ -467,7 +549,6 @@ export default function MovieDialog({
               </div>
             </div>
           )}
-          {/* Trailers */}
           {trailers.length > 0 && (
             <div className="py-4">
               <h4 className="py-1 text-sm font-bold text-primary">Trailers</h4>
@@ -496,8 +577,6 @@ export default function MovieDialog({
               </div>
             </div>
           )}
-          {/* Removed Series: Show seasons */}
-          {/* Movie: Show related movies in a grid with infinite vertical scroll */}
           {movie.media_type === "movie" && (
             <div>
               <h3 className="py-2 text-lg font-bold text-primary">
@@ -525,7 +604,6 @@ export default function MovieDialog({
             </div>
           )}
         </div>
-        {/* Download Modal using shadcn Dialog */}
         <ShadDialog open={showDownload} onOpenChange={setShowDownload}>
           <ShadDialogContent
             className="flex flex-col p-0 bg-black rounded-lg"
@@ -549,62 +627,55 @@ export default function MovieDialog({
               <h2 className="py-2 text-xl font-bold text-white">
                 Download Torrents
               </h2>
-              {movieDetailsLoading || ytsLoading ? (
+              <p className="mb-4 text-sm text-gray-400">
+                Note: Downloading copyrighted material may be illegal in your region. Please ensure you have the right to download and use these files.
+              </p>
+              {movieDetailsLoading || torrentsLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <span className="text-4xl text-white animate-pulse">...</span>
                 </div>
-              ) : movie.media_type === "movie" && ytsMovie ? (
+              ) : movie.media_type === "movie" && torrents.length > 0 ? (
                 <div className="space-y-4">
-                  {ytsMovie.torrents && ytsMovie.torrents.length > 0 ? (
-                    ytsMovie.torrents.map((torrent: any, index: number) => (
-                      <div
-                        key={index}
-                        className="flex items-center p-4 pb-2 space-x-4 border border-gray-700 rounded-lg"
-                      >
-                        <img
-                          src={ytsMovie.large_cover_image}
-                          alt={ytsMovie.title}
-                          className="w-20 h-32 rounded-lg"
-                        />
-                        <div className="flex-1 px-3">
-                          <p className="text-white">
-                            {torrent.quality} - {torrent.size}
-                          </p>
-                          <p className="py-2 text-xs text-gray-400">Source: YTS</p>
-                          <a
-                            href={`magnet:?xt=urn:btih:${
-                              torrent.hash
-                            }&dn=${encodeURIComponent(
-                              ytsMovie.title
-                            )}&tr=udp://open.demonii.com:1337/announce&tr=udp://tracker.openbittorrent.com:80/announce&tr=udp://tracker.coppersurfer.tk:6969/announce&tr=udp://tracker.leechers-paradise.org:6969/announce`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            
+                  {torrents.map((torrent, index) => (
+                    <div
+                      key={`${torrent.source}-${torrent.hash}-${index}`}
+                      className="flex items-center p-4 pb-2 space-x-4 border border-gray-700 rounded-lg"
+                    >
+                      <img
+                        src={
+                          torrent.coverImage ||
+                          `https://image.tmdb.org/t/p/w342${movie.poster_path}`
+                        }
+                        alt={torrent.title}
+                        className="w-20 h-32 rounded-lg"
+                      />
+                      <div className="flex-1 px-3">
+                        <p className="text-white">
+                          {torrent.quality} - {torrent.size}
+                        </p>
+                        <p className="py-2 text-xs text-gray-400">
+                          Source: {torrent.source}
+                        </p>
+                        <a
+                          href={torrent.magnet}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Button
+                            className="w-full mt-2 bg-white cursor-pointer hover:bg-white"
+                            aria-label="Download Torrent"
                           >
-                            <Button 
-                              className="w-full mt-2 bg-white cursor-pointer hover:bg-white"
-                              aria-label="Download Torrent"
-                            >
-                              <FaDownload className="mr-2" />
-                              Download Torrent
-                            </Button>
-                          </a>
-                        </div>
+                            <FaDownload className="mr-2" />
+                            Download Torrent
+                          </Button>
+                        </a>
                       </div>
-                    ))
-                  ) : (
-                    <div className="flex items-center justify-center py-8">
-                      <span className="text-white">
-                        No YTS torrents found for this movie.
-                      </span>
                     </div>
-                  )}
+                  ))}
                 </div>
               ) : (
                 <div className="flex items-center justify-center py-8">
-                  <span className="text-white">
-                    No torrent found.
-                  </span>
+                  <span className="text-white">No torrents found for this movie.</span>
                 </div>
               )}
             </div>
