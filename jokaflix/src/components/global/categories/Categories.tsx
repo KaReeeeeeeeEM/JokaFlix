@@ -121,7 +121,7 @@ export default function Categories() {
                       ? Array.from({ length: 16 }).map((_, i) => (
                           <Skeleton
                             key={i}
-                            className="h-64 rounded-lg dark:bg-gray-900 w-44 md:w-52 md:h-[350px] animate-pulse"
+                            className="h-64 rounded-lg dark:bg-gray-900 w-42 md:w-52 md:h-[350px] animate-pulse"
                           />
                         ))
                       : null}

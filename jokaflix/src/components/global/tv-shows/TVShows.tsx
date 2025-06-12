@@ -92,7 +92,7 @@ export default function TVShows() {
             </h3>
             <div
               ref={gridRef}
-              className="grid h-full grid-cols-2 gap-2 py-12 overflow-y-auto sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-8"
+              className="grid h-full grid-cols-2 gap-2 px-2 py-12 overflow-y-auto sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-8"
               style={{ maxHeight: "80vh" }}
             >
               {allShows.map((show) => (
@@ -102,7 +102,7 @@ export default function TVShows() {
                 ? Array.from({ length: 16 }).map((_, i) => (
                     <Skeleton
                       key={i}
-                      className="h-64 rounded-lg dark:bg-gray-900 w-44 md:w-48 md:h-[350px] animate-pulse"
+                      className="h-64 rounded-lg dark:bg-gray-900 w-42 md:w-48 md:h-[350px] animate-pulse"
                     />
                   ))
                 : null}
@@ -123,7 +123,7 @@ export default function TVShows() {
           ? Array.from({ length: 8 }).map((_, i) => (
               <Skeleton
                 key={i}
-                className="h-[350px] rounded-lg dark:bg-gray-800 w-44 md:w-48 animate-pulse"
+                className="h-[350px] rounded-lg dark:bg-gray-800 w-42 md:w-48 animate-pulse"
               />
             ))
           : shows

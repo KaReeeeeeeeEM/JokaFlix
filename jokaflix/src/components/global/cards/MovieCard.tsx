@@ -24,7 +24,7 @@ export function MovieCard({ movie }: MovieCardProps) {
           aria-label={`Open details for ${movie.title || movie.name}`}
           onClick={() => setOpen(true)}
         >
-          <Card className="relative h-[350px] overflow-hidden shadow-lg group w-44 md:w-48 py-0 bg-neutral-900 rounded-lg">
+          <Card className="relative h-[350px] overflow-hidden shadow-lg group w-42 md:w-48 py-0 bg-neutral-900 rounded-lg">
             <img
               src={poster ? `https://image.tmdb.org/t/p/w500${poster}` : ""}
               alt={movie.title || movie.name}

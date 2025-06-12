@@ -72,7 +72,7 @@ export default function SearchDrawer() {
       >
         {loading
           ? Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-64 rounded-lg dark:bg-gray-900 w-44 md:w-48 md:h-[350px] animate-pulse" />
+              <Skeleton key={i} className="h-64 rounded-lg dark:bg-gray-900 w-42 md:w-48 md:h-[350px] animate-pulse" />
             ))
           : results
               .filter((item: any) => item.media_type === "movie" || item.media_type === "tv")
