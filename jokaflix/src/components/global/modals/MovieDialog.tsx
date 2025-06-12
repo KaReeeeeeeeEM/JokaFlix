@@ -3,11 +3,19 @@ import type { TrendingMovie } from "../../../../types";
 import { useFetch } from "../../../api";
 import { Dialog, DialogContent } from "../../ui/dialog";
 import { Button } from "../../ui/button";
-import { FaDownload, FaPlay, FaTimes } from "react-icons/fa";
+import { FaDownload, FaPlay, FaShare, FaTimes } from "react-icons/fa";
 import { MovieCard } from "../cards/MovieCard";
 import { useNavigate, useLocation } from "react-router-dom";
 
-export default function MovieDialog({ movie, open, setOpen }: { movie: TrendingMovie; open: boolean; setOpen: (v: boolean) => void }) {
+export default function MovieDialog({
+  movie,
+  open,
+  setOpen,
+}: {
+  movie: TrendingMovie;
+  open: boolean;
+  setOpen: (v: boolean) => void;
+}) {
   const [relatedPage, setRelatedPage] = React.useState(1);
   const [relatedMovies, setRelatedMovies] = React.useState<TrendingMovie[]>([]);
   const [hasMoreRelated, setHasMoreRelated] = React.useState(true);
@@ -17,7 +25,7 @@ export default function MovieDialog({ movie, open, setOpen }: { movie: TrendingM
   const location = useLocation();
 
   const handlePlay = () => {
-    const basePath = `/play/movie/${movie.id}`
+    const basePath = `/play/movie/${movie.id}`;
     const searchParams = new URLSearchParams(location.search);
     searchParams.set("play", "1");
     searchParams.set("type", movie.media_type === "tv" ? "tv" : "movie");
@@ -28,11 +36,70 @@ export default function MovieDialog({ movie, open, setOpen }: { movie: TrendingM
     }
     searchParams.delete("season");
     searchParams.delete("episode");
-    navigate({
-      pathname: basePath,
-      search: searchParams.toString(),
-    }, { replace: false });
+    navigate(
+      {
+        pathname: basePath,
+        search: searchParams.toString(),
+      },
+      { replace: false }
+    );
   };
+
+  // Compose share URL for the play modal (full series)
+  const shareUrl =
+    window.location.origin +
+    `/play/${movie.media_type === "tv" ? "tv" : "movie"}/${movie.id}?play=1${
+      movie.media_type === "movie" ? "&full=1" : ""
+    }`;
+
+  function ShareButton({
+    url,
+    title,
+    text,
+  }: {
+    url: string;
+    title: string;
+    text: string;
+  }) {
+    const handleShare = async () => {
+      // Check if the Web Share API is supported by the browser
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title,
+            text,
+            url,
+          });
+          // If successful, you might want to log it or do nothing
+          console.log("Movie shared successfully!");
+        } catch (error) {
+          // User cancelled the share, or there was another error
+          console.error("Error sharing:", error);
+          // You could display a temporary message like "Share cancelled" or "Sharing failed"
+        }
+      } else {
+        // Fallback for browsers that do not support navigator.share
+        // This message is for development/debugging, you might not show it to the user
+        console.warn(
+          "Web Share API not supported. Please open this on a mobile device or a browser that supports it."
+        );
+        alert(
+          "Your browser does not support sharing directly. You can manually copy the link: " +
+            url
+        );
+      }
+    };
+
+    return (
+      <Button
+        onClick={handleShare}
+        className="flex items-center px-2 py-2 mx-2 font-semibold transition duration-700 ease-in-out bg-white rounded-md cursor-pointer md:mx-0 md:py-2 md:px-4 hover:opacity-65 hover:bg-white"
+        aria-label="Share"
+      >
+        <FaShare />
+      </Button>
+    );
+  }
 
   // Fetch related movies
   const { data: relatedData, loading: relatedLoading } = useFetch<{
@@ -75,9 +142,13 @@ export default function MovieDialog({ movie, open, setOpen }: { movie: TrendingM
   );
 
   // Fetch genres list (global TMDB genres)
-  const { data: genresData } = useFetch<{ genres: { id: number; name: string }[] }>(
+  const { data: genresData } = useFetch<{
+    genres: { id: number; name: string }[];
+  }>(
     {
-      url: `https://api.themoviedb.org/3/genre/${movie.media_type === "tv" ? "tv" : "movie"}/list?api_key=${import.meta.env.VITE_TMDB_API_KEY}`,
+      url: `https://api.themoviedb.org/3/genre/${
+        movie.media_type === "tv" ? "tv" : "movie"
+      }/list?api_key=${import.meta.env.VITE_TMDB_API_KEY}`,
     },
     { enabled: open }
   );
@@ -85,13 +156,16 @@ export default function MovieDialog({ movie, open, setOpen }: { movie: TrendingM
   // Fetch videos (trailers, teasers, etc)
   const { data: videosData } = useFetch<any>(
     {
-      url: `https://api.themoviedb.org/3/${movie.media_type}/${movie.id}/videos?api_key=${import.meta.env.VITE_TMDB_API_KEY}`,
+      url: `https://api.themoviedb.org/3/${movie.media_type}/${
+        movie.id
+      }/videos?api_key=${import.meta.env.VITE_TMDB_API_KEY}`,
     },
     { enabled: open }
   );
-  const trailers = videosData?.results?.filter(
-    (v: any) => v.site === "YouTube" && v.type === "Trailer"
-  ) || [];
+  const trailers =
+    videosData?.results?.filter(
+      (v: any) => v.site === "YouTube" && v.type === "Trailer"
+    ) || [];
 
   React.useEffect(() => {
     if (open && movie.media_type === "movie") {
@@ -184,7 +258,7 @@ export default function MovieDialog({ movie, open, setOpen }: { movie: TrendingM
         </Button>
         {/* Backdrop with gradient and poster overlay */}
         <div
-          className="relative w-full"
+          className="relative w-full px-2"
           style={{ height: "45vh", minHeight: 420 }}
         >
           <div
@@ -198,11 +272,13 @@ export default function MovieDialog({ movie, open, setOpen }: { movie: TrendingM
           {/* Gradient overlay */}
           <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-black/10 via-black/60 to-black/95" />
           {/* Poster and title at the bottom left */}
-          <div className="relative z-10 flex items-end h-full gap-6 px-2 pb-8 md:px-8">
+          <div className="relative z-10 flex items-end h-full gap-6 pb-8 md:px-8">
             <img
-              src={`https://image.tmdb.org/t/p/w342${movie.poster_path || movie.backdrop_path}`}
+              src={`https://image.tmdb.org/t/p/w342${
+                movie.poster_path || movie.backdrop_path
+              }`}
               alt={movie.title}
-              className="hidden -mb-8 rounded-lg shadow-lg w-28 md:w-44 xl:flex"
+              className="hidden -mb-8 rounded-lg shadow-lg xl:flex w-28 md:w-44"
               style={{ boxShadow: "0 8px 32px 0 rgba(0,0,0,0.7)" }}
             />
             <div className="mb-2">
@@ -228,7 +304,9 @@ export default function MovieDialog({ movie, open, setOpen }: { movie: TrendingM
                   </span>
                 )}
                 <span className="text-gray-300">
-                  {movie.release_date?.slice(0, 4) || movie.first_air_date?.slice(0, 4) || "N/A"}
+                  {movie.release_date?.slice(0, 4) ||
+                    movie.first_air_date?.slice(0, 4) ||
+                    "N/A"}
                 </span>
                 <span className="text-xs text-gray-400 uppercase">
                   {movie.original_language || "N/A"}
@@ -252,7 +330,11 @@ export default function MovieDialog({ movie, open, setOpen }: { movie: TrendingM
                 )}
                 {/* Show adult flag if present */}
                 {"adult" in movie && (
-                  <span className={`text-xs font-bold ${movie.adult ? "text-red-500" : "text-green-400"}`}>
+                  <span
+                    className={`text-xs font-bold ${
+                      movie.adult ? "text-red-500" : "text-green-400"
+                    }`}
+                  >
                     {movie.adult ? "18+" : "Family"}
                   </span>
                 )}
@@ -268,6 +350,11 @@ export default function MovieDialog({ movie, open, setOpen }: { movie: TrendingM
                 <Button className="flex items-center gap-2 px-4 py-2 font-semibold text-white transition bg-gray-700 rounded cursor-pointer hover:bg-gray-800">
                   <FaDownload /> Download
                 </Button>
+                <ShareButton
+                  url={shareUrl}
+                  title={movie.name || "JokaFlix"}
+                  text={`Watch ${movie.name} for FREE on JokaFlix`}
+                />
               </div>
             </div>
           </div>
@@ -277,10 +364,13 @@ export default function MovieDialog({ movie, open, setOpen }: { movie: TrendingM
           <h3 className="font-semibold text-primary">Overview</h3>
           {/* Show overview or fallback if missing */}
           <p className="mb-4 text-gray-200">
-            {movie.overview && movie.overview.trim().length > 0
-              ? movie.overview
-              : <span className="italic text-gray-400">No overview available for this title.</span>
-            }
+            {movie.overview && movie.overview.trim().length > 0 ? (
+              movie.overview
+            ) : (
+              <span className="italic text-gray-400">
+                No overview available for this title.
+              </span>
+            )}
           </p>
           {/* Genres */}
           <div className="flex flex-wrap gap-2 py-4">
@@ -304,16 +394,19 @@ export default function MovieDialog({ movie, open, setOpen }: { movie: TrendingM
                   </span>
                 ))}
             {/* Fallback if no genres */}
-            {(!movie.genre_ids || movie.genre_ids.length === 0) && (!details?.genres || details.genres.length === 0) && (
-              <span className="px-2 py-1 text-xs text-gray-400 bg-gray-700 rounded">
-                No genres available
-              </span>
-            )}
+            {(!movie.genre_ids || movie.genre_ids.length === 0) &&
+              (!details?.genres || details.genres.length === 0) && (
+                <span className="px-2 py-1 text-xs text-gray-400 bg-gray-700 rounded">
+                  No genres available
+                </span>
+              )}
           </div>
           {/* Production Companies */}
           {productionCompanies.length > 0 && (
             <div className="mb-4">
-              <h4 className="py-2 text-sm font-bold text-primary">Production Companies</h4>
+              <h4 className="py-2 text-sm font-bold text-primary">
+                Production Companies
+              </h4>
               <div className="flex flex-wrap gap-3 py-1">
                 {productionCompanies.map((company: any) => (
                   <div key={company.id} className="flex items-center gap-2">
@@ -337,7 +430,10 @@ export default function MovieDialog({ movie, open, setOpen }: { movie: TrendingM
               <h4 className="mb-1 text-sm font-bold text-primary">Languages</h4>
               <div className="flex flex-wrap gap-2 py-1">
                 {spokenLanguages.map((lang: any) => (
-                  <span key={lang.iso_639_1} className="px-2 py-1 text-xs text-white bg-gray-700 rounded">
+                  <span
+                    key={lang.iso_639_1}
+                    className="px-2 py-1 text-xs text-white bg-gray-700 rounded"
+                  >
                     {lang.english_name || lang.name}
                   </span>
                 ))}
@@ -350,18 +446,26 @@ export default function MovieDialog({ movie, open, setOpen }: { movie: TrendingM
               <h4 className="py-1 text-sm font-bold text-primary">Actors</h4>
               <div className="flex gap-4 py-2 overflow-x-auto">
                 {actors.map((actor: any) => (
-                  <div key={actor.id} className="flex flex-col items-center min-w-[80px]">
+                  <div
+                    key={actor.id}
+                    className="flex flex-col items-center min-w-[80px]"
+                  >
                     <img
                       src={
                         actor.profile_path
                           ? `https://image.tmdb.org/t/p/w185${actor.profile_path}`
-                          : "https://ui-avatars.com/api/?name=" + encodeURIComponent(actor.name)
+                          : "https://ui-avatars.com/api/?name=" +
+                            encodeURIComponent(actor.name)
                       }
                       alt={actor.name}
                       className="object-cover w-16 h-16 mb-1 bg-gray-800 rounded-full"
                     />
-                    <span className="text-xs text-center text-white">{actor.name}</span>
-                    <span className="text-[10px] text-gray-400 text-center">{actor.character}</span>
+                    <span className="text-xs text-center text-white">
+                      {actor.name}
+                    </span>
+                    <span className="text-[10px] text-gray-400 text-center">
+                      {actor.character}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -373,7 +477,10 @@ export default function MovieDialog({ movie, open, setOpen }: { movie: TrendingM
               <h4 className="py-1 text-sm font-bold text-primary">Trailers</h4>
               <div className="flex gap-4 py-2 overflow-x-auto">
                 {trailers.map((trailer: any) => (
-                  <div key={trailer.id} className="min-w-[320px] max-w-[400px] border border-neutral-300 dark:border-neutral-700 rounded-lg">
+                  <div
+                    key={trailer.id}
+                    className="min-w-[320px] max-w-[400px] border border-neutral-300 dark:border-neutral-700 rounded-lg"
+                  >
                     <div className="w-full overflow-hidden bg-black rounded-lg aspect-video">
                       <iframe
                         width="100%"
@@ -385,7 +492,9 @@ export default function MovieDialog({ movie, open, setOpen }: { movie: TrendingM
                         className="w-full h-full"
                       />
                     </div>
-                    <div className="py-1 text-xs text-center text-white truncate">{trailer.name}</div>
+                    <div className="py-1 text-xs text-center text-white truncate">
+                      {trailer.name}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -394,9 +503,7 @@ export default function MovieDialog({ movie, open, setOpen }: { movie: TrendingM
           {/* Series: Show seasons */}
           {movie.media_type === "tv" && (
             <div className="py-4">
-              <h3 className="mb-2 text-lg font-bold text-primary">
-                Seasons
-              </h3>
+              <h3 className="mb-2 text-lg font-bold text-primary">Seasons</h3>
               {seriesLoading ? (
                 <div className="text-gray-400">Loading seasons...</div>
               ) : (

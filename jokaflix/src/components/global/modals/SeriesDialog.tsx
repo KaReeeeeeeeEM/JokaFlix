@@ -3,11 +3,20 @@ import type { TrendingMovie } from "../../../../types";
 import { useFetch } from "../../../api";
 import { Dialog, DialogContent } from "../../ui/dialog";
 import { Button } from "../../ui/button";
-import { FaPlay, FaTimes, FaPlayCircle } from "react-icons/fa";
+import { FaPlay, FaTimes, FaPlayCircle, FaShare } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 
-function ShareButton({ url, title, text }: { url: string; title: string; text: string }) {
+function ShareButton({
+  url,
+  title,
+  text,
+}: {
+  url: string;
+  title: string;
+  text: string;
+}) {
   const handleShare = async () => {
+    // Check if the Web Share API is supported by the browser
     if (navigator.share) {
       try {
         await navigator.share({
@@ -15,11 +24,23 @@ function ShareButton({ url, title, text }: { url: string; title: string; text: s
           text,
           url,
         });
+        // If successful, you might want to log it or do nothing
+        console.log("Movie shared successfully!");
       } catch (error) {
-        // Optionally handle error
+        // User cancelled the share, or there was another error
+        console.error("Error sharing:", error);
+        // You could display a temporary message like "Share cancelled" or "Sharing failed"
       }
     } else {
-      // Optionally fallback (e.g., copy to clipboard)
+      // Fallback for browsers that do not support navigator.share
+      // This message is for development/debugging, you might not show it to the user
+      console.warn(
+        "Web Share API not supported. Please open this on a mobile device or a browser that supports it."
+      );
+      alert(
+        "Your browser does not support sharing directly. You can manually copy the link: " +
+          url
+      );
     }
   };
 
@@ -29,9 +50,7 @@ function ShareButton({ url, title, text }: { url: string; title: string; text: s
       className="flex items-center px-2 py-2 mx-2 font-semibold transition duration-700 ease-in-out bg-white rounded-md cursor-pointer md:mx-0 md:py-2 md:px-4 hover:opacity-65 hover:bg-white"
       aria-label="Share"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" fill="black" viewBox="0 0 24 24" strokeWidth="1.5" stroke="black" className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
-      </svg>
+      <FaShare />
     </Button>
   );
 }
@@ -388,10 +407,10 @@ export default function SeriesDialog({
                   >
                     <FaPlay /> Play
                   </Button>
-                  <ShareButton
+                  <ShareButton 
                     url={shareUrl}
                     title={series.name || "JokaFlix"}
-                    text={`Watch ${series.name} on JokaFlix`}
+                    text={`Check out ${series.name} on JokaFlix`}
                   />
                 </div>
               </div>
