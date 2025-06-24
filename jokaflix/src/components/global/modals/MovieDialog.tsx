@@ -672,7 +672,7 @@ export default function MovieDialog({
                         </p>
                         <div className="flex flex-col md:flex-row gap-2">
                           <Button
-                            className="w-full mt-2 bg-white cursor-pointer hover:bg-white"
+                            className="w-full md:w-auto px-2 mt-2 bg-white cursor-pointer hover:bg-white"
                             aria-label="Download Torrent"
                             type="button"
                             onClick={() => {
