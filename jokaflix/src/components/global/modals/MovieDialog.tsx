@@ -671,19 +671,28 @@ export default function MovieDialog({
                           Source: {torrent.source}
                         </p>
                         <div className="flex flex-col md:flex-row gap-2">
-                          <a
-                            href={torrent.magnet}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <Button
+                            className="w-full mt-2 bg-white cursor-pointer hover:bg-white"
+                            aria-label="Download Torrent"
+                            type="button"
+                            onClick={() => {
+                              // Try to open magnet link
+                              const magnetUrl = torrent.magnet;
+                              const now = Date.now();
+                              // Open magnet link in a new (hidden) window/tab
+                              const win = window.open(magnetUrl, '_self');
+                              // Fallback: after 1.5s, if user is still on the page, open web handler
+                              setTimeout(() => {
+                                // If the user is still on the page (hasn't navigated away)
+                                if (Date.now() - now < 2000) {
+                                  window.open(`https://webtor.io/show?magnet=${encodeURIComponent(magnetUrl)}`, '_blank');
+                                }
+                              }, 1500);
+                            }}
                           >
-                            <Button
-                              className="w-full mt-2 bg-white cursor-pointer hover:bg-white"
-                              aria-label="Download Torrent"
-                            >
-                              <FaDownload className="mr-2" />
-                              Download Torrent
-                            </Button>
-                          </a>
+                            <FaDownload className="mr-2" />
+                            Download Torrent
+                          </Button>
                           <Button
                             className="w-full md:w-32 rounded-lg mt-2 bg-neutral-200 text-gray-900 cursor-pointer hover:bg-gray-300"
                             aria-label="Copy Magnet Link"
