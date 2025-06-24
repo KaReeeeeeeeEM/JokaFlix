@@ -680,7 +680,6 @@ export default function MovieDialog({
                               const magnetUrl = torrent.magnet;
                               const now = Date.now();
                               // Open magnet link in a new (hidden) window/tab
-                              const win = window.open(magnetUrl, '_self');
                               // Fallback: after 1.5s, if user is still on the page, open web handler
                               setTimeout(() => {
                                 // If the user is still on the page (hasn't navigated away)
