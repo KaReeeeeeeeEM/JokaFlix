@@ -322,287 +322,284 @@ export default function SeriesDialog({
           >
             <FaTimes />
           </Button>
-          {/* Backdrop with gradient and poster overlay */}
-          <div
-            className="relative w-full"
-            style={{ height: "45vh", minHeight: 420 }}
-          >
+          {/* Make all content scrollable, including the backdrop/title section */}
+          <div className="px-2 overflow-y-auto md:py-8 flex-1 bg-black/90">
+            {/* Backdrop with gradient and poster overlay */}
             <div
-              className="absolute inset-0 w-full h-full bg-center bg-cover"
-              style={{
-                backgroundImage: `url(https://image.tmdb.org/t/p/original${
-                  series.backdrop_path || series.poster_path
-                })`,
-              }}
-            />
-            {/* Gradient overlay */}
-            <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-black/10 via-black/60 to-black/95" />
-            {/* Poster and title at the bottom left */}
-            <div className="relative z-10 flex items-end h-full gap-6 px-2 pb-8 md:px-8">
-              <img
-                src={`https://image.tmdb.org/t/p/w342${
-                  series.poster_path || series.backdrop_path
-                }`}
-                alt={series.name}
-                className="hidden -mb-8 rounded-lg shadow-lg w-28 md:w-44 xl:flex"
-                style={{ boxShadow: "0 8px 32px 0 rgba(0,0,0,0.7)" }}
+              className="relative w-full mb-6"
+              style={{ height: "45vh", minHeight: 420 }}
+            >
+              <div
+                className="absolute inset-0 w-full h-full bg-center bg-cover"
+                style={{
+                  backgroundImage: `url(https://image.tmdb.org/t/p/original${
+                    series.backdrop_path || series.poster_path
+                  })`,
+                }}
               />
-              <div className="mb-2">
-                <h2 className="mb-2 text-3xl font-bold text-white drop-shadow">
-                  {series.name}
-                </h2>
-                {/* Show original name if different */}
-                {series.original_name &&
-                  typeof series.original_name === "string" &&
-                  series.original_name !== series.name && (
-                    <div className="mb-1 text-sm italic text-gray-300">
-                      Original Name: {series.original_name}
-                    </div>
-                  )}
-                <div className="flex items-center gap-4 mb-2">
-                  {showRating && (
-                    <span className="text-lg font-bold text-primary">
-                      {series.vote_average.toFixed(1)}
+              <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-black/10 via-black/60 to-black/95" />
+              <div className="relative z-10 flex items-end h-full gap-6 pb-8 md:px-8">
+                <img
+                  src={`https://image.tmdb.org/t/p/w342${
+                    series.poster_path || series.backdrop_path
+                  }`}
+                  alt={series.name}
+                  className="hidden -mb-8 rounded-lg shadow-lg xl:flex w-28 md:w-44"
+                  style={{ boxShadow: "0 8px 32px 0 rgba(0,0,0,0.7)" }}
+                />
+                <div className="mb-2">
+                  <h2 className="mb-2 text-3xl font-bold text-white drop-shadow">
+                    {series.name}
+                  </h2>
+                  {series.original_name &&
+                    typeof series.original_name === "string" &&
+                    series.original_name !== series.name && (
+                      <div className="mb-1 text-sm italic text-gray-300">
+                        Original Name: {series.original_name}
+                      </div>
+                    )}
+                  <div className="flex items-center gap-4 mb-2">
+                    {showRating && (
+                      <span className="text-lg font-bold text-primary">
+                        {series.vote_average.toFixed(1)}
+                      </span>
+                    )}
+                    {typeof series.vote_count === "number" && (
+                      <span className="hidden text-xs text-gray-400 xl:flex">
+                        {series.vote_count} votes
+                      </span>
+                    )}
+                    <span className="text-gray-300">
+                      {series.first_air_date?.slice(0, 4) || "N/A"}
                     </span>
-                  )}
-                  {/* Show vote count if available */}
-                  {typeof series.vote_count === "number" && (
-                    <span className="hidden text-xs text-gray-400 xl:flex">
-                      {series.vote_count} votes
+                    <span className="text-xs text-gray-400 uppercase">
+                      {series.original_language || "N/A"}
                     </span>
-                  )}
-                  <span className="text-gray-300">
-                    {series.first_air_date?.slice(0, 4) || "N/A"}
-                  </span>
-                  <span className="text-xs text-gray-400 uppercase">
-                    {series.original_language || "N/A"}
-                  </span>
-                  {seasons.length > 0 && (
-                    <span className="text-xs text-gray-400">
-                      {seasons.length} season{seasons.length > 1 ? "s" : ""}
-                    </span>
-                  )}
-                  {/* Show popularity if available */}
-                  {typeof series.popularity === "number" && (
-                    <span className="hidden text-xs text-gray-400 xl:flex">
-                      Popularity: {series.popularity.toFixed(0)}
-                    </span>
-                  )}
-                  {/* Show adult flag if present */}
-                  {"adult" in series && (
-                    <span
-                      className={`text-xs font-bold ${
-                        series.adult ? "text-red-500" : "text-green-400"
-                      }`}
+                    {seasons.length > 0 && (
+                      <span className="text-xs text-gray-400">
+                        {seasons.length} season{seasons.length > 1 ? "s" : ""}
+                      </span>
+                    )}
+                    {typeof series.popularity === "number" && (
+                      <span className="hidden text-xs text-gray-400 xl:flex">
+                        Popularity: {series.popularity.toFixed(0)}
+                      </span>
+                    )}
+                    {"adult" in series && (
+                      <span
+                        className={`text-xs font-bold ${
+                          series.adult ? "text-red-500" : "text-green-400"
+                        }`}
+                      >
+                        {series.adult ? "18+" : "Family"}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex gap-4 pt-2">
+                    <Button
+                      variant={"outline"}
+                      className="flex items-center gap-2 px-6 py-2 font-semibold text-white transition bg-orange-600 rounded cursor-pointer hover:bg-orange-700"
+                      onClick={handlePlaySeries}
                     >
-                      {series.adult ? "18+" : "Family"}
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-4 pt-2">
-                  <Button
-                    variant={"outline"}
-                    className="flex items-center gap-2 px-6 py-2 font-semibold text-white transition bg-orange-600 rounded cursor-pointer hover:bg-orange-700"
-                    onClick={handlePlaySeries}
-                  >
-                    <FaPlay /> Play
-                  </Button>
-                  <ShareButton 
-                    url={shareUrl}
-                    title={series.name || "JokaFlix"}
-                    text={`Check out ${series.name} on JokaFlix`}
-                  />
+                      <FaPlay /> Play
+                    </Button>
+                    <ShareButton
+                      url={shareUrl}
+                      title={series.name || "JokaFlix"}
+                      text={`Watch ${series.name} for FREE on JokaFlix`}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          {/* Details at the bottom */}
-          <div className="px-2 overflow-y-auto md:py-8 flex-1px bg-black/90">
-            <h3 className="font-semibold text-primary">Overview</h3>
-            {/* Show overview or fallback if missing */}
-            <p className="mb-4 text-gray-200">
-              {series.overview && series.overview.trim().length > 0 ? (
-                series.overview
-              ) : (
-                <span className="italic text-gray-400">
-                  No overview available for this title.
-                </span>
-              )}
-            </p>
-            {/* Genres */}
-            <div className="flex flex-wrap gap-2 py-4">
-              {series.genre_ids && series.genre_ids.length > 0
-                ? series.genre_ids.map((id) =>
-                    genreMap[id] ? (
-                      <span
-                        key={id}
-                        className="px-2 py-1 text-xs text-white rounded bg-orange-600/80"
-                      >
-                        {genreMap[id]}
-                      </span>
-                    ) : null
-                  )
-                : details?.genres?.map((g: any) => (
-                    <span
-                      key={g.id}
-                      className="px-2 py-1 text-xs text-white rounded bg-orange-600/80"
-                    >
-                      {g.name}
-                    </span>
-                  ))}
-              {/* Fallback if no genres */}
-              {(!series.genre_ids || series.genre_ids.length === 0) &&
-                (!details?.genres || details.genres.length === 0) && (
-                  <span className="px-2 py-1 text-xs text-gray-400 bg-gray-700 rounded">
-                    No genres available
+            {/* Details at the bottom */}
+            <div className="px-2 overflow-y-auto md:py-8 flex-1px bg-black/90">
+              <h3 className="font-semibold text-primary">Overview</h3>
+              {/* Show overview or fallback if missing */}
+              <p className="mb-4 text-gray-200">
+                {series.overview && series.overview.trim().length > 0 ? (
+                  series.overview
+                ) : (
+                  <span className="italic text-gray-400">
+                    No overview available for this title.
                   </span>
                 )}
-            </div>
-            {/* Production Companies */}
-            {productionCompanies.length > 0 && (
-              <div className="mb-4">
-                <h4 className="py-2 text-sm font-bold text-primary">
-                  Production Companies
-                </h4>
-                <div className="flex flex-wrap gap-3 py-1">
-                  {productionCompanies.map((company: any) => (
-                    <div key={company.id} className="flex items-center gap-2">
-                      {company.logo_path && (
-                        <img
-                          src={`https://image.tmdb.org/t/p/w45${company.logo_path}`}
-                          alt={company.name}
-                          className="object-cover w-6 h-6 bg-white rounded"
-                          style={{ background: "#fff" }}
-                        />
-                      )}
-                      <span className="text-xs text-white">{company.name}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            {/* Spoken Languages */}
-            {spokenLanguages.length > 0 && (
-              <div className="py-4">
-                <h4 className="mb-1 text-sm font-bold text-primary">
-                  Languages
-                </h4>
-                <div className="flex flex-wrap gap-2 py-1">
-                  {spokenLanguages.map((lang: any) => (
-                    <span
-                      key={lang.iso_639_1}
-                      className="px-2 py-1 text-xs text-white bg-gray-700 rounded"
-                    >
-                      {lang.english_name || lang.name}
+              </p>
+              {/* Genres */}
+              <div className="flex flex-wrap gap-2 py-4">
+                {series.genre_ids && series.genre_ids.length > 0
+                  ? series.genre_ids.map((id) =>
+                      genreMap[id] ? (
+                        <span
+                          key={id}
+                          className="px-2 py-1 text-xs text-white rounded bg-orange-600/80"
+                        >
+                          {genreMap[id]}
+                        </span>
+                      ) : null
+                    )
+                  : details?.genres?.map((g: any) => (
+                      <span
+                        key={g.id}
+                        className="px-2 py-1 text-xs text-white rounded bg-orange-600/80"
+                      >
+                        {g.name}
+                      </span>
+                    ))}
+                {/* Fallback if no genres */}
+                {(!series.genre_ids || series.genre_ids.length === 0) &&
+                  (!details?.genres || details.genres.length === 0) && (
+                    <span className="px-2 py-1 text-xs text-gray-400 bg-gray-700 rounded">
+                      No genres available
                     </span>
-                  ))}
-                </div>
+                  )}
               </div>
-            )}
-            {/* Actors */}
-            {actors.length > 0 && (
-              <div className="py-4">
-                <h4 className="py-1 text-sm font-bold text-primary">Actors</h4>
-                <div className="flex gap-4 py-2 overflow-x-auto">
-                  {actors.map((actor: any) => (
-                    <div
-                      key={actor.id}
-                      className="flex flex-col items-center min-w-[80px]"
-                    >
-                      <img
-                        src={
-                          actor.profile_path
-                            ? `https://image.tmdb.org/t/p/w185${actor.profile_path}`
-                            : "https://ui-avatars.com/api/?name=" +
-                              encodeURIComponent(actor.name)
-                        }
-                        alt={actor.name}
-                        className="object-cover w-16 h-16 mb-1 bg-gray-800 rounded-full"
-                      />
-                      <span className="text-xs text-center text-white">
-                        {actor.name}
-                      </span>
-                      <span className="text-[10px] text-gray-400 text-center">
-                        {actor.character}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            {/* Trailers */}
-            {trailers.length > 0 && (
-              <div className="py-4">
-                <h4 className="py-1 text-sm font-bold text-primary">
-                  Trailers
-                </h4>
-                <div className="flex gap-4 py-2 overflow-x-auto">
-                  {trailers.map((trailer: any) => (
-                    <div
-                      key={trailer.id}
-                      className="min-w-[320px] max-w-[400px] border border-neutral-300 dark:border-neutral-700 rounded-lg"
-                    >
-                      <div className="w-full overflow-hidden bg-black rounded-lg aspect-video">
-                        <iframe
-                          width="100%"
-                          height="200"
-                          src={`https://www.youtube.com/embed/${trailer.key}`}
-                          title={trailer.name}
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                          className="w-full h-full"
-                        />
+              {/* Production Companies */}
+              {productionCompanies.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="py-2 text-sm font-bold text-primary">
+                    Production Companies
+                  </h4>
+                  <div className="flex flex-wrap gap-3 py-1">
+                    {productionCompanies.map((company: any) => (
+                      <div key={company.id} className="flex items-center gap-2">
+                        {company.logo_path && (
+                          <img
+                            src={`https://image.tmdb.org/t/p/w45${company.logo_path}`}
+                            alt={company.name}
+                            className="object-cover w-6 h-6 bg-white rounded"
+                            style={{ background: "#fff" }}
+                          />
+                        )}
+                        <span className="text-xs text-white">{company.name}</span>
                       </div>
-                      <div className="py-1 text-xs text-center text-white truncate">
-                        {trailer.name}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            {/* Show seasons as cards */}
-            <div className="py-4">
-              <h3 className="py-2 text-lg font-bold text-primary">Seasons</h3>
-              {loading ? (
-                <div className="text-gray-400">Loading seasons...</div>
-              ) : (
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-                  {seasons.map((season: any) => (
-                    <button
-                      key={season.id}
-                      className="flex flex-col items-center p-0 transition rounded-lg shadow-lg hover:scale-105"
-                      onClick={() =>
-                        setSeasonModal({
-                          open: true,
-                          seasonNumber: season.season_number,
-                        })
-                      }
-                      type="button"
-                    >
-                      <img
-                        src={
-                          season.poster_path
-                            ? `https://image.tmdb.org/t/p/w400${season.poster_path}`
-                            : ""
-                        }
-                        alt={season.name}
-                        className="object-cover w-full h-[70%] rounded-t-lg bg-gray-800"
-                        style={{ minHeight: 120, maxHeight: 180 }}
-                      />
-                      <div className="flex items-center justify-between w-full h-[30%] px-2 py-2">
-                        <span className="text-base font-bold text-white truncate">
-                          {season.name}
-                        </span>
-                        <span className="text-xs text-gray-400">
-                          {season.episode_count} episode
-                          {season.episode_count !== 1 ? "s" : ""}
-                        </span>
-                      </div>
-                    </button>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               )}
+              {/* Spoken Languages */}
+              {spokenLanguages.length > 0 && (
+                <div className="py-4">
+                  <h4 className="mb-1 text-sm font-bold text-primary">
+                    Languages
+                  </h4>
+                  <div className="flex flex-wrap gap-2 py-1">
+                    {spokenLanguages.map((lang: any) => (
+                      <span
+                        key={lang.iso_639_1}
+                        className="px-2 py-1 text-xs text-white bg-gray-700 rounded"
+                      >
+                        {lang.english_name || lang.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Actors */}
+              {actors.length > 0 && (
+                <div className="py-4">
+                  <h4 className="py-1 text-sm font-bold text-primary">Actors</h4>
+                  <div className="flex gap-4 py-2 overflow-x-auto">
+                    {actors.map((actor: any) => (
+                      <div
+                        key={actor.id}
+                        className="flex flex-col items-center min-w-[80px]"
+                      >
+                        <img
+                          src={
+                            actor.profile_path
+                              ? `https://image.tmdb.org/t/p/w185${actor.profile_path}`
+                              : "https://ui-avatars.com/api/?name=" +
+                                encodeURIComponent(actor.name)
+                          }
+                          alt={actor.name}
+                          className="object-cover w-16 h-16 mb-1 bg-gray-800 rounded-full"
+                        />
+                        <span className="text-xs text-center text-white">
+                          {actor.name}
+                        </span>
+                        <span className="text-[10px] text-gray-400 text-center">
+                          {actor.character}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Trailers */}
+              {trailers.length > 0 && (
+                <div className="py-4">
+                  <h4 className="py-1 text-sm font-bold text-primary">
+                    Trailers
+                  </h4>
+                  <div className="flex gap-4 py-2 overflow-x-auto">
+                    {trailers.map((trailer: any) => (
+                      <div
+                        key={trailer.id}
+                        className="min-w-[320px] max-w-[400px] border border-neutral-300 dark:border-neutral-700 rounded-lg"
+                      >
+                        <div className="w-full overflow-hidden bg-black rounded-lg aspect-video">
+                          <iframe
+                            width="100%"
+                            height="200"
+                            src={`https://www.youtube.com/embed/${trailer.key}`}
+                            title={trailer.name}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="w-full h-full"
+                          />
+                        </div>
+                        <div className="py-1 text-xs text-center text-white truncate">
+                          {trailer.name}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Show seasons as cards */}
+              <div className="py-4">
+                <h3 className="py-2 text-lg font-bold text-primary">Seasons</h3>
+                {loading ? (
+                  <div className="text-gray-400">Loading seasons...</div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                    {seasons.map((season: any) => (
+                      <button
+                        key={season.id}
+                        className="flex flex-col items-center p-0 transition rounded-lg shadow-lg hover:scale-105"
+                        onClick={() =>
+                          setSeasonModal({
+                            open: true,
+                            seasonNumber: season.season_number,
+                          })
+                        }
+                        type="button"
+                      >
+                        <img
+                          src={
+                            season.poster_path
+                              ? `https://image.tmdb.org/t/p/w400${season.poster_path}`
+                              : ""
+                          }
+                          alt={season.name}
+                          className="object-cover w-full h-[70%] rounded-t-lg bg-gray-800"
+                          style={{ minHeight: 120, maxHeight: 180 }}
+                        />
+                        <div className="flex items-center justify-between w-full h-[30%] px-2 py-2">
+                          <span className="text-base font-bold text-white truncate">
+                            {season.name}
+                          </span>
+                          <span className="text-xs text-gray-400">
+                            {season.episode_count} episode
+                            {season.episode_count !== 1 ? "s" : ""}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </DialogContent>

@@ -350,101 +350,102 @@ export default function MovieDialog({
         >
           <FaTimes />
         </Button>
-        {/* Backdrop with gradient and poster overlay */}
-        <div
-          className="relative w-full px-2"
-          style={{ height: "45vh", minHeight: 420 }}
-        >
+        {/* Make all content scrollable, including the backdrop/title section */}
+        <div className="px-2 overflow-y-auto md:py-8 flex-1 bg-black/90">
+          {/* Backdrop with gradient and poster overlay */}
           <div
-            className="absolute inset-0 w-full h-full bg-center bg-cover"
-            style={{
-              backgroundImage: `url(https://image.tmdb.org/t/p/original${
-                movie.backdrop_path || movie.poster_path
-              })`,
-            }}
-          />
-          <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-black/10 via-black/60 to-black/95" />
-          <div className="relative z-10 flex items-end h-full gap-6 pb-8 md:px-8">
-            <img
-              src={`https://image.tmdb.org/t/p/w342${
-                movie.poster_path || movie.backdrop_path
-              }`}
-              alt={movie.title}
-              className="hidden -mb-8 rounded-lg shadow-lg xl:flex w-28 md:w-44"
-              style={{ boxShadow: "0 8px 32px 0 rgba(0,0,0,0.7)" }}
+            className="relative w-full mb-6"
+            style={{ height: "45vh", minHeight: 420 }}
+          >
+            <div
+              className="absolute inset-0 w-full h-full bg-center bg-cover"
+              style={{
+                backgroundImage: `url(https://image.tmdb.org/t/p/original${
+                  movie.backdrop_path || movie.poster_path
+                })`,
+              }}
             />
-            <div className="mb-2">
-              <h2 className="mb-2 text-3xl font-bold text-white drop-shadow">
-                {movie.title}
-              </h2>
-              {movie.original_title && movie.original_title !== movie.title && (
-                <div className="mb-1 text-sm italic text-gray-300">
-                  Original Title: {movie.original_title}
+            <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-black/10 via-black/60 to-black/95" />
+            <div className="relative z-10 flex items-end h-full gap-6 pb-8 md:px-8">
+              <img
+                src={`https://image.tmdb.org/t/p/w342${
+                  movie.poster_path || movie.backdrop_path
+                }`}
+                alt={movie.title}
+                className="hidden -mb-8 rounded-lg shadow-lg xl:flex w-28 md:w-44"
+                style={{ boxShadow: "0 8px 32px 0 rgba(0,0,0,0.7)" }}
+              />
+              <div className="mb-2">
+                <h2 className="mb-2 text-3xl font-bold text-white drop-shadow">
+                  {movie.title}
+                </h2>
+                {movie.original_title && movie.original_title !== movie.title && (
+                  <div className="mb-1 text-sm italic text-gray-300">
+                    Original Title: {movie.original_title}
+                  </div>
+                )}
+                <div className="flex items-center gap-4 mb-2">
+                  {showRating && (
+                    <span className="text-lg font-bold text-primary">
+                      {movie.vote_average.toFixed(1)}
+                    </span>
+                  )}
+                  {typeof movie.vote_count === "number" && (
+                    <span className="hidden text-xs text-gray-400 xl:flex">
+                      {movie.vote_count} votes
+                    </span>
+                  )}
+                  <span className="text-gray-300">
+                    {movie.release_date?.slice(0, 4) ||
+                      movie.first_air_date?.slice(0, 4) ||
+                      "N/A"}
+                  </span>
+                  <span className="text-xs text-gray-400 uppercase">
+                    {movie.original_language || "N/A"}
+                  </span>
+                  {movie.media_type === "movie" && details?.runtime && (
+                    <span className="text-xs text-gray-400">
+                      {getRuntime(details.runtime)}
+                    </span>
+                  )}
+                  {typeof movie.popularity === "number" && (
+                    <span className="hidden text-xs text-gray-400 xl:flex">
+                      Popularity: {movie.popularity.toFixed(0)}
+                    </span>
+                  )}
+                  {"adult" in movie && (
+                    <span
+                      className={`text-xs font-bold ${
+                        movie.adult ? "text-red-500" : "text-green-400"
+                      }`}
+                    >
+                      {movie.adult ? "18+" : "Family"}
+                    </span>
+                  )}
                 </div>
-              )}
-              <div className="flex items-center gap-4 mb-2">
-                {showRating && (
-                  <span className="text-lg font-bold text-primary">
-                    {movie.vote_average.toFixed(1)}
-                  </span>
-                )}
-                {typeof movie.vote_count === "number" && (
-                  <span className="hidden text-xs text-gray-400 xl:flex">
-                    {movie.vote_count} votes
-                  </span>
-                )}
-                <span className="text-gray-300">
-                  {movie.release_date?.slice(0, 4) ||
-                    movie.first_air_date?.slice(0, 4) ||
-                    "N/A"}
-                </span>
-                <span className="text-xs text-gray-400 uppercase">
-                  {movie.original_language || "N/A"}
-                </span>
-                {movie.media_type === "movie" && details?.runtime && (
-                  <span className="text-xs text-gray-400">
-                    {getRuntime(details.runtime)}
-                  </span>
-                )}
-                {typeof movie.popularity === "number" && (
-                  <span className="hidden text-xs text-gray-400 xl:flex">
-                    Popularity: {movie.popularity.toFixed(0)}
-                  </span>
-                )}
-                {"adult" in movie && (
-                  <span
-                    className={`text-xs font-bold ${
-                      movie.adult ? "text-red-500" : "text-green-400"
-                    }`}
+                <div className="flex gap-4 pt-2">
+                  <Button
+                    variant={"outline"}
+                    className="flex items-center gap-2 px-6 py-2 font-semibold text-white transition bg-orange-600 rounded cursor-pointer hover:bg-orange-700"
+                    onClick={handlePlay}
                   >
-                    {movie.adult ? "18+" : "Family"}
-                  </span>
-                )}
-              </div>
-              <div className="flex gap-4 pt-2">
-                <Button
-                  variant={"outline"}
-                  className="flex items-center gap-2 px-6 py-2 font-semibold text-white transition bg-orange-600 rounded cursor-pointer hover:bg-orange-700"
-                  onClick={handlePlay}
-                >
-                  <FaPlay /> Play
-                </Button>
-                <Button
-                  className="flex items-center gap-2 px-4 py-2 font-semibold text-white transition bg-gray-700 rounded cursor-pointer hover:bg-gray-800"
-                  onClick={() => setShowDownload(true)}
-                >
-                  <FaDownload /> Download
-                </Button>
-                <ShareButton
-                  url={shareUrl}
-                  title={movie.title || "JokaFlix"}
-                  text={`Watch ${movie.title} for FREE on JokaFlix`}
-                />
+                    <FaPlay /> Play
+                  </Button>
+                  <Button
+                    className="flex items-center gap-2 px-4 py-2 font-semibold text-white transition bg-gray-700 rounded cursor-pointer hover:bg-gray-800"
+                    onClick={() => setShowDownload(true)}
+                  >
+                    <FaDownload /> Download
+                  </Button>
+                  <ShareButton
+                    url={shareUrl}
+                    title={movie.title || "JokaFlix"}
+                    text={`Watch ${movie.title} for FREE on JokaFlix`}
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div className="px-2 overflow-y-auto md:py-8 flex-1px bg-black/90">
           <h3 className="font-semibold text-primary">Overview</h3>
           <p className="mb-4 text-gray-200">
             {movie.overview && movie.overview.trim().length > 0 ? (
@@ -584,7 +585,7 @@ export default function MovieDialog({
               </h3>
               <div
                 ref={relatedListRef}
-                className="grid w-full grid-cols-2 gap-4 md:grid-cols-3 md:overflow-y-auto xl:grid-cols-5 max-h-72"
+                className="grid w-full grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5"
                 style={{ minHeight: 160 }}
               >
                 {relatedMovies.map((related) => (
