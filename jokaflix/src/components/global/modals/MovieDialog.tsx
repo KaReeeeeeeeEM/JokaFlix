@@ -86,7 +86,8 @@ function useTorrents(imdbId: string | null, enabled: boolean) {
           hash: torrent.hash,
           magnet: torrent.magnet,
           title: torrent.title,
-          coverImage: torrent.cover || ytsData?.data?.movies?.[0]?.large_cover_image,
+          coverImage:
+            torrent.cover || ytsData?.data?.movies?.[0]?.large_cover_image,
         });
       });
     }
@@ -101,7 +102,8 @@ function useTorrents(imdbId: string | null, enabled: boolean) {
           hash: torrent.hash,
           magnet: torrent.magnet,
           title: torrent.title,
-          coverImage: torrent.cover || ytsData?.data?.movies?.[0]?.large_cover_image,
+          coverImage:
+            torrent.cover || ytsData?.data?.movies?.[0]?.large_cover_image,
         });
       });
     }
@@ -329,7 +331,15 @@ export default function MovieDialog({
     typeof movie.vote_average === "number" && movie.vote_average > 0;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={setOpen}
+      modal
+      // onInteractOutside={e => {
+      //   // Prevent closing on outside click/touch for small/medium screens
+      //   if (window.innerWidth < 1280) e.preventDefault();
+      // }}
+    >
       <DialogContent
         className="flex flex-col p-0 bg-black rounded-lg md:overflow-hidden"
         style={{
@@ -379,11 +389,12 @@ export default function MovieDialog({
                 <h2 className="mb-2 text-3xl font-bold text-white drop-shadow">
                   {movie.title}
                 </h2>
-                {movie.original_title && movie.original_title !== movie.title && (
-                  <div className="mb-1 text-sm italic text-gray-300">
-                    Original Title: {movie.original_title}
-                  </div>
-                )}
+                {movie.original_title &&
+                  movie.original_title !== movie.title && (
+                    <div className="mb-1 text-sm italic text-gray-300">
+                      Original Title: {movie.original_title}
+                    </div>
+                  )}
                 <div className="flex items-center gap-4 mb-2">
                   {showRating && (
                     <span className="text-lg font-bold text-primary">
@@ -629,7 +640,9 @@ export default function MovieDialog({
                 Download Torrents
               </h2>
               <p className="mb-4 text-sm text-gray-400">
-                Note: Downloading copyrighted material may be illegal in your region. Please ensure you have the right to download and use these files.
+                Note: Downloading copyrighted material may be illegal in your
+                region. Please ensure you have the right to download and use
+                these files.
               </p>
               {movieDetailsLoading || torrentsLoading ? (
                 <div className="flex items-center justify-center py-8">
@@ -657,26 +670,60 @@ export default function MovieDialog({
                         <p className="py-2 text-xs text-gray-400">
                           Source: {torrent.source}
                         </p>
-                        <a
-                          href={torrent.magnet}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Button
-                            className="w-full mt-2 bg-white cursor-pointer hover:bg-white"
-                            aria-label="Download Torrent"
+                        <div className="flex flex-col md:flex-row gap-2">
+                          <a
+                            href={torrent.magnet}
+                            target="_blank"
+                            rel="noopener noreferrer"
                           >
-                            <FaDownload className="mr-2" />
-                            Download Torrent
+                            <Button
+                              className="w-full mt-2 bg-white cursor-pointer hover:bg-white"
+                              aria-label="Download Torrent"
+                            >
+                              <FaDownload className="mr-2" />
+                              Download Torrent
+                            </Button>
+                          </a>
+                          <Button
+                            className="w-full md:w-32 rounded-lg mt-2 bg-neutral-200 text-gray-900 cursor-pointer hover:bg-gray-300"
+                            aria-label="Copy Magnet Link"
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard
+                                .writeText(torrent.magnet)
+                                .then(() => {
+                                  // Optionally show feedback
+                                  alert("Magnet link copied!");
+                                })
+                                .catch(() => {
+                                  alert("Failed to copy magnet link.");
+                                });
+                            }}
+                          >
+                            <svg
+                              className="mr-2"
+                              width="16"
+                              height="16"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              viewBox="0 0 24 24"
+                            >
+                              <rect x="9" y="9" width="13" height="13" rx="2" />
+                              <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                            </svg>
+                            Copy Torrent
                           </Button>
-                        </a>
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="flex items-center justify-center py-8">
-                  <span className="text-white">No torrents found for this movie.</span>
+                  <span className="text-white">
+                    No torrents found for this movie.
+                  </span>
                 </div>
               )}
             </div>
