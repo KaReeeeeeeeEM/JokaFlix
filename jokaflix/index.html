@@ -123,30 +123,8 @@
 
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <!-- <script defer async>
+    <script defer async>
       document.addEventListener('DOMContentLoaded', function() {
-        // setting global variables
-        window.botId = 4242
-        
-        // create div with id = sarufi-chatbox
-        const div = document.createElement("div")
-        div.id = "sarufi-chatbox"
-        document.body.appendChild(div)
-    
-        // create and attach script tag
-        const script = document.createElement("script")
-        script.crossOrigin = true
-        script.type = "module"
-        script.src = "https://cdn.jsdelivr.net/gh/flexcodelabs/sarufi-chatbox/example/vanilla-js/script.js"
-        document.head.appendChild(script)
-    
-        // create and attach css
-        const style = document.createElement("link")
-        style.crossOrigin = true
-        style.rel = "stylesheet"
-        style.href = "https://cdn.jsdelivr.net/gh/flexcodelabs/sarufi-chatbox/example/vanilla-js/style.css"
-        document.head.appendChild(style)
-
         // Splash screen fade-out logic
         window.addEventListener('load', function() {
           setTimeout(function() {
@@ -155,9 +133,9 @@
               splash.classList.add('splash-hide');
               setTimeout(() => splash.remove(), 800);
             }
-          }, 900); // Show splash for at least 900ms
+          }, 100);
         });
       });
-    </script> -->
+    </script>
   </body>
 </html>
