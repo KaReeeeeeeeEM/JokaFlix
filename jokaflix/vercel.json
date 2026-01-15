@@ -5,10 +5,6 @@
       "destination": "https://41.59.251.163:6500/tmp/:path*"
     },
     {
-      "source": "/var/www/mashindano-backend/tmp/:path*",
-      "destination": "https://41.59.251.163:6500/tmp/:path*"
-    },
-    {
       "source": "/api/:path*",
       "destination": "http://41.59.251.163:6500/api/:path*"
     },
