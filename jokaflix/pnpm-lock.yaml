@@ -24,8 +24,8 @@ importers:
         specifier: ^5.80.6
         version: 5.80.6(react@19.1.0)
       botty-widget:
-        specifier: ^0.3.7
-        version: 0.3.7(@types/react@19.1.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^0.3.8
+        version: 0.3.8(@types/react@19.1.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1085,8 +1085,8 @@ packages:
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
-  botty-widget@0.3.7:
-    resolution: {integrity: sha512-pW9Q/8Pxm//LGaeuHfBTqIOLd0JrqZDTcsAdJ1n38nEcPdtuxfvZWceQ/QQl5AssP/RZMpIbMU2jhYoWA1dptg==}
+  botty-widget@0.3.8:
+    resolution: {integrity: sha512-X4w6HF2A5VYk8sJKMArPRfeDmeQKzfzi+fmfYoRSAqh1VEJ0n/EvzHSjjNi1qrfr0wdW440Vs5sOt0XH2fubCw==}
     peerDependencies:
       react: '>=18'
       react-dom: '>=18'
@@ -3096,7 +3096,7 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
-  botty-widget@0.3.7(@types/react@19.1.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+  botty-widget@0.3.8(@types/react@19.1.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
       katex: 0.16.27
       react: 19.1.0
