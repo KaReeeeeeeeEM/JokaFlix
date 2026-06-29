@@ -1,17 +1,20 @@
+"use client";
+
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { PlayCircle, Search } from "lucide-react";
 import type { TrendingMovie } from "../../../../types";
 import { useFetch } from "../../../api";
 
 export default function SearchDrawer() {
-  const location = useLocation();
-  const navigate = useNavigate();
+  const pathname = usePathname() ?? "/";
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  const searchParams = new URLSearchParams(location.search);
-  const open = searchParams.get("search") === "1";
+  const open = searchParams?.get("search") === "1";
 
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
@@ -39,7 +42,7 @@ export default function SearchDrawer() {
   const { data, loading } = useFetch<{ results: TrendingMovie[] }>(
     debounced
       ? {
-          url: `https://api.themoviedb.org/3/search/multi?api_key=${import.meta.env.VITE_TMDB_API_KEY}&query=${encodeURIComponent(debounced)}`,
+          url: `https://api.themoviedb.org/3/search/multi?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}&query=${encodeURIComponent(debounced)}`,
         }
       : { url: "" },
     { enabled: open && debounced.length > 1 }
@@ -47,7 +50,7 @@ export default function SearchDrawer() {
 
   const { data: suggestionsData, loading: suggestionsLoading } = useFetch<{ results: TrendingMovie[] }>(
     {
-      url: `https://api.themoviedb.org/3/trending/all/day?api_key=${import.meta.env.VITE_TMDB_API_KEY}`,
+      url: `https://api.themoviedb.org/3/trending/all/day?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}`,
     },
     { enabled: open && debounced.length <= 1 }
   );
@@ -89,11 +92,12 @@ export default function SearchDrawer() {
   }, [open, visibleItems]);
 
   const handleClose = () => {
-    const next = new URLSearchParams(location.search);
+    const next = new URLSearchParams(searchParams?.toString());
     next.delete("search");
     setQuery("");
     setDebounced("");
-    navigate({ pathname: location.pathname, search: next.toString() }, { replace: true });
+    const queryString = next.toString();
+    router.replace(queryString ? `${pathname}?${queryString}` : pathname, { scroll: false });
   };
 
   if (!open) return null;
@@ -146,7 +150,7 @@ export default function SearchDrawer() {
                 const isSeries = item.media_type === "tv";
                 return (
                   <Link
-                    to={isSeries ? `/series/${item.id}` : `/movie/${item.id}`}
+                    href={isSeries ? `/series/${item.id}` : `/movie/${item.id}`}
                     onClick={handleClose}
                     className="search-suggestion-row"
                     style={{ transitionDelay: `${Math.min(index, 18) * 35}ms` }}

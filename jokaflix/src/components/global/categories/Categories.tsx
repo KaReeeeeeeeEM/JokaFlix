@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { useFetch } from "../../../api";
 import { MovieCard } from "../cards/MovieCard";
@@ -17,7 +19,7 @@ export default function Categories() {
   // Fetch all genres
   const { data: genresData, loading: genresLoading } = useFetch<{ genres: { id: number; name: string }[] }>(
     {
-      url: `https://api.themoviedb.org/3/genre/movie/list?api_key=${import.meta.env.VITE_TMDB_API_KEY}`,
+      url: `https://api.themoviedb.org/3/genre/movie/list?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}`,
     }
   );
   const genres = genresData?.genres || [];
@@ -26,7 +28,7 @@ export default function Categories() {
   const { data: moviesData, loading: moviesLoading } = useFetch<{ results: TrendingMovie[] }>(
     selectedGenre
       ? {
-          url: `https://api.themoviedb.org/3/discover/movie?api_key=${import.meta.env.VITE_TMDB_API_KEY}&with_genres=${selectedGenre.id}&page=${page}`,
+          url: `https://api.themoviedb.org/3/discover/movie?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}&with_genres=${selectedGenre.id}&page=${page}`,
         }
       : { url: "" },
     { enabled: drawerOpen && !!selectedGenre }

@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import { useFetch } from "../../../api";
 import { MovieCard } from "../cards/MovieCard";
@@ -6,7 +8,7 @@ import { Drawer, DrawerContent, DrawerTrigger } from "../../ui/drawer";
 import { Skeleton } from "../../ui/skeleton";
 import { Button } from "../../ui/button";
 import { ArrowRight, TrendingUp } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function PopularMovies() {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -20,7 +22,7 @@ export default function PopularMovies() {
   // Fetch movies for the current page
   const { data, loading } = useFetch<{ results: TrendingMovie[] }>(
     {
-      url: `https://api.themoviedb.org/3/movie/popular?api_key=${import.meta.env.VITE_TMDB_API_KEY}&page=${page}`,
+      url: `https://api.themoviedb.org/3/movie/popular?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}&page=${page}`,
     },
     { enabled: drawerOpen }
   );
@@ -68,7 +70,7 @@ export default function PopularMovies() {
 
   // Initial fetch for gallery (first 8 movies)
   const { data: initialData, loading: initialLoading } = useFetch<{ results: TrendingMovie[] }>({
-    url: `https://api.themoviedb.org/3/movie/popular?api_key=${import.meta.env.VITE_TMDB_API_KEY}&append_to_response=credits,external_ids,videos,images`,
+    url: `https://api.themoviedb.org/3/movie/popular?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}&append_to_response=credits,external_ids,videos,images`,
   });
   const movies = initialData?.results || [];
 
@@ -94,7 +96,7 @@ export default function PopularMovies() {
       <div className="catalog-heading">
         <h2 className="catalog-title">Your Next Watch</h2>
         <Button asChild variant={"ghost"} className="catalog-more-button">
-          <Link to="/movies">
+          <Link href="/movies">
             See more <ArrowRight size={18} />
           </Link>
         </Button>

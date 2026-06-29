@@ -1,3 +1,5 @@
+"use client";
+
 import { Hero } from '../components/global/hero'
 import PopularMovies from '../components/global/popular-movies/PopularMovies'
 import TrendingMovies  from '../components/global/trending-movies/TrendingMovies'

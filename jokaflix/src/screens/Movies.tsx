@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import { Flame, PlayCircle } from "lucide-react";
 import { MovieCard } from "../components/global/cards/MovieCard";
@@ -18,7 +20,7 @@ const tabs: Array<{ id: MovieTab; label: string; icon: React.ElementType }> = [
 ];
 
 const tabEndpoint = (tab: MovieTab, page: number) => {
-  const key = import.meta.env.VITE_TMDB_API_KEY;
+  const key = process.env.NEXT_PUBLIC_TMDB_API_KEY;
   if (tab === "popular") {
     return `https://api.themoviedb.org/3/movie/popular?api_key=${key}&page=${page}`;
   }

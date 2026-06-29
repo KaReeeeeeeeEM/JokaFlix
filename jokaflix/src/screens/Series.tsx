@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import { MonitorPlay, Tv } from "lucide-react";
 import { SeriesCard } from "../components/global/cards/SeriesCard";
@@ -18,7 +20,7 @@ const tabs: Array<{ id: SeriesTab; label: string; icon: React.ElementType }> = [
 ];
 
 const tabEndpoint = (tab: SeriesTab, page: number) => {
-  const key = import.meta.env.VITE_TMDB_API_KEY;
+  const key = process.env.NEXT_PUBLIC_TMDB_API_KEY;
   if (tab === "airing") {
     return `https://api.themoviedb.org/3/tv/on_the_air?api_key=${key}&page=${page}`;
   }

@@ -1,8 +1,10 @@
+"use client";
+
 import * as React from "react"
 import { useFetch } from "../../../api"
 import type { TrendingMovie } from "../../../../types"
 import { Play } from "lucide-react"
-import { Link } from "react-router-dom"
+import Link from "next/link"
 
 const imageUrl = (path?: string) =>
   path ? `https://image.tmdb.org/t/p/original${path}` : ""
@@ -16,7 +18,7 @@ export function Hero() {
   const [imageReady, setImageReady] = React.useState(false)
 
   const { data, loading } = useFetch<{ results: TrendingMovie[] }>(
-    { url: `https://api.themoviedb.org/3/trending/movie/day?api_key=${import.meta.env.VITE_TMDB_API_KEY}` }
+    { url: `https://api.themoviedb.org/3/trending/movie/day?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}` }
   )
 
   const movies = React.useMemo(() => data?.results?.filter((movie) => movie.backdrop_path || movie.poster_path).slice(0, 5) || [], [data])
@@ -83,11 +85,11 @@ export function Hero() {
             <h1>{title}</h1>
             <p>{year} · {activeMovie?.overview || "Stream the latest picks on JokaFlix."}</p>
             <div className="cinema-home-actions">
-              <Link to={`/movie/${activeMovie?.id}`} className="cinema-primary-action">
+              <Link href={`/movie/${activeMovie?.id}`} className="cinema-primary-action">
                 <Play size={16} fill="currentColor" />
                 Watch now
               </Link>
-              <Link to={`/movie/${activeMovie?.id}`} className="cinema-secondary-action">
+              <Link href={`/movie/${activeMovie?.id}`} className="cinema-secondary-action">
                 Details
               </Link>
             </div>

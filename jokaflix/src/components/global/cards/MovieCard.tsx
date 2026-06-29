@@ -1,6 +1,8 @@
+"use client";
+
 import { Card } from "../../ui/card";
 import type { TrendingMovie } from "../../../../types";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Play } from "lucide-react";
 
 type MovieCardProps = {
@@ -18,7 +20,7 @@ export function MovieCard({ movie, index, active = false }: MovieCardProps) {
   const summary = movie.overview || "Stream the latest from JokaFlix.";
 
   return (
-    <Link to={href} aria-label={`Open details for ${title}`} className={`movie-card-link block ${active ? "is-mobile-active" : ""}`}>
+    <Link href={href} aria-label={`Open details for ${title}`} className={`movie-card-link block ${active ? "is-mobile-active" : ""}`}>
       <Card className="movie-card group relative overflow-hidden border border-white/10 bg-neutral-950 py-0 shadow-2xl shadow-black/30">
         {poster && (
           <img

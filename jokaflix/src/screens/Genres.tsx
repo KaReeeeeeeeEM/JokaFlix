@@ -1,6 +1,9 @@
+"use client";
+
 import * as React from "react";
+import Link from "next/link";
+import { useParams, useSearchParams } from "next/navigation";
 import { ArrowRight } from "lucide-react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useFetch } from "../api";
 import { Skeleton } from "../components/ui/skeleton";
 import type { TrendingMovie } from "../../types";
@@ -15,13 +18,13 @@ type Genre = {
 export default function GenresPage() {
   const { data: genresData, loading: genresLoading } = useFetch<{ genres: Genre[] }>(
     {
-      url: `https://api.themoviedb.org/3/genre/movie/list?api_key=${import.meta.env.VITE_TMDB_API_KEY}`,
+      url: `https://api.themoviedb.org/3/genre/movie/list?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}`,
     }
   );
 
   const { data: sampleData } = useFetch<{ results: TrendingMovie[] }>(
     {
-      url: `https://api.themoviedb.org/3/movie/popular?api_key=${import.meta.env.VITE_TMDB_API_KEY}&page=1`,
+      url: `https://api.themoviedb.org/3/movie/popular?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}&page=1`,
     }
   );
 
@@ -50,7 +53,7 @@ export default function GenresPage() {
           ? Array.from({ length: 8 }).map((_, index) => <Skeleton className="h-64 rounded-3xl" key={index} />)
           : genreSamples.map((genre) => (
               <Link
-                to={`/genres/${genre.id}?name=${encodeURIComponent(genre.name)}`}
+                href={`/genres/${genre.id}?name=${encodeURIComponent(genre.name)}`}
                 className="genre-sample-card"
                 key={genre.id}
               >
@@ -86,14 +89,15 @@ const normalizeGenreName = (name: string) =>
     .trim();
 
 const genreEndpoint = (tab: GenreTab, genreId: string, page: number) => {
-  const key = import.meta.env.VITE_TMDB_API_KEY;
+  const key = process.env.NEXT_PUBLIC_TMDB_API_KEY;
   const media = tab === "movies" ? "movie" : "tv";
   return `https://api.themoviedb.org/3/discover/${media}?api_key=${key}&with_genres=${genreId}&page=${page}&sort_by=popularity.desc`;
 };
 
 export function GenreDetailPage() {
-  const { id = "" } = useParams();
-  const [searchParams] = useSearchParams();
+  const params = useParams<{ id: string }>();
+  const id = params?.id ?? "";
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = React.useState<GenreTab>("movies");
   const [page, setPage] = React.useState(1);
   const [items, setItems] = React.useState<TrendingMovie[]>([]);
@@ -102,11 +106,11 @@ export function GenreDetailPage() {
   const [hasMore, setHasMore] = React.useState(true);
   const sentinelRef = React.useRef<HTMLDivElement | null>(null);
   const requestRef = React.useRef(0);
-  const genreName = searchParams.get("name") || "Genre";
+  const genreName = searchParams?.get("name") || "Genre";
 
   const { data: tvGenresData } = useFetch<{ genres: Genre[] }>(
     {
-      url: `https://api.themoviedb.org/3/genre/tv/list?api_key=${import.meta.env.VITE_TMDB_API_KEY}`,
+      url: `https://api.themoviedb.org/3/genre/tv/list?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}`,
     }
   );
 

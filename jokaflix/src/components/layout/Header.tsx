@@ -1,6 +1,10 @@
+"use client";
+
 import { Button } from "../ui/button";
 import logo from "../../assets/logo-sub.png";
-import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import React from "react";
 import { Film, Grid3X3, Home, QrCode, Search, Tv, type LucideIcon } from "lucide-react";
@@ -13,17 +17,18 @@ type HeaderProps = {
 };
 
 export default function Header({ }: HeaderProps) {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
   const [qrOpen, setQROpen] = React.useState(false);
 
   const qrUrl = "https://jokaflix.vercel.app";
   const qrImg = `https://quickchart.io/qr?text=${encodeURIComponent(qrUrl)}`;
 
   const handleSearch = () => {
-    const params = new URLSearchParams(location.search);
+    const params = new URLSearchParams(searchParams?.toString());
     params.set("search", "1");
-    navigate({ pathname: location.pathname, search: params.toString() }, { replace: false });
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   const handleMobileNavFeedback = () => {
@@ -69,11 +74,13 @@ export default function Header({ }: HeaderProps) {
   return (
     <>
       <header className="site-header fixed left-0 right-0 top-0 z-30 mx-auto flex w-full items-center justify-between px-4 py-5 md:px-10">
-        <img
+        <Image
           src={logo}
           alt="JokaFlix Logo"
+          width={56}
+          height={56}
           className="h-12 w-12 cursor-pointer rounded-full object-contain md:h-14 md:w-14"
-          onClick={() => navigate("/")}
+          onClick={() => router.push("/")}
         />
         <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center rounded-full border border-[var(--app-border)] bg-[var(--app-panel)] p-1 text-xs font-semibold text-[var(--app-muted)] shadow-2xl shadow-black/10 backdrop-blur-xl md:flex">
           {[
@@ -82,17 +89,15 @@ export default function Header({ }: HeaderProps) {
             ["Series", "/series"],
             ["Genres", "/genres"],
           ].map(([label, href]) => (
-            <NavLink
-              className={({ isActive }) =>
-                `rounded-full px-5 py-2 transition hover:text-[#e50914] ${
-                  isActive ? "bg-gradient-to-r from-[#b20710] to-[#e50914] text-white" : ""
-                }`
-              }
-              to={href}
+            <Link
+              className={`rounded-full px-5 py-2 transition hover:text-[#e50914] ${
+                pathname === href ? "bg-gradient-to-r from-[#b20710] to-[#e50914] text-white" : ""
+              }`}
+              href={href}
               key={label}
             >
               {label}
-            </NavLink>
+            </Link>
           ))}
         </nav>
         <div className="flex items-center gap-2 rounded-full border border-[var(--app-border)] bg-[var(--app-panel)] p-1 backdrop-blur-xl">
@@ -134,15 +139,15 @@ export default function Header({ }: HeaderProps) {
       <nav className="mobile-bottom-nav md:hidden" aria-label="Primary mobile navigation">
         {mobileLinks.map(({ label, href, icon: NavIcon }) => {
           return (
-            <NavLink
-              className={({ isActive }) => `mobile-bottom-link ${isActive ? "is-active" : ""}`}
-              to={href}
+            <Link
+              className={`mobile-bottom-link ${pathname === href ? "is-active" : ""}`}
+              href={href}
               key={label}
               onClick={handleMobileNavFeedback}
             >
               <NavIcon className="h-5 w-5" />
               <span>{label}</span>
-            </NavLink>
+            </Link>
           );
         })}
       </nav>

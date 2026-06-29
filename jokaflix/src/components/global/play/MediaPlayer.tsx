@@ -1,15 +1,19 @@
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+"use client";
+
+import Link from "next/link";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ExternalLink } from "lucide-react";
 
 export default function MediaPlayer() {
-  const { category, id: tmdbId } = useParams<{ category: string; id: string }>();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const params = useParams<{ category: string; id: string }>();
+  const category = params?.category ?? "";
+  const tmdbId = params?.id ?? "";
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const searchParams = new URLSearchParams(location.search);
-  const full = searchParams.get("full") === "1";
-  const season = searchParams.get("season");
-  const episode = searchParams.get("episode");
+  const full = searchParams?.get("full") === "1";
+  const season = searchParams?.get("season");
+  const episode = searchParams?.get("episode");
   const type = category === "tv-show" ? "tv" : "movie";
 
   let src = "";
@@ -33,14 +37,14 @@ export default function MediaPlayer() {
   return (
     <main className="player-page">
       <header className="player-topbar">
-        <button type="button" onClick={() => navigate(-1)} className="player-action" aria-label="Go back">
+        <button type="button" onClick={() => router.back()} className="player-action" aria-label="Go back">
           <ChevronLeft className="h-5 w-5" />
         </button>
         <div>
           <p className="section-kicker">Now playing</p>
           <h1>{title}</h1>
         </div>
-        <Link to={type === "tv" ? `/series/${tmdbId}` : `/movie/${tmdbId}`} className="player-action player-detail-link">
+        <Link href={type === "tv" ? `/series/${tmdbId}` : `/movie/${tmdbId}`} className="player-action player-detail-link">
           Details
           <ExternalLink className="h-4 w-4" />
         </Link>
@@ -52,6 +56,8 @@ export default function MediaPlayer() {
           src={src}
           width="100%"
           height="100%"
+          allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+          referrerPolicy="no-referrer"
           allowFullScreen
           frameBorder={0}
           className="player-frame"

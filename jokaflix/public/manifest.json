@@ -2,20 +2,39 @@
   "name": "JokaFlix",
   "short_name": "JokaFlix",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#111827",
-  "theme_color": "#d03801",
-  "description": "Enjoy unlimited entertainment with our extensive collection of the newest releases and timeless classics.",
+  "orientation": "portrait-primary",
+  "background_color": "#050505",
+  "theme_color": "#e50914",
+  "description": "Discover movies and series on JokaFlix.",
+  "categories": ["entertainment", "movies"],
   "icons": [
     {
-      "src": "logo-sub.png",
+      "src": "/logo-sub.png",
       "sizes": "500x500",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "favicon.png",
+      "src": "/favicon.png",
       "sizes": "500x500",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Movies",
+      "short_name": "Movies",
+      "url": "/movies",
+      "icons": [{ "src": "/favicon.png", "sizes": "500x500", "type": "image/png" }]
+    },
+    {
+      "name": "Series",
+      "short_name": "Series",
+      "url": "/series",
+      "icons": [{ "src": "/favicon.png", "sizes": "500x500", "type": "image/png" }]
     }
   ]
 }

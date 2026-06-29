@@ -1,6 +1,9 @@
+"use client";
+
 import * as React from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { ChevronLeft, Copy, Info, Play, Plus, Share2, Star } from "lucide-react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { ChevronLeft, Copy, Download, Info, Play, Share2, Star } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { useFetch } from "../api";
 import { MovieCard } from "../components/global/cards/MovieCard";
@@ -13,8 +16,9 @@ type DetailPageProps = {
 };
 
 export default function DetailPage({ mediaType }: DetailPageProps) {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const params = useParams<{ id: string }>();
+  const id = params?.id ?? "";
+  const router = useRouter();
   const [activeSeason, setActiveSeason] = React.useState(0);
   const isMovie = mediaType === "movie";
   const apiType = isMovie ? "movie" : "tv";
@@ -23,7 +27,7 @@ export default function DetailPage({ mediaType }: DetailPageProps) {
 
   const { data: details, loading } = useFetch<any>(
     {
-      url: `https://api.themoviedb.org/3/${apiType}/${id}?api_key=${import.meta.env.VITE_TMDB_API_KEY}&append_to_response=credits,videos,similar`,
+      url: `https://api.themoviedb.org/3/${apiType}/${id}?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}&append_to_response=credits,videos,similar`,
     },
     { enabled: !!id }
   );
@@ -54,7 +58,7 @@ export default function DetailPage({ mediaType }: DetailPageProps) {
 
   const { data: activeSeasonDetails, loading: activeSeasonLoading } = useFetch<any>(
     {
-      url: `https://api.themoviedb.org/3/tv/${id}/season/${activeSeasonNumber}?api_key=${import.meta.env.VITE_TMDB_API_KEY}`,
+      url: `https://api.themoviedb.org/3/tv/${id}/season/${activeSeasonNumber}?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}`,
     },
     { enabled: !isMovie && !!id && seasons.length > 0 }
   );
@@ -65,10 +69,10 @@ export default function DetailPage({ mediaType }: DetailPageProps) {
 
   const play = () => {
     if (isMovie) {
-      navigate(`/play/movie/${id}`);
+      router.push(`/play/movie/${id}`);
       return;
     }
-    navigate(`/play/tv-show/${id}?season=${activeSeasonNumber}&episode=1`);
+    router.push(`/play/tv-show/${id}?season=${activeSeasonNumber}&episode=1`);
   };
 
   const share = async () => {
@@ -85,10 +89,6 @@ export default function DetailPage({ mediaType }: DetailPageProps) {
   const copyLink = async () => {
     await navigator.clipboard.writeText(window.location.href);
     toast.success("Link copied");
-  };
-
-  const addToList = () => {
-    toast.success("Added to your list");
   };
 
   const showInfoToast = () => {
@@ -118,7 +118,7 @@ export default function DetailPage({ mediaType }: DetailPageProps) {
 
       <section className="detail-cinema-shell">
         <div className="detail-cinema-topbar">
-          <button type="button" onClick={() => navigate(-1)} className="detail-round-button" aria-label="Go back">
+          <button type="button" onClick={() => router.back()} className="detail-round-button" aria-label="Go back">
             <ChevronLeft className="h-5 w-5" />
           </button>
           <div className="detail-top-actions">
@@ -155,9 +155,13 @@ export default function DetailPage({ mediaType }: DetailPageProps) {
               <Play className="h-6 w-6" fill="currentColor" />
               {isMovie ? "Play movie" : `Play S${activeSeasonNumber} E1`}
             </Button>
-            <button type="button" onClick={addToList} className="detail-soft-action" aria-label="Add to list">
-              <Plus className="h-5 w-5" />
-            </button>
+            <Link
+              href={`/download/${isMovie ? "movie" : "tv"}/${id}${!isMovie ? `?season=${activeSeasonNumber}` : ""}`}
+              className="detail-soft-action"
+              aria-label="Open download options"
+            >
+              <Download className="h-5 w-5" />
+            </Link>
             <button type="button" onClick={showInfoToast} className="detail-soft-action" aria-label="More details">
               <Info className="h-5 w-5" />
             </button>
@@ -193,7 +197,7 @@ export default function DetailPage({ mediaType }: DetailPageProps) {
                   : activeEpisodes.length > 0
                     ? activeEpisodes.map((episodeItem: any) => (
                         <Link
-                          to={`/play/tv-show/${id}?season=${activeSeasonNumber}&episode=${episodeItem.episode_number || 1}`}
+                          href={`/play/tv-show/${id}?season=${activeSeasonNumber}&episode=${episodeItem.episode_number || 1}`}
                           className="detail-episode-card"
                           key={episodeItem.id || episodeItem.episode_number}
                         >
@@ -213,7 +217,7 @@ export default function DetailPage({ mediaType }: DetailPageProps) {
                         const episodeNumber = index + 1;
                         return (
                           <Link
-                            to={`/play/tv-show/${id}?season=${activeSeasonNumber}&episode=${episodeNumber}`}
+                            href={`/play/tv-show/${id}?season=${activeSeasonNumber}&episode=${episodeNumber}`}
                             className="detail-episode-card"
                             key={`${activeSeasonNumber}-${episodeNumber}`}
                           >
@@ -226,7 +230,7 @@ export default function DetailPage({ mediaType }: DetailPageProps) {
                 : similar.map((item: TrendingMovie) => {
                     const itemTitle = item.title || item.name;
                     return (
-                      <Link to={`/movie/${item.id}`} className="detail-episode-card" key={item.id}>
+                      <Link href={`/movie/${item.id}`} className="detail-episode-card" key={item.id}>
                         <img src={`https://image.tmdb.org/t/p/w500${item.backdrop_path || item.poster_path}`} alt={itemTitle} />
                         <span>{itemTitle}</span>
                         <small>{(item.release_date || item.first_air_date || "").slice(0, 4) || "Movie"}</small>
