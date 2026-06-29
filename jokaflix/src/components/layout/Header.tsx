@@ -25,6 +25,40 @@ export default function Header({ }: HeaderProps) {
     params.set("search", "1");
     navigate({ pathname: location.pathname, search: params.toString() }, { replace: false });
   };
+
+  const handleMobileNavFeedback = () => {
+    if (typeof window === "undefined") return;
+
+    if ("vibrate" in navigator) {
+      navigator.vibrate?.(18);
+    }
+
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+
+      const audioContext = new AudioContextClass();
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      const now = audioContext.currentTime;
+
+      oscillator.type = "sine";
+      oscillator.frequency.setValueAtTime(720, now);
+      oscillator.frequency.exponentialRampToValueAtTime(420, now + 0.045);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.055, now + 0.008);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.07);
+
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+      oscillator.start(now);
+      oscillator.stop(now + 0.075);
+      window.setTimeout(() => audioContext.close(), 140);
+    } catch {
+      // Mobile browsers can block audio even inside gestures; haptics still runs where supported.
+    }
+  };
+
   const mobileLinks: { label: string; href: string; icon: LucideIcon }[] = [
     { label: "Home", href: "/", icon: Home },
     { label: "Movies", href: "/movies", icon: Film },
@@ -104,6 +138,7 @@ export default function Header({ }: HeaderProps) {
               className={({ isActive }) => `mobile-bottom-link ${isActive ? "is-active" : ""}`}
               to={href}
               key={label}
+              onClick={handleMobileNavFeedback}
             >
               <NavIcon className="h-5 w-5" />
               <span>{label}</span>
