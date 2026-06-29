@@ -44,7 +44,6 @@ export default function DownloadsPage() {
   const apiType = isSeries ? "tv" : "movie";
   const titleKey = isSeries ? "name" : "title";
   const dateKey = isSeries ? "first_air_date" : "release_date";
-  const downloadBase = process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL as string | undefined;
 
   const { data, loading } = useFetch<any>(
     {
@@ -59,11 +58,9 @@ export default function DownloadsPage() {
   const backdropUrl = backdrop ? `https://image.tmdb.org/t/p/original${backdrop}` : "";
 
   const buildDownloadUrl = (quality: string) => {
-    if (!downloadBase || !id) return "";
-    const normalizedBase = downloadBase.replace(/\/$/, "");
     const params = new URLSearchParams({ quality });
     if (season) params.set("season", season);
-    return `${normalizedBase}/${apiType}/${id}?${params.toString()}`;
+    return `/api/download/${apiType}/${id}?${params.toString()}`;
   };
 
   const copyPageLink = async () => {
@@ -100,9 +97,8 @@ export default function DownloadsPage() {
         <div className="download-options">
           {options.map((option) => {
             const href = buildDownloadUrl(option.quality);
-            const enabled = Boolean(href);
             return (
-              <article className={enabled ? "download-option-card" : "download-option-card is-disabled"} key={option.quality}>
+              <article className="download-option-card" key={option.quality}>
                 <div>
                   <span className="download-quality">{option.quality}</span>
                   <h2>{option.label}</h2>
@@ -113,20 +109,15 @@ export default function DownloadsPage() {
                     <HardDrive className="h-4 w-4" />
                     {option.size}
                   </span>
-                  {enabled ? (
-                    <a href={href} className="download-option-button">
-                      <Download className="h-4 w-4" />
-                      Download
-                    </a>
-                  ) : (
-                    <button
-                      type="button"
-                      className="download-option-button"
-                      onClick={() => toast.message("Download source pending", { description: "Connect a verified download backend first." })}
-                    >
-                      Source pending
-                    </button>
-                  )}
+                  <a
+                    href={href}
+                    className="download-option-button"
+                    download
+                    onClick={() => toast.success(`${option.quality} download started`)}
+                  >
+                    <Download className="h-4 w-4" />
+                    Download
+                  </a>
                 </div>
               </article>
             );
