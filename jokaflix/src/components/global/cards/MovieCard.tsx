@@ -1,58 +1,43 @@
-import * as React from "react";
 import { Card } from "../../ui/card";
-import { Dialog, DialogTrigger } from "../../ui/dialog";
 import type { TrendingMovie } from "../../../../types";
-import MovieDialog from "../modals/MovieDialog";
-import SeriesDialog from "../modals/SeriesDialog";
+import { Link } from "react-router-dom";
+import { Play } from "lucide-react";
 
 type MovieCardProps = {
   movie: TrendingMovie;
+  index?: number;
+  active?: boolean;
 };
 
-export function MovieCard({ movie }: MovieCardProps) {
-  const [open, setOpen] = React.useState(false);
-
-  // Use poster_path, fallback to backdrop_path if poster_path is missing
-  const poster = movie.poster_path || movie.backdrop_path;
+export function MovieCard({ movie, index, active = false }: MovieCardProps) {
+  const poster = movie.backdrop_path || movie.poster_path;
+  const title = movie.title || movie.name;
+  const isSeries = movie.media_type === "tv" || !!movie.first_air_date;
+  const href = isSeries ? `/series/${movie.id}` : `/movie/${movie.id}`;
+  const year = (movie.release_date || movie.first_air_date)?.slice(0, 4);
+  const summary = movie.overview || "Stream the latest from JokaFlix.";
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <div
-          className="cursor-pointer"
-          tabIndex={0}
-          aria-label={`Open details for ${movie.title || movie.name}`}
-          onClick={() => setOpen(true)}
-        >
-          <Card className="relative h-[350px] overflow-hidden shadow-lg group w-42 md:w-48 py-0 bg-neutral-900 rounded-lg">
-            <img
-              src={poster ? `https://image.tmdb.org/t/p/w500${poster}` : ""}
-              alt={movie.title || movie.name}
-              className="object-cover w-full h-[350px] transition-transform duration-300 rounded-lg group-hover:scale-105"
-            />
-            {/* Overlay on hover */}
-            <div className="absolute inset-0 flex flex-col justify-end p-4 transition-opacity duration-300 opacity-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent group-hover:opacity-100">
-              <h3 className="text-lg font-bold text-white truncate">
-                {movie.title || movie.name}
-              </h3>
-              <div className="flex items-center gap-2 text-sm font-semibold text-orange-400">
-                <span>{movie.vote_average.toFixed(1)}</span>
-                <span className="text-gray-300">
-                  | {(movie.release_date || movie.first_air_date)?.slice(0, 4)}
-                </span>
-              </div>
-              <p className="mt-1 text-xs text-gray-200 line-clamp-2">
-                {movie.overview}
-              </p>
-            </div>
-          </Card>
+    <Link to={href} aria-label={`Open details for ${title}`} className={`movie-card-link block ${active ? "is-mobile-active" : ""}`}>
+      <Card className="movie-card group relative overflow-hidden border border-white/10 bg-neutral-950 py-0 shadow-2xl shadow-black/30">
+        {poster && (
+          <img
+            src={`https://image.tmdb.org/t/p/w780${poster}`}
+            alt={title}
+            className="movie-card-cover"
+          />
+        )}
+        <span className="movie-card-shade" />
+        {typeof index === "number" && <span className="movie-card-count">{String(index + 1).padStart(2, "0")}</span>}
+        <div className="movie-card-body">
+          <span className="movie-card-genre">{isSeries ? "Series" : "Movie"}{year ? ` · ${year}` : ""}</span>
+          <h3>{title}</h3>
+          <p>{summary}</p>
         </div>
-      </DialogTrigger>
-      {movie.media_type === "tv" ? (
-        <SeriesDialog series={movie} open={open} setOpen={setOpen} />
-      ) : (
-        <MovieDialog movie={movie} open={open} setOpen={setOpen} />
-      )}
-    </Dialog>
+        <span className="movie-card-play" aria-hidden="true">
+          <Play size={20} fill="currentColor" />
+        </span>
+      </Card>
+    </Link>
   );
 }

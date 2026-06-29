@@ -6,6 +6,8 @@ import { Drawer, DrawerContent, DrawerTrigger } from "../../ui/drawer";
 import { FaFire } from "react-icons/fa";
 import { Skeleton } from "../../ui/skeleton";
 import { Button } from "../../ui/button";
+import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function TrendingMovies() {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -13,6 +15,8 @@ export default function TrendingMovies() {
   const [allMovies, setAllMovies] = React.useState<TrendingMovie[]>([]);
   const [hasMore, setHasMore] = React.useState(true);
   const [isFetchingNext, setIsFetchingNext] = React.useState(false);
+  const [activePreview, setActivePreview] = React.useState(0);
+  const stripRef = React.useRef<HTMLDivElement>(null);
 
   // Fetch movies for the current page
   const { data, loading } = useFetch<{ results: TrendingMovie[] }>(
@@ -69,30 +73,49 @@ export default function TrendingMovies() {
   });
   const movies = initialData?.results || [];
 
+  const handleStripScroll = React.useCallback(() => {
+    const strip = stripRef.current;
+    if (!strip || window.innerWidth >= 768) return;
+
+    const stripCenter = strip.getBoundingClientRect().left + strip.clientWidth / 2;
+    const cards = Array.from(strip.querySelectorAll<HTMLElement>(".movie-card-link"));
+    const nearest = cards.reduce(
+      (best, card, index) => {
+        const rect = card.getBoundingClientRect();
+        const distance = Math.abs(rect.left + rect.width / 2 - stripCenter);
+        return distance < best.distance ? { distance, index } : best;
+      },
+      { distance: Number.POSITIVE_INFINITY, index: 0 }
+    );
+    setActivePreview(nearest.index);
+  }, []);
+
   return (
-    <section className="w-full px-4 py-8 mx-auto xl:px-16">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2 mb-6">
-          <FaFire className="text-2xl text-primary" />
-          <h2 className="text-2xl font-bold text-white">Trending Movies</h2>
-        </div>
+    <section className="catalog-section reveal-up">
+      <div className="catalog-heading">
+        <h2 className="catalog-title">Trending Now</h2>
+        <Button asChild variant={"ghost"} className="catalog-more-button">
+          <Link to="/movies">
+            See more <ArrowRight size={18} />
+          </Link>
+        </Button>
         <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
           <DrawerTrigger asChild>
             <Button
               variant={"ghost"}
-              className="px-4 py-2 text-sm font-semibold text-white transition rounded cursor-pointer"
+              className="catalog-more-button hidden"
               onClick={() => setDrawerOpen(true)}
             >
-              See More
+              See more <ArrowRight size={18} />
             </Button>
           </DrawerTrigger>
-          <DrawerContent className="w-full py-6 mx-auto overflow-hidden xl:px-12" style={{ maxHeight: "90vh" }}>
-            <h3 className="flex items-center gap-2 py-6 text-xl font-bold text-primary">
+          <DrawerContent className="app-drawer mx-auto w-full overflow-hidden px-4 py-6 xl:px-12" style={{ maxHeight: "90vh" }}>
+            <h3 className="flex items-center gap-2 py-6 text-xl font-bold text-[#e50914]">
               <FaFire /> All Trending Movies
             </h3>
             <div
               ref={gridRef}
-              className="grid h-full grid-cols-2 gap-2 px-2 py-12 overflow-y-auto sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-8"
+              className="grid h-full grid-cols-2 gap-3 overflow-y-auto px-2 py-8 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6"
               style={{ maxHeight: "80vh" }}
             >
               {allMovies.map((movie) => (
@@ -118,17 +141,17 @@ export default function TrendingMovies() {
           </DrawerContent>
         </Drawer>
       </div>
-      <div className="grid grid-cols-2 gap-2 py-4 sm:grid-cols-3 md:grid-cols-8">
+      <div className="movie-strip" ref={stripRef} onScroll={handleStripScroll}>
         {initialLoading
-          ? Array.from({ length: 8 }).map((_, i) => (
+          ? Array.from({ length: 5 }).map((_, i) => (
               <Skeleton
                 key={i}
                 className="h-[350px] rounded-lg dark:bg-gray-800 w-42 md:w-48 animate-pulse"
               />
             ))
           : movies
-              .slice(0, 8)
-              .map((movie) => <MovieCard key={movie.id} movie={movie} />)}
+              .slice(0, 5)
+              .map((movie, index) => <MovieCard key={movie.id} movie={movie} index={index} active={index === activePreview} />)}
       </div>
     </section>
   );

@@ -66,49 +66,223 @@
     <link rel="stylesheet" href="/src/index.css">
 
     <style>
-      /* Splash screen styles */
       #splash-screen {
         position: fixed;
         z-index: 9999;
         inset: 0;
-        background: #111;
+        overflow: hidden;
+        background: #fff;
         display: flex;
-        flex-direction: column;
         align-items: center;
         justify-content: center;
-        transition: opacity 0.7s cubic-bezier(.4,0,.2,1);
+        color: #e50914;
         opacity: 1;
+        transition:
+          opacity 0.75s cubic-bezier(.16,1,.3,1),
+          transform 1s cubic-bezier(.16,1,.3,1),
+          filter 1s cubic-bezier(.16,1,.3,1);
+        animation: splash-background 3.6s cubic-bezier(.16,1,.3,1) both;
       }
+
+      #splash-screen::before {
+        content: "";
+        position: absolute;
+        inset: -18%;
+        background:
+          radial-gradient(circle at 28% 30%, rgba(229, 9, 20, 0.18), transparent 23%),
+          radial-gradient(circle at 72% 62%, rgba(255, 255, 255, 0.2), transparent 20%),
+          linear-gradient(135deg, transparent, rgba(229, 9, 20, 0.08), transparent);
+        opacity: 0;
+        transform: translate3d(-4%, 3%, 0) scale(1.08);
+        animation: splash-atmosphere 3.6s cubic-bezier(.16,1,.3,1) both;
+      }
+
+      #splash-screen::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: #fff;
+        transform: translate3d(-105%, 0, 0) skewX(-8deg);
+        animation: splash-white-wipe 3.6s cubic-bezier(.16,1,.3,1) both;
+      }
+
+      #splash-stage {
+        position: relative;
+        z-index: 2;
+        display: grid;
+        justify-items: center;
+        gap: clamp(0.65rem, 2vw, 1rem);
+        transform-style: preserve-3d;
+        animation: splash-stage-motion 3.6s cubic-bezier(.16,1,.3,1) both;
+      }
+
       #splash-logo {
-        width: 220px;
-        height: 220px;
-        margin-bottom: 10px;
-        animation: splash-bounce 1.2s infinite alternate cubic-bezier(.4,0,.2,1);
+        width: clamp(76px, 11vw, 138px);
+        height: clamp(76px, 11vw, 138px);
         object-fit: contain;
-        filter: drop-shadow(0 4px 32px #d03801cc);
+        filter: drop-shadow(0 18px 44px rgba(229, 9, 20, 0.34));
+        opacity: 0;
+        transform: translate3d(0, 18px, 60px) scale(0.82) rotate(-2deg);
+        animation: splash-logo-pop 3.6s cubic-bezier(.16,1,.3,1) both;
       }
-      #splash-slogan {
-        color: #fff;
-        font-family: 'Bebas Neue', 'Montserrat', Arial, sans-serif;
-        font-size: 2.2rem;
-        letter-spacing: 0.08em;
-        text-align: center;
-        opacity: 0.92;
-        animation: splash-fadein 1.2s 0.5s forwards;
-        font-weight: 700;
-        text-shadow: 0 2px 12px #d03801cc, 0 1px 2px #000a;
-        line-height: 1.1;
+
+      #splash-word {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(0.02em, 0.55vw, 0.12em);
+        color: #e50914;
+        font-family: 'Orbitron', 'Montserrat', Arial, sans-serif;
+        font-size: clamp(3.1rem, 9.2vw, 8.6rem);
+        font-weight: 950;
+        line-height: 0.86;
+        white-space: nowrap;
+        text-transform: uppercase;
+        text-shadow: 0 22px 68px rgba(229, 9, 20, 0.28);
       }
-      @keyframes splash-bounce {
-        0% { transform: scale(1) translateY(0);}
-        100% { transform: scale(1.08) translateY(-18px);}
+
+      #splash-word span {
+        display: inline-block;
+        opacity: 0;
+        transform: translate3d(var(--sx, 0), var(--sy, 0), 0) scale(0.42) rotate(var(--sr, 0deg));
+        filter: blur(10px);
+        animation: splash-letter-build 3.6s cubic-bezier(.16,1,.3,1) both;
+        animation-delay: calc(1.34s + (var(--i) * 54ms));
       }
-      @keyframes splash-fadein {
-        from { opacity: 0; transform: translateY(20px);}
-        to { opacity: 0.92; transform: translateY(0);}
+
+      #splash-word span:nth-child(1) { --i: 0; --sx: -86px; --sy: -18px; --sr: -22deg; }
+      #splash-word span:nth-child(2) { --i: 1; --sx: -58px; --sy: 32px; --sr: 18deg; }
+      #splash-word span:nth-child(3) { --i: 2; --sx: -34px; --sy: -46px; --sr: -14deg; }
+      #splash-word span:nth-child(4) { --i: 3; --sx: -12px; --sy: 42px; --sr: 12deg; }
+      #splash-word span:nth-child(5) { --i: 4; --sx: 20px; --sy: -42px; --sr: -16deg; }
+      #splash-word span:nth-child(6) { --i: 5; --sx: 42px; --sy: 34px; --sr: 15deg; }
+      #splash-word span:nth-child(7) { --i: 6; --sx: 66px; --sy: -24px; --sr: -18deg; }
+      #splash-word span:nth-child(8) { --i: 7; --sx: 88px; --sy: 28px; --sr: 20deg; }
+
+      #splash-subword {
+        display: flex;
+        gap: clamp(0.35rem, 1.3vw, 0.8rem);
+        color: #151515;
+        font-family: 'Orbitron', 'Montserrat', Arial, sans-serif;
+        font-size: clamp(0.62rem, 1.7vw, 1rem);
+        font-weight: 800;
+        letter-spacing: 0.78em;
+        text-indent: 0.78em;
+        opacity: 0;
+        transform: translate3d(0, 18px, 0);
+        animation: splash-subword-reveal 3.6s cubic-bezier(.16,1,.3,1) both;
       }
+
+      .splash-shard {
+        position: absolute;
+        z-index: 1;
+        display: block;
+        width: clamp(12px, 2.4vw, 28px);
+        height: clamp(12px, 2.4vw, 28px);
+        border-radius: 999px;
+        background: #fff;
+        box-shadow: 0 0 32px rgba(255, 255, 255, 0.54);
+        opacity: 0;
+        animation: splash-shard-flight 3.6s cubic-bezier(.16,1,.3,1) both;
+      }
+
+      .splash-shard.one {
+        left: calc(50% - min(34vw, 340px));
+        top: calc(50% - min(15vw, 150px));
+        clip-path: polygon(50% 0, 0 100%, 100% 100%);
+        animation-delay: 0.42s;
+      }
+
+      .splash-shard.two {
+        right: calc(50% - min(28vw, 300px));
+        top: calc(50% - min(7vw, 80px));
+        width: clamp(34px, 6vw, 74px);
+        height: clamp(34px, 6vw, 74px);
+        border: 12px solid rgba(255, 255, 255, 0.25);
+        background: rgba(255, 255, 255, 0.94);
+        animation-delay: 0.56s;
+      }
+
+      .splash-shard.three {
+        left: calc(50% + min(16vw, 210px));
+        bottom: calc(50% - min(16vw, 170px));
+        width: clamp(8px, 1.8vw, 20px);
+        height: clamp(8px, 1.8vw, 20px);
+        animation-delay: 0.7s;
+      }
+
+      @keyframes splash-background {
+        0%, 18% { background: #fff; }
+        26%, 54% { background: #000; }
+        72%, 100% { background: #fff; }
+      }
+
+      @keyframes splash-atmosphere {
+        0%, 22% { opacity: 0; transform: translate3d(-4%, 3%, 0) scale(1.08); }
+        30%, 58% { opacity: 1; transform: translate3d(4%, -3%, 0) scale(1.18); }
+        76%, 100% { opacity: 0; transform: translate3d(0, 0, 0) scale(1.08); }
+      }
+
+      @keyframes splash-stage-motion {
+        0% { transform: translate3d(0, 12px, 0) scale(0.94); filter: blur(0); }
+        18% { transform: translate3d(0, 0, 0) scale(1); filter: blur(0); }
+        27% { transform: translate3d(0, -8px, 0) scale(1.08); filter: blur(12px); }
+        36% { transform: translate3d(0, 0, 0) scale(0.72); filter: blur(6px); }
+        60% { transform: translate3d(0, 0, 0) scale(0.9); filter: blur(0); }
+        100% { transform: translate3d(0, -5px, 0) scale(1); filter: blur(0); }
+      }
+
+      @keyframes splash-logo-pop {
+        0%, 34% { opacity: 0; transform: translate3d(0, 18px, 60px) scale(0.82) rotate(-2deg); filter: blur(12px) drop-shadow(0 18px 44px rgba(229, 9, 20, 0)); }
+        46% { opacity: 1; transform: translate3d(0, -10px, 80px) scale(1.08) rotate(0deg); filter: blur(0) drop-shadow(0 18px 44px rgba(229, 9, 20, 0.48)); }
+        100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: blur(0) drop-shadow(0 18px 44px rgba(229, 9, 20, 0.34)); }
+      }
+
+      @keyframes splash-letter-build {
+        0% { opacity: 0; transform: translate3d(var(--sx), var(--sy), 0) scale(0.42) rotate(var(--sr)); filter: blur(10px); }
+        22% { opacity: 1; transform: translate3d(calc(var(--sx) * 0.26), calc(var(--sy) * 0.2), 0) scale(1.18) rotate(0deg); filter: blur(1px); }
+        38%, 100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1) rotate(0deg); filter: blur(0); }
+      }
+
+      @keyframes splash-subword-reveal {
+        0%, 66% { opacity: 0; transform: translate3d(0, 18px, 0); letter-spacing: 1.1em; }
+        82%, 100% { opacity: 1; transform: translate3d(0, 0, 0); letter-spacing: 0.78em; }
+      }
+
+      @keyframes splash-shard-flight {
+        0%, 18% { opacity: 0; transform: translate3d(0, 0, 0) scale(0.4) rotate(0deg); }
+        30% { opacity: 1; transform: translate3d(34px, -24px, 0) scale(1) rotate(120deg); }
+        56% { opacity: 1; transform: translate3d(-20px, 18px, 0) scale(0.76) rotate(220deg); }
+        72%, 100% { opacity: 0; transform: translate3d(0, 0, 0) scale(0.2) rotate(360deg); }
+      }
+
+      @keyframes splash-white-wipe {
+        0%, 62% { transform: translate3d(-105%, 0, 0) skewX(-8deg); }
+        76%, 100% { transform: translate3d(105%, 0, 0) skewX(-8deg); }
+      }
+
+      @media (max-width: 640px) {
+        #splash-stage {
+          gap: 0.55rem;
+        }
+
+        #splash-word {
+          font-size: clamp(2.2rem, 13vw, 4.7rem);
+          gap: 0.01em;
+        }
+
+        #splash-subword {
+          font-size: 0.54rem;
+          letter-spacing: 0.48em;
+          text-indent: 0.48em;
+        }
+      }
+
       #splash-screen.splash-hide {
         opacity: 0;
+        transform: scale(1.08);
+        filter: blur(14px);
         pointer-events: none;
       }
     </style>
@@ -118,7 +292,16 @@
   <body>
     <!-- Splash screen overlay -->
     <div id="splash-screen">
-      <img id="splash-logo" src="/logo-sub.png" alt="JokaFlix Logo" />
+      <span class="splash-shard one"></span>
+      <span class="splash-shard two"></span>
+      <span class="splash-shard three"></span>
+      <div id="splash-stage">
+        <img id="splash-logo" src="/logo-sub.png" alt="JokaFlix Logo" />
+        <div id="splash-word" aria-label="JokaFlix">
+          <span>J</span><span>o</span><span>k</span><span>a</span><span>F</span><span>l</span><span>i</span><span>x</span>
+        </div>
+        <div id="splash-subword">STREAMING</div>
+      </div>
     </div>
 
     <div id="root"></div>
@@ -133,7 +316,7 @@
               splash.classList.add('splash-hide');
               setTimeout(() => splash.remove(), 800);
             }
-          }, 100);
+          }, 3600);
         });
       });
     </script>

@@ -81,9 +81,12 @@ export default function Categories() {
   }, [drawerOpen, handleGridScroll]);
 
   return (
-    <section className="w-full px-4 py-8 mx-auto xl:px-16">
-      <h2 className="py-4 text-2xl font-bold text-white">Categories</h2>
-      <div className="flex max-w-full gap-3 mb-8 overflow-x-auto">
+    <section className="catalog-section reveal-up">
+      <div className="mx-auto max-w-4xl text-center">
+        <p className="section-kicker">Find a mood</p>
+        <h2 className="catalog-title">Browse categories</h2>
+      </div>
+      <div className="mx-auto mt-8 flex max-w-4xl gap-3 overflow-x-auto rounded-full border border-white/10 bg-white/[0.05] p-2">
         {genresLoading
           ? Array.from({ length: 8 }).map((_, i) => (
               <Skeleton key={i} className="h-10 bg-gray-800 rounded w-28" />
@@ -96,7 +99,7 @@ export default function Categories() {
                 <DrawerTrigger asChild>
                   <Button
                     variant="outline"
-                    className="px-4 py-2 text-sm font-semibold text-white bg-gray-800 rounded cursor-pointer hover:bg-orange-600"
+                    className="shrink-0 rounded-full border-0 bg-transparent px-5 py-2 text-sm font-semibold text-white/70 hover:bg-[#e50914] hover:text-white"
                     onClick={() => {
                       setSelectedGenre(genre);
                       setDrawerOpen(true);
@@ -105,13 +108,13 @@ export default function Categories() {
                     {genre.name}
                   </Button>
                 </DrawerTrigger>
-                <DrawerContent className="w-full py-6 mx-auto overflow-hidden xl:px-12" style={{ maxHeight: "90vh" }}>
-                  <h3 className="flex items-center gap-2 py-6 text-xl font-bold text-primary">
+                <DrawerContent className="app-drawer mx-auto w-full overflow-hidden px-4 py-6 xl:px-12" style={{ maxHeight: "90vh" }}>
+                  <h3 className="flex items-center gap-2 py-6 text-xl font-bold text-[#e50914]">
                     {genre.name} Movies
                   </h3>
                   <div
                     ref={gridRef}
-                    className="grid h-full grid-cols-2 gap-2 py-12 overflow-y-auto sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-8"
+                    className="grid h-full grid-cols-2 gap-3 overflow-y-auto py-8 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6"
                     style={{ maxHeight: "95vh" }}
                   >
                     {allMovies.map((movie) => (

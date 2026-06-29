@@ -437,7 +437,7 @@ export default function MovieDialog({
                 <div className="flex gap-4 pt-2">
                   <Button
                     variant={"outline"}
-                    className="flex items-center gap-2 px-6 py-2 font-semibold text-white transition bg-orange-600 rounded cursor-pointer hover:bg-orange-700"
+                    className="flex items-center gap-2 px-6 py-2 font-semibold text-white transition bg-red-700 rounded cursor-pointer hover:bg-red-800"
                     onClick={handlePlay}
                   >
                     <FaPlay /> Play
@@ -473,7 +473,7 @@ export default function MovieDialog({
                   genreMap[id] ? (
                     <span
                       key={id}
-                      className="px-2 py-1 text-xs text-white rounded bg-orange-600/80"
+                      className="px-2 py-1 text-xs text-white rounded bg-red-700/80"
                     >
                       {genreMap[id]}
                     </span>
@@ -482,7 +482,7 @@ export default function MovieDialog({
               : details?.genres?.map((g: any) => (
                   <span
                     key={g.id}
-                    className="px-2 py-1 text-xs text-white rounded bg-orange-600/80"
+                    className="px-2 py-1 text-xs text-white rounded bg-red-700/80"
                   >
                     {g.name}
                   </span>

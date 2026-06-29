@@ -1,108 +1,186 @@
-import { useEffect, useState } from "react";
-import { Drawer, DrawerContent } from "../../ui/drawer";
-import { Dialog, DialogContent } from "../../ui/dialog";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Input } from "../../ui/input";
-import { MovieCard } from "../cards/MovieCard";
-import { Skeleton } from "../../ui/skeleton";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { PlayCircle, Search } from "lucide-react";
 import type { TrendingMovie } from "../../../../types";
 import { useFetch } from "../../../api";
 
 export default function SearchDrawer() {
   const location = useLocation();
   const navigate = useNavigate();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const searchParams = new URLSearchParams(location.search);
   const open = searchParams.get("search") === "1";
 
   const [query, setQuery] = useState("");
-  const [debounced, setDebounced] = useState(query);
+  const [debounced, setDebounced] = useState("");
 
-  // Responsive: detect large screens (lg: 1024px+)
-  const [isLargeScreen, setIsLargeScreen] = useState(() =>
-    typeof window !== "undefined"
-      ? window.matchMedia("(min-width: 1024px)").matches
-      : false
-  );
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
-    const handler = () => setIsLargeScreen(mq.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-
-  // Debounce search input
-  useEffect(() => {
-    const t = setTimeout(() => setDebounced(query), 400);
-    return () => clearTimeout(t);
+    const t = window.setTimeout(() => setDebounced(query.trim()), 350);
+    return () => window.clearTimeout(t);
   }, [query]);
 
-  // Fetch search results
+  useEffect(() => {
+    if (!open) return;
+    const t = window.setTimeout(() => inputRef.current?.focus(), 80);
+    return () => window.clearTimeout(t);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") handleClose();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open]);
+
   const { data, loading } = useFetch<{ results: TrendingMovie[] }>(
     debounced
       ? {
-          url: `https://api.themoviedb.org/3/search/multi?api_key=${import.meta.env.VITE_TMDB_API_KEY}&query=${encodeURIComponent(
-            debounced
-          )}`,
+          url: `https://api.themoviedb.org/3/search/multi?api_key=${import.meta.env.VITE_TMDB_API_KEY}&query=${encodeURIComponent(debounced)}`,
         }
       : { url: "" },
-    { enabled: open && !!debounced }
+    { enabled: open && debounced.length > 1 }
   );
-  const results = data?.results || [];
 
-  // Close and clear url to /
+  const { data: suggestionsData, loading: suggestionsLoading } = useFetch<{ results: TrendingMovie[] }>(
+    {
+      url: `https://api.themoviedb.org/3/trending/all/day?api_key=${import.meta.env.VITE_TMDB_API_KEY}`,
+    },
+    { enabled: open && debounced.length <= 1 }
+  );
+
+  const mediaFilter = (item: any) =>
+    (item.media_type === "movie" || item.media_type === "tv") &&
+    (item.poster_path || item.backdrop_path);
+
+  const results = useMemo(
+    () => (data?.results || []).filter(mediaFilter),
+    [data]
+  );
+
+  const suggestions = useMemo(
+    () => (suggestionsData?.results || []).filter(mediaFilter).slice(0, 12),
+    [suggestionsData]
+  );
+
+  const showingResults = debounced.length > 1;
+  const visibleItems = showingResults ? results : suggestions;
+  const isLoading = showingResults ? loading : suggestionsLoading;
+
+  useEffect(() => {
+    if (!open || !resultsRef.current) return;
+    const rows = Array.from(resultsRef.current.querySelectorAll(".search-suggestion-row"));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { root: resultsRef.current, threshold: 0.12 }
+    );
+    rows.forEach((row) => observer.observe(row));
+    return () => observer.disconnect();
+  }, [open, visibleItems]);
+
   const handleClose = () => {
-    navigate("/", { replace: true });
+    const next = new URLSearchParams(location.search);
+    next.delete("search");
+    setQuery("");
+    setDebounced("");
+    navigate({ pathname: location.pathname, search: next.toString() }, { replace: true });
   };
 
-  // Shared content
-  const content = (
-    <div className="flex flex-col flex-1 min-h-0 gap-4">
-      <div className="sticky top-0 z-10 pt-6 pb-2 bg-black">
-        <Input
-          autoFocus
-          placeholder="Search for movies, TV shows, people..."
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          className="w-full px-4 py-3 text-lg text-white bg-gray-900 rounded-lg"
-        />
-      </div>
-      <div
-        className="grid flex-1 min-h-0 grid-cols-2 gap-2 pb-4 overflow-x-hidden overflow-y-auto md:grid-cols-3"
-      >
-        {loading
-          ? Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-64 rounded-lg dark:bg-gray-900 w-42 md:w-48 md:h-[350px] animate-pulse" />
-            ))
-          : results
-              .filter((item: any) => item.media_type === "movie" || item.media_type === "tv")
-              .map((item: any) => (
-                <MovieCard key={item.id + item.media_type} movie={item} />
+  if (!open) return null;
+
+  return (
+    <div className="search-overlay fixed inset-0 z-50 backdrop-blur-2xl">
+      <div className="search-gradient" />
+      <div className="search-phone-shell">
+        <div className="search-mobile-bar">
+          <div className="search-input-wrap">
+            <Search className="h-5 w-5 text-[#e50914]" />
+            <input
+              ref={inputRef}
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search Here"
+              className="search-input"
+            />
+          </div>
+          <button
+            className="search-cancel-button"
+            type="button"
+            aria-label="Close search"
+            onClick={handleClose}
+          >
+            Cancel
+          </button>
+        </div>
+
+        <div ref={resultsRef} className="search-list-panel">
+          <div className="search-list-heading">
+            <h2>{showingResults ? `Results for "${debounced}"` : "Movies & TV"}</h2>
+            {isLoading && <div className="netflix-loader" aria-label="Loading search results" />}
+          </div>
+
+          {isLoading ? (
+            <div className="search-suggestion-list">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <div className="search-row-skeleton" key={index}>
+                  <span />
+                  <strong />
+                  <i />
+                </div>
               ))}
-        {!loading && results.length === 0 && debounced && (
-          <div className="text-center text-gray-400 col-span-full">No results found.</div>
-        )}
+            </div>
+          ) : visibleItems.length > 0 ? (
+            <div className="search-suggestion-list">
+              {visibleItems.map((item: any, index) => {
+                const title = item.title || item.name;
+                const isSeries = item.media_type === "tv";
+                return (
+                  <Link
+                    to={isSeries ? `/series/${item.id}` : `/movie/${item.id}`}
+                    onClick={handleClose}
+                    className="search-suggestion-row"
+                    style={{ transitionDelay: `${Math.min(index, 18) * 35}ms` }}
+                    key={`${item.media_type}-${item.id}`}
+                  >
+                    <img
+                      src={`https://image.tmdb.org/t/p/w500${item.poster_path || item.backdrop_path}`}
+                      alt={title}
+                      className="search-suggestion-thumb"
+                    />
+                    <span className="search-suggestion-copy">
+                      <strong>{title}</strong>
+                      <span>
+                        {isSeries ? "Series" : "Movie"} • {(item.release_date || item.first_air_date || "").slice(0, 4) || "N/A"}
+                      </span>
+                    </span>
+                    <span className="search-suggestion-play" aria-hidden="true">
+                      <PlayCircle className="h-8 w-8" />
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          ) : debounced.length > 1 ? (
+            <div className="search-empty-state">
+              No movies or series found.
+            </div>
+          ) : (
+            <div className="search-empty-state">
+              Start typing to search movies and series.
+            </div>
+          )}
+        </div>
       </div>
     </div>
-  );
-
-  if (isLargeScreen) {
-    // Drawer for large screens
-    return (
-      <Drawer open={open} onOpenChange={v => { if (!v) handleClose(); }}>
-        <DrawerContent className="flex flex-col w-full max-w-2xl mx-auto bg-black rounded-t-2xl overflow-hidden h-[100dvh] min-h-[60dvh]">
-          {content}
-        </DrawerContent>
-      </Drawer>
-    );
-  }
-
-  // Modal for small/medium screens
-  return (
-    <Dialog open={open} onOpenChange={v => { if (!v) handleClose(); }}>
-      <DialogContent className="flex flex-col w-full max-w-lg mx-auto bg-black rounded-lg overflow-hidden h-[85dvh] min-h-[60dvh] p-0">
-        {content}
-      </DialogContent>
-    </Dialog>
   );
 }
