@@ -48,6 +48,42 @@ function EmptyProfileRail({ message }: { message: string }) {
   );
 }
 
+function ProfileSkeleton() {
+  return (
+    <main className="profile-page">
+      <section className="profile-hero profile-hero-skeleton" aria-label="Loading profile">
+        <div>
+          <span className="skeleton-token profile-skeleton-kicker" />
+          <span className="skeleton-token profile-skeleton-title" />
+          <span className="skeleton-token profile-skeleton-copy" />
+        </div>
+        <div className="profile-actions">
+          <span className="skeleton-token profile-skeleton-action" />
+          <span className="skeleton-token profile-skeleton-action is-secondary" />
+        </div>
+      </section>
+
+      {["Continue Watching", "Watch Later", "Your Ratings"].map((title) => (
+        <section className="profile-section" key={title}>
+          <div className="profile-section-title profile-section-title-skeleton">
+            <span className="skeleton-token profile-skeleton-icon" />
+            <span className="skeleton-token profile-skeleton-heading" />
+          </div>
+          <div className="profile-rail">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div className="profile-title-card profile-title-card-loading" aria-hidden="true" key={index}>
+                <span className="skeleton-token profile-loading-card-art" />
+                <span className="skeleton-token profile-loading-card-title" />
+                <span className="skeleton-token profile-loading-card-copy" />
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
+    </main>
+  );
+}
+
 export default function ProfilePage() {
   const session = authClient.useSession();
   const [data, setData] = React.useState<ProfileData | null>(null);
@@ -75,11 +111,7 @@ export default function ProfilePage() {
   };
 
   if (session.isPending || !data) {
-    return (
-      <main className="profile-page">
-        <div className="netflix-loader" />
-      </main>
-    );
+    return <ProfileSkeleton />;
   }
 
   if (!session.data?.user) {

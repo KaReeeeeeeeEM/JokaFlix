@@ -6421,6 +6421,44 @@ select:disabled {
   color: white;
 }
 
+.profile-hero-skeleton {
+  min-height: 190px;
+}
+
+.profile-hero-skeleton > div:first-child,
+.profile-section-title-skeleton {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.profile-skeleton-kicker {
+  width: 7rem;
+  height: 1rem;
+  border-radius: 999px;
+}
+
+.profile-skeleton-title {
+  width: min(34rem, 58vw);
+  height: clamp(2.7rem, 5vw, 4.4rem);
+  border-radius: 14px;
+}
+
+.profile-skeleton-copy {
+  width: min(24rem, 46vw);
+  height: 1.1rem;
+  border-radius: 999px;
+}
+
+.profile-skeleton-action {
+  width: 10rem;
+  height: 3rem;
+  border-radius: 999px;
+}
+
+.profile-skeleton-action.is-secondary {
+  width: 8rem;
+}
+
 .profile-section {
   margin-top: clamp(1.5rem, 4vw, 2.5rem);
 }
@@ -6440,6 +6478,24 @@ select:disabled {
 
 .profile-section-title svg {
   color: #e50914;
+}
+
+.profile-section-title-skeleton {
+  grid-template-columns: auto minmax(12rem, 22rem);
+  align-items: center;
+  width: min(100%, 30rem);
+}
+
+.profile-skeleton-icon {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 999px;
+}
+
+.profile-skeleton-heading {
+  width: min(22rem, 70vw);
+  height: clamp(1.8rem, 3vw, 2.6rem);
+  border-radius: 10px;
 }
 
 .profile-rail {
@@ -6489,6 +6545,21 @@ select:disabled {
   border-color: rgba(255, 255, 255, 0.13);
 }
 
+.profile-title-card-loading {
+  pointer-events: none;
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.light .profile-title-card-loading {
+  border-color: rgba(17, 17, 22, 0.1);
+  background: rgba(17, 17, 22, 0.035);
+}
+
+.profile-title-card-loading::after {
+  display: none;
+}
+
 .profile-title-card-empty::before {
   position: absolute;
   inset: 1rem 1rem auto;
@@ -6506,6 +6577,31 @@ select:disabled {
   background:
     linear-gradient(110deg, rgba(229, 9, 20, 0.08), transparent 38%),
     rgba(17, 17, 22, 0.035);
+}
+
+.profile-loading-card-art {
+  position: absolute;
+  inset: 1rem 1rem auto;
+  height: 52%;
+  border-radius: 14px;
+}
+
+.profile-loading-card-title,
+.profile-loading-card-copy {
+  position: relative;
+  z-index: 1;
+  display: block;
+  border-radius: 999px;
+}
+
+.profile-loading-card-title {
+  width: min(13rem, 74%);
+  height: 1.05rem;
+}
+
+.profile-loading-card-copy {
+  width: min(8rem, 50%);
+  height: 0.8rem;
 }
 
 .profile-title-card img {
@@ -6598,6 +6694,11 @@ select:disabled {
   .profile-hero {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .profile-skeleton-title,
+  .profile-skeleton-copy {
+    width: min(100%, 34rem);
   }
 
   .profile-rail {
