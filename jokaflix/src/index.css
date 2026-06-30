@@ -6660,31 +6660,25 @@ select:disabled {
 .profile-empty-rail {
   grid-column: 1 / -1;
   display: grid;
-  min-height: 12rem;
-  align-content: center;
-  justify-items: center;
-  gap: 0.45rem;
-  border: 1px solid var(--app-border);
-  border-radius: 20px;
+  width: 100%;
+  min-height: 200px;
+  place-items: center;
+  border: 1px dashed rgba(255, 255, 255, 0.24);
+  border-radius: 18px;
   background: rgba(255, 255, 255, 0.035);
   color: var(--app-muted);
   text-align: center;
 }
 
 .light .profile-empty-rail {
+  border-color: rgba(17, 17, 22, 0.18);
   background: rgba(17, 17, 22, 0.035);
 }
 
-.profile-empty-rail strong {
-  color: var(--app-text);
-  font-size: clamp(1.2rem, 2.5vw, 1.85rem);
-  font-weight: 950;
-}
-
 .profile-empty-rail p {
-  max-width: 32rem;
-  font-size: 0.9rem;
-  font-weight: 800;
+  color: var(--app-muted);
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  font-weight: 900;
 }
 
 .profile-empty {

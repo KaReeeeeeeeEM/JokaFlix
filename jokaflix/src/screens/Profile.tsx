@@ -40,7 +40,6 @@ function titleHref(item: ProfileTitleItem) {
 function EmptyProfileRail({ message }: { message: string }) {
   return (
     <div className="profile-empty-rail">
-      <strong>No movies yet</strong>
       <p>{message}</p>
     </div>
   );
@@ -203,7 +202,7 @@ export default function ProfilePage() {
               <span>{item.title || `${item.media_type === "tv" ? "Series" : "Movie"} ${item.tmdb_id}`}</span>
               <small>{item.season ? `S${item.season} E${item.episode || 1}` : "Movie"}</small>
             </Link>
-          )) : <EmptyProfileRail message="Start watching something and it will appear here." />}
+          )) : <EmptyProfileRail message="No movies yet" />}
         </div>
       </section>
 
@@ -219,7 +218,7 @@ export default function ProfilePage() {
               <span>{item.title}</span>
               <small>{item.media_type === "tv" ? "Series" : "Movie"}</small>
             </Link>
-          )) : <EmptyProfileRail message="Save movies or shows from a title page." />}
+          )) : <EmptyProfileRail message="No saved movies yet" />}
         </div>
       </section>
 
@@ -235,7 +234,7 @@ export default function ProfilePage() {
               <span>{item.title || item.tmdb_id}</span>
               <small>{Number(item.rating).toFixed(1)} / 10</small>
             </Link>
-          )) : <EmptyProfileRail message="Rate a title to tune recommendations." />}
+          )) : <EmptyProfileRail message="No ratings yet" />}
         </div>
       </section>
     </main>
