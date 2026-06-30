@@ -6,6 +6,7 @@ import { Bookmark, Clock, KeyRound, LogOut, Save, Star, User } from "lucide-reac
 import { toast } from "sonner";
 import { Button } from "../components/ui/button";
 import { authClient } from "../lib/auth-client";
+import { Dialog, DialogContent, DialogTitle } from "../components/ui/dialog";
 
 type ProfileTitleItem = {
   media_type: "movie" | "tv";
@@ -38,47 +39,25 @@ function titleHref(item: ProfileTitleItem) {
 
 function EmptyProfileRail({ message }: { message: string }) {
   return (
-    <>
-      {Array.from({ length: 4 }).map((_, index) => (
-        <div className="profile-title-card profile-title-card-empty" aria-hidden="true" key={index}>
-          <span className="profile-empty-card-art" />
-          <span className="profile-empty-card-line" />
-          <small className="profile-empty-card-line is-short" />
-        </div>
-      ))}
-      <p className="profile-muted profile-rail-empty-copy">{message}</p>
-    </>
+    <div className="profile-empty-rail">
+      <strong>No movies yet</strong>
+      <p>{message}</p>
+    </div>
   );
 }
 
 function ProfileSkeleton() {
   return (
     <main className="profile-page">
-      <section className="profile-hero profile-hero-skeleton" aria-label="Loading profile">
-        <div>
-          <span className="skeleton-token profile-skeleton-kicker" />
-          <span className="skeleton-token profile-skeleton-title" />
-          <span className="skeleton-token profile-skeleton-copy" />
-        </div>
-        <div className="profile-actions">
-          <span className="skeleton-token profile-skeleton-action" />
-          <span className="skeleton-token profile-skeleton-action is-secondary" />
-        </div>
-      </section>
-
       {["Continue Watching", "Watch Later", "Your Ratings"].map((title) => (
         <section className="profile-section" key={title}>
-          <div className="profile-section-title profile-section-title-skeleton">
-            <span className="skeleton-token profile-skeleton-icon" />
-            <span className="skeleton-token profile-skeleton-heading" />
+          <div className="profile-section-title">
+            <span className="profile-loading-title-dot" />
+            <h2>{title}</h2>
           </div>
           <div className="profile-rail">
             {Array.from({ length: 4 }).map((_, index) => (
-              <div className="profile-title-card profile-title-card-loading" aria-hidden="true" key={index}>
-                <span className="skeleton-token profile-loading-card-art" />
-                <span className="skeleton-token profile-loading-card-title" />
-                <span className="skeleton-token profile-loading-card-copy" />
-              </div>
+              <div className="profile-title-card profile-title-card-loading" aria-hidden="true" key={index} />
             ))}
           </div>
         </section>
@@ -92,6 +71,7 @@ export default function ProfilePage() {
   const [data, setData] = React.useState<ProfileData | null>(null);
   const [avatarUrl, setAvatarUrl] = React.useState("");
   const [avatarSaving, setAvatarSaving] = React.useState(false);
+  const [avatarOpen, setAvatarOpen] = React.useState(false);
 
   React.useEffect(() => {
     fetch("/api/me", { credentials: "include" })
@@ -132,6 +112,7 @@ export default function ProfilePage() {
       setData((current) => current ? { ...current, profile: { ...(current.profile || {}), avatar_url: avatarUrl.trim() || null } } : current);
       window.dispatchEvent(new Event("jokaflix:profile-updated"));
       toast.success("Profile image updated");
+      setAvatarOpen(false);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Unable to save profile image");
     } finally {
@@ -169,9 +150,9 @@ export default function ProfilePage() {
     <main className="profile-page">
       <section className="profile-hero reveal-up">
         <div className="profile-identity">
-          <div className="profile-avatar">
+          <button type="button" className="profile-avatar" onClick={() => setAvatarOpen(true)} aria-label="Change profile image">
             {data.profile?.avatar_url ? <img src={data.profile.avatar_url} alt="" /> : <span>{initials}</span>}
-          </div>
+          </button>
           <div>
             <p className="section-kicker">Profile</p>
             <h1>{displayName}</h1>
@@ -179,15 +160,6 @@ export default function ProfilePage() {
           </div>
         </div>
         <div className="profile-side-actions">
-          <label className="profile-avatar-url">
-            <span>Profile image URL</span>
-            <div>
-              <input value={avatarUrl} onChange={(event) => setAvatarUrl(event.target.value)} placeholder="https://example.com/avatar.jpg" />
-              <Button onClick={saveAvatar} className="profile-action-button" disabled={avatarSaving}>
-                <Save /> Save
-              </Button>
-            </div>
-          </label>
           <div className="profile-actions">
             <Button onClick={addPasskey} className="profile-action-button">
               <KeyRound /> Add passkey
@@ -198,6 +170,26 @@ export default function ProfilePage() {
           </div>
         </div>
       </section>
+
+      <Dialog open={avatarOpen} onOpenChange={setAvatarOpen}>
+        <DialogContent className="avatar-dialog" showCloseButton>
+          <DialogTitle>Profile Image</DialogTitle>
+          <div className="avatar-preview">
+            {avatarUrl ? <img src={avatarUrl} alt="" /> : <span>{initials}</span>}
+          </div>
+          <label className="avatar-url-field">
+            <span>Image URL</span>
+            <input value={avatarUrl} onChange={(event) => setAvatarUrl(event.target.value)} placeholder="https://example.com/avatar.jpg" />
+          </label>
+          <div className="avatar-dialog-actions">
+            <Button variant="ghost" onClick={() => setAvatarUrl("")}>Remove image</Button>
+            <Button className="auth-primary-button" onClick={saveAvatar} disabled={avatarSaving}>
+              <Save />
+              Save image
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <section className="profile-section">
         <div className="profile-section-title">

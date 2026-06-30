@@ -225,6 +225,7 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
       await authFetch(path, body);
       await session.refetch();
       window.dispatchEvent(new Event("jokaflix:auth-changed"));
+      router.refresh();
       toast.success("Signed in");
       router.push(nextPath);
     } catch (error) {
@@ -283,6 +284,7 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
       if (result.error) throw new Error(result.error.message);
       await session.refetch();
       window.dispatchEvent(new Event("jokaflix:auth-changed"));
+      router.refresh();
       toast.success("Signed in with passkey");
       router.push(nextPath);
     } catch (error) {

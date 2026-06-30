@@ -33,14 +33,19 @@ export default function Header() {
   const qrUrl = "https://jokaflix.vercel.app";
   const qrImg = `https://quickchart.io/qr?text=${encodeURIComponent(qrUrl)}`;
 
-  const loadProfile = React.useCallback(async () => {
-    if (!session.data?.user) {
+  const loadProfile = React.useCallback(async (allowSessionRefresh = false) => {
+    if (!allowSessionRefresh && !session.data?.user) {
       setProfile(null);
       setAvatarUrl("");
       return;
     }
     const response = await fetch("/api/me", { credentials: "include" });
     const data = await response.json().catch(() => ({}));
+    if (!data.user) {
+      setProfile(null);
+      setAvatarUrl("");
+      return;
+    }
     setProfile(data.profile || null);
     setAvatarUrl(data.profile?.avatar_url || "");
   }, [session.data?.user]);
@@ -50,14 +55,18 @@ export default function Header() {
   }, [loadProfile]);
 
   React.useEffect(() => {
-    const listener = () => void loadProfile();
-    window.addEventListener("jokaflix:auth-changed", listener);
-    window.addEventListener("jokaflix:profile-updated", listener);
-    return () => {
-      window.removeEventListener("jokaflix:auth-changed", listener);
-      window.removeEventListener("jokaflix:profile-updated", listener);
+    const authListener = async () => {
+      await session.refetch();
+      await loadProfile(true);
     };
-  }, [loadProfile]);
+    const profileListener = () => void loadProfile(true);
+    window.addEventListener("jokaflix:auth-changed", authListener);
+    window.addEventListener("jokaflix:profile-updated", profileListener);
+    return () => {
+      window.removeEventListener("jokaflix:auth-changed", authListener);
+      window.removeEventListener("jokaflix:profile-updated", profileListener);
+    };
+  }, [loadProfile, session]);
 
   const handleSearch = () => {
     const params = new URLSearchParams(searchParams?.toString());
@@ -226,7 +235,15 @@ export default function Header() {
             <input value={avatarUrl} onChange={(event) => setAvatarUrl(event.target.value)} placeholder="https://example.com/avatar.jpg" />
           </label>
           <div className="avatar-dialog-actions">
-            <Button variant="ghost" onClick={() => router.push("/profile")}>Open profile</Button>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setAvatarOpen(false);
+                router.push("/profile");
+              }}
+            >
+              Open profile
+            </Button>
             <Button className="auth-primary-button" onClick={saveAvatar} disabled={avatarSaving}>
               {avatarSaving ? <Loader2 className="animate-spin" /> : <Save />}
               Save image
