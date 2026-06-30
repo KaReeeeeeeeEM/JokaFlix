@@ -45,10 +45,14 @@ try {
       user_id text primary key references "user"(id) on delete cascade,
       nationality text,
       gender text,
+      avatar_url text,
       passkey_prompted boolean not null default false,
       created_at timestamptz not null default now(),
       updated_at timestamptz not null default now()
     );
+
+    alter table user_profiles
+      add column if not exists avatar_url text;
 
     create table if not exists user_title_ratings (
       user_id text not null references "user"(id) on delete cascade,

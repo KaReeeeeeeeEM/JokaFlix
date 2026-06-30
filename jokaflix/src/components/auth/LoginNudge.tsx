@@ -17,6 +17,13 @@ export default function LoginNudge() {
   const isAuthRoute = pathname.startsWith("/signin") || pathname.startsWith("/signup");
 
   React.useEffect(() => {
+    if (session.data?.user) {
+      setOpen(false);
+      window.localStorage.setItem("jokaflix-login-nudge-dismissed", "1");
+    }
+  }, [session.data?.user]);
+
+  React.useEffect(() => {
     if (isAuthRoute) {
       setOpen(false);
       return;
@@ -33,12 +40,24 @@ export default function LoginNudge() {
   }, [isAuthRoute, session.data?.user, session.isPending]);
 
   React.useEffect(() => {
-    const listener = () => {
-      if (!isAuthRoute) setOpen(true);
+    const closeForAuthenticatedUser = () => {
+      void session.refetch().then(() => {
+        setOpen(false);
+        window.localStorage.setItem("jokaflix-login-nudge-dismissed", "1");
+      });
+    };
+    window.addEventListener("jokaflix:auth-changed", closeForAuthenticatedUser);
+    return () => window.removeEventListener("jokaflix:auth-changed", closeForAuthenticatedUser);
+  }, [session]);
+
+  React.useEffect(() => {
+    const listener = async () => {
+      await session.refetch();
+      if (!isAuthRoute && !session.data?.user) setOpen(true);
     };
     window.addEventListener("jokaflix:login-nudge", listener);
     return () => window.removeEventListener("jokaflix:login-nudge", listener);
-  }, [isAuthRoute]);
+  }, [isAuthRoute, session]);
 
   const dismiss = () => {
     window.localStorage.setItem("jokaflix-login-nudge-dismissed", "1");

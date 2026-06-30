@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Bookmark, Clock, KeyRound, LogOut, Star, User } from "lucide-react";
+import { Bookmark, Clock, KeyRound, LogOut, Save, Star, User } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "../components/ui/button";
 import { authClient } from "../lib/auth-client";
@@ -20,6 +20,9 @@ type ProfileTitleItem = {
 
 type ProfileData = {
   user?: unknown;
+  profile?: {
+    avatar_url?: string | null;
+  } | null;
   continueWatching?: ProfileTitleItem[];
   watchLater?: ProfileTitleItem[];
   ratings?: ProfileTitleItem[];
@@ -87,11 +90,16 @@ function ProfileSkeleton() {
 export default function ProfilePage() {
   const session = authClient.useSession();
   const [data, setData] = React.useState<ProfileData | null>(null);
+  const [avatarUrl, setAvatarUrl] = React.useState("");
+  const [avatarSaving, setAvatarSaving] = React.useState(false);
 
   React.useEffect(() => {
     fetch("/api/me", { credentials: "include" })
       .then((response) => response.json())
-      .then(setData)
+      .then((result) => {
+        setData(result);
+        setAvatarUrl(result?.profile?.avatar_url || "");
+      })
       .catch(() => setData({ user: null }));
   }, [session.data?.user?.id]);
 
@@ -108,6 +116,27 @@ export default function ProfilePage() {
       return;
     }
     toast.success("Passkey added");
+  };
+
+  const saveAvatar = async () => {
+    setAvatarSaving(true);
+    try {
+      const response = await fetch("/api/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ avatarUrl }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result?.error || "Unable to save profile image");
+      setData((current) => current ? { ...current, profile: { ...(current.profile || {}), avatar_url: avatarUrl.trim() || null } } : current);
+      window.dispatchEvent(new Event("jokaflix:profile-updated"));
+      toast.success("Profile image updated");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to save profile image");
+    } finally {
+      setAvatarSaving(false);
+    }
   };
 
   if (session.isPending || !data) {
@@ -130,6 +159,8 @@ export default function ProfilePage() {
   }
 
   const user = session.data.user as { username?: string | null; name?: string | null; email?: string | null };
+  const displayName = user.username || user.name || "JokaFlix user";
+  const initials = displayName.trim().slice(0, 1).toUpperCase() || "J";
   const continueWatching = data.continueWatching || [];
   const watchLater = data.watchLater || [];
   const ratings = data.ratings || [];
@@ -137,18 +168,34 @@ export default function ProfilePage() {
   return (
     <main className="profile-page">
       <section className="profile-hero reveal-up">
-        <div>
-          <p className="section-kicker">Profile</p>
-          <h1>{user.username || user.name || "JokaFlix user"}</h1>
-          <p>{user.email}</p>
+        <div className="profile-identity">
+          <div className="profile-avatar">
+            {data.profile?.avatar_url ? <img src={data.profile.avatar_url} alt="" /> : <span>{initials}</span>}
+          </div>
+          <div>
+            <p className="section-kicker">Profile</p>
+            <h1>{displayName}</h1>
+            <p>{user.email}</p>
+          </div>
         </div>
-        <div className="profile-actions">
-          <Button onClick={addPasskey} className="profile-action-button">
-            <KeyRound /> Add passkey
-          </Button>
-          <Button onClick={signOut} variant="ghost" className="profile-action-button">
-            <LogOut /> Sign out
-          </Button>
+        <div className="profile-side-actions">
+          <label className="profile-avatar-url">
+            <span>Profile image URL</span>
+            <div>
+              <input value={avatarUrl} onChange={(event) => setAvatarUrl(event.target.value)} placeholder="https://example.com/avatar.jpg" />
+              <Button onClick={saveAvatar} className="profile-action-button" disabled={avatarSaving}>
+                <Save /> Save
+              </Button>
+            </div>
+          </label>
+          <div className="profile-actions">
+            <Button onClick={addPasskey} className="profile-action-button">
+              <KeyRound /> Add passkey
+            </Button>
+            <Button onClick={signOut} variant="ghost" className="profile-action-button">
+              <LogOut /> Sign out
+            </Button>
+          </div>
         </div>
       </section>
 

@@ -7,25 +7,57 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import React from "react";
-import { Film, Grid3X3, Home, QrCode, Search, Tv, User, type LucideIcon } from "lucide-react";
+import { Film, Grid3X3, Home, Loader2, QrCode, Save, Search, Tv, User, type LucideIcon } from "lucide-react";
 import { ThemeToggle } from "../global/header/theme-toggle";
 import { authClient } from "../../lib/auth-client";
+import { toast } from "sonner";
 
-type HeaderProps = {
-  onSearch?: () => void;
-  onQRCode?: () => void;
-  onWatchlist?: () => void;
+type AudioWindow = Window & {
+  webkitAudioContext?: typeof AudioContext;
 };
 
-export default function Header({ }: HeaderProps) {
+export default function Header() {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const [qrOpen, setQROpen] = React.useState(false);
+  const [avatarOpen, setAvatarOpen] = React.useState(false);
+  const [avatarUrl, setAvatarUrl] = React.useState("");
+  const [avatarSaving, setAvatarSaving] = React.useState(false);
+  const [profile, setProfile] = React.useState<{ avatar_url?: string | null } | null>(null);
   const session = authClient.useSession();
+  const user = session.data?.user as { name?: string | null; username?: string | null; email?: string | null } | undefined;
+  const displayName = user?.username || user?.name || user?.email || "JokaFlix user";
+  const initials = displayName.trim().slice(0, 1).toUpperCase() || "J";
 
   const qrUrl = "https://jokaflix.vercel.app";
   const qrImg = `https://quickchart.io/qr?text=${encodeURIComponent(qrUrl)}`;
+
+  const loadProfile = React.useCallback(async () => {
+    if (!session.data?.user) {
+      setProfile(null);
+      setAvatarUrl("");
+      return;
+    }
+    const response = await fetch("/api/me", { credentials: "include" });
+    const data = await response.json().catch(() => ({}));
+    setProfile(data.profile || null);
+    setAvatarUrl(data.profile?.avatar_url || "");
+  }, [session.data?.user]);
+
+  React.useEffect(() => {
+    void loadProfile();
+  }, [loadProfile]);
+
+  React.useEffect(() => {
+    const listener = () => void loadProfile();
+    window.addEventListener("jokaflix:auth-changed", listener);
+    window.addEventListener("jokaflix:profile-updated", listener);
+    return () => {
+      window.removeEventListener("jokaflix:auth-changed", listener);
+      window.removeEventListener("jokaflix:profile-updated", listener);
+    };
+  }, [loadProfile]);
 
   const handleSearch = () => {
     const params = new URLSearchParams(searchParams?.toString());
@@ -41,7 +73,7 @@ export default function Header({ }: HeaderProps) {
     }
 
     try {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      const AudioContextClass = window.AudioContext || (window as AudioWindow).webkitAudioContext;
       if (!AudioContextClass) return;
 
       const audioContext = new AudioContextClass();
@@ -63,6 +95,36 @@ export default function Header({ }: HeaderProps) {
       window.setTimeout(() => audioContext.close(), 140);
     } catch {
       // Mobile browsers can block audio even inside gestures; haptics still runs where supported.
+    }
+  };
+
+  const openAccount = () => {
+    if (!session.data?.user) {
+      router.push(`/signin?next=${encodeURIComponent(pathname)}`);
+      return;
+    }
+    setAvatarOpen(true);
+  };
+
+  const saveAvatar = async () => {
+    setAvatarSaving(true);
+    try {
+      const response = await fetch("/api/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ avatarUrl }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data?.error || "Unable to save profile image");
+      toast.success("Profile image updated");
+      window.dispatchEvent(new Event("jokaflix:profile-updated"));
+      await loadProfile();
+      setAvatarOpen(false);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to save profile image");
+    } finally {
+      setAvatarSaving(false);
     }
   };
 
@@ -110,11 +172,17 @@ export default function Header({ }: HeaderProps) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => session.data?.user ? router.push("/profile") : router.push(`/signin?next=${encodeURIComponent(pathname)}`)}
-            className="h-10 w-10 cursor-pointer rounded-full text-[#e50914] hover:bg-white/10 hover:text-[#e50914]"
-            aria-label={session.data?.user ? "Open profile" : "Sign in"}
+            onClick={openAccount}
+            className={`header-avatar-button h-10 w-10 cursor-pointer rounded-full text-[#e50914] hover:bg-white/10 hover:text-[#e50914] ${session.data?.user ? "is-authenticated" : ""}`}
+            aria-label={session.data?.user ? "Account profile image" : "Sign in"}
           >
-            <User className="h-5 w-5" />
+            {session.data?.user && profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="" />
+            ) : session.data?.user ? (
+              <span>{initials}</span>
+            ) : (
+              <User className="h-5 w-5" />
+            )}
           </Button>
           <Button
             variant="ghost"
@@ -145,6 +213,25 @@ export default function Header({ }: HeaderProps) {
             style={{ imageRendering: "pixelated" }}
           />
           <span className="text-xs text-gray-400 break-all">{qrUrl}</span>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={avatarOpen} onOpenChange={setAvatarOpen}>
+        <DialogContent className="avatar-dialog" showCloseButton>
+          <DialogTitle>Profile Image</DialogTitle>
+          <div className="avatar-preview">
+            {avatarUrl ? <img src={avatarUrl} alt="" /> : <span>{initials}</span>}
+          </div>
+          <label className="avatar-url-field">
+            <span>Image URL</span>
+            <input value={avatarUrl} onChange={(event) => setAvatarUrl(event.target.value)} placeholder="https://example.com/avatar.jpg" />
+          </label>
+          <div className="avatar-dialog-actions">
+            <Button variant="ghost" onClick={() => router.push("/profile")}>Open profile</Button>
+            <Button className="auth-primary-button" onClick={saveAvatar} disabled={avatarSaving}>
+              {avatarSaving ? <Loader2 className="animate-spin" /> : <Save />}
+              Save image
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
       <nav className="mobile-bottom-nav md:hidden" aria-label="Primary mobile navigation">
