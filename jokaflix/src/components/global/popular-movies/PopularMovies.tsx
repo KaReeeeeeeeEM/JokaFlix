@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useFetch } from "../../../api";
-import { MovieCard } from "../cards/MovieCard";
+import { MediaCardSkeleton, MovieCard } from "../cards/MovieCard";
 import type { TrendingMovie } from "../../../../types";
 import { Drawer, DrawerContent, DrawerTrigger } from "../../ui/drawer";
 import { Skeleton } from "../../ui/skeleton";
@@ -145,10 +145,7 @@ export default function PopularMovies() {
       <div className="movie-strip" ref={stripRef} onScroll={handleStripScroll}>
         {initialLoading
           ? Array.from({ length: 5 }).map((_, i) => (
-              <Skeleton
-                key={i}
-                className="h-[350px] rounded-lg dark:bg-gray-800 w-42 md:w-48 animate-pulse"
-              />
+              <MediaCardSkeleton key={i} index={i} active={i === activePreview} />
             ))
           : movies
               .slice(0, 5)

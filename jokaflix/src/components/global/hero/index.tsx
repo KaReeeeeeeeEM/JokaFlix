@@ -68,7 +68,31 @@ export function Hero() {
   return (
     <section id="top" className="cinema-home-hero reveal-up">
       {loading || !activeMovie || !displayedImage ? (
-        <div className="cinema-home-loading" />
+        <>
+          <div className="cinema-home-loading" />
+          <div className="cinema-home-shade" />
+          <div className="cinema-home-copy cinema-home-skeleton-copy" aria-hidden="true">
+            <div className="cinema-home-meta-line">
+              <span className="skeleton-token hero-skeleton-meta" />
+              <span className="skeleton-token hero-skeleton-meta is-wide" />
+            </div>
+            <div className="skeleton-token hero-skeleton-title" />
+            <div className="skeleton-token hero-skeleton-title is-short" />
+            <div className="skeleton-token hero-skeleton-copy" />
+            <div className="skeleton-token hero-skeleton-copy is-short" />
+            <div className="cinema-home-actions">
+              <span className="skeleton-token hero-skeleton-button" />
+              <span className="skeleton-token hero-skeleton-button is-secondary" />
+            </div>
+          </div>
+
+          <div className="cinema-thumb-strip cinema-thumb-skeleton-strip" aria-hidden="true">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <span className="skeleton-token cinema-thumb-button cinema-thumb-skeleton" key={index} />
+            ))}
+            <span className="cinema-thumb-progress" />
+          </div>
+        </>
       ) : (
         <>
           <div

@@ -7,8 +7,9 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import React from "react";
-import { Film, Grid3X3, Home, QrCode, Search, Tv, type LucideIcon } from "lucide-react";
+import { Film, Grid3X3, Home, QrCode, Search, Tv, User, type LucideIcon } from "lucide-react";
 import { ThemeToggle } from "../global/header/theme-toggle";
+import { authClient } from "../../lib/auth-client";
 
 type HeaderProps = {
   onSearch?: () => void;
@@ -21,6 +22,7 @@ export default function Header({ }: HeaderProps) {
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const [qrOpen, setQROpen] = React.useState(false);
+  const session = authClient.useSession();
 
   const qrUrl = "https://jokaflix.vercel.app";
   const qrImg = `https://quickchart.io/qr?text=${encodeURIComponent(qrUrl)}`;
@@ -105,6 +107,15 @@ export default function Header({ }: HeaderProps) {
             <Search className="h-5 w-5" />
           </Button>
           <ThemeToggle />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => session.data?.user ? router.push("/profile") : router.push(`/signin?next=${encodeURIComponent(pathname)}`)}
+            className="h-10 w-10 cursor-pointer rounded-full text-[#e50914] hover:bg-white/10 hover:text-[#e50914]"
+            aria-label={session.data?.user ? "Open profile" : "Sign in"}
+          >
+            <User className="h-5 w-5" />
+          </Button>
           <Button
             variant="ghost"
             size="icon"

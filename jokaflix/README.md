@@ -5,8 +5,25 @@ JokaFlix uses TMDB for catalog metadata and a configurable download source for m
 ```env
 NEXT_PUBLIC_TMDB_API_KEY=your_tmdb_api_key
 
+DATABASE_URL=postgresql://user:password@host/database?sslmode=require
+BETTER_AUTH_SECRET=replace_with_a_long_random_secret
+BETTER_AUTH_URL=https://your-domain.example
+NEXT_PUBLIC_APP_URL=https://your-domain.example
+BETTER_AUTH_RP_ID=your-domain.example
+
+# Email verification through Nodemailer Gmail SMTP.
+GMAIL_USER=your_gmail_address@gmail.com
+GMAIL_APP_PASSWORD=your_gmail_app_password
+EMAIL_FROM_NAME=JokaFlix
+
 MOVIE_DOWNLOAD_BASE_URL=https://your-download-source.example/movies/{id}/{quality}.mp4
 SERIES_DOWNLOAD_BASE_URL=https://your-download-source.example/series/{id}/season-{season}/{quality}.mp4
+```
+
+Run database migrations after setting `DATABASE_URL`:
+
+```bash
+pnpm db:migrate
 ```
 
 The download API supports these placeholders:

@@ -43,3 +43,26 @@ export function MovieCard({ movie, index, active = false }: MovieCardProps) {
     </Link>
   );
 }
+
+type MediaCardSkeletonProps = {
+  index?: number;
+  active?: boolean;
+};
+
+export function MediaCardSkeleton({ index, active = false }: MediaCardSkeletonProps) {
+  return (
+    <div className={`movie-card-link block ${active ? "is-mobile-active" : ""}`} aria-hidden="true">
+      <Card className="movie-card movie-card-skeleton group relative overflow-hidden border border-white/10 bg-neutral-950 py-0 shadow-2xl shadow-black/30">
+        {typeof index === "number" && <span className="movie-card-count">{String(index + 1).padStart(2, "0")}</span>}
+        <span className="movie-card-shade" />
+        <div className="movie-card-body">
+          <span className="skeleton-token movie-card-skeleton-genre" />
+          <span className="skeleton-token movie-card-skeleton-title" />
+          <span className="skeleton-token movie-card-skeleton-copy" />
+          <span className="skeleton-token movie-card-skeleton-copy is-short" />
+        </div>
+        <span className="movie-card-play movie-card-skeleton-play" />
+      </Card>
+    </div>
+  );
+}

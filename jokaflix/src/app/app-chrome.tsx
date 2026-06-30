@@ -7,6 +7,7 @@ import Header from "../components/layout/Header";
 import SearchDrawer from "../components/global/search/Search";
 import PWARegister from "../components/pwa/PWARegister";
 import SplashScreen from "../components/pwa/SplashScreen";
+import LoginNudge from "../components/auth/LoginNudge";
 
 export default function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() ?? "/";
@@ -17,6 +18,7 @@ export default function AppChrome({ children }: { children: React.ReactNode }) {
       <PWARegister />
       <SplashScreen />
       <Suspense fallback={null}>
+        <LoginNudge />
         {!isPlayerRoute && <Header />}
         {!isPlayerRoute && <SearchDrawer />}
       </Suspense>

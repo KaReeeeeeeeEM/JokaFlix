@@ -5,6 +5,7 @@ import PopularMovies from '../components/global/popular-movies/PopularMovies'
 import TrendingMovies  from '../components/global/trending-movies/TrendingMovies'
 // import { BottyWidget } from 'botty-widget';
 import TVShows from '../components/global/tv-shows/TVShows';
+import PersonalizedRecommendations from '../components/global/recommendations/PersonalizedRecommendations';
 
 export default function Home() {
   // const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://jokaflix.vercel.app'
@@ -16,6 +17,7 @@ export default function Home() {
       <div className='relative z-10'>
         <Hero />
         <section id='movies' className='jokaflix-catalog'>
+          <PersonalizedRecommendations />
           <TrendingMovies />
           <PopularMovies />
           <TVShows />
