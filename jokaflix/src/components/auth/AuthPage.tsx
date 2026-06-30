@@ -57,6 +57,10 @@ async function authFetch(path: string, body: Record<string, unknown>) {
   return data;
 }
 
+function wait(ms: number) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
 function normalizeUsername(value: string) {
   return value
     .toLowerCase()
@@ -137,6 +141,20 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
     ...requirement,
     met: requirement.test(form.password),
   }));
+
+  const waitForProfileSession = React.useCallback(async () => {
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      await session.refetch();
+      const response = await fetch("/api/me", { credentials: "include", cache: "no-store" });
+      const profileSession = await response.json().catch(() => ({}));
+      if (response.ok && profileSession?.user) {
+        return profileSession;
+      }
+      await wait(250);
+    }
+
+    throw new Error("Signed in, but your session is still starting. Please try again.");
+  }, [session]);
 
   React.useEffect(() => {
     const timer = window.setInterval(() => {
@@ -223,8 +241,8 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
         ? { email: identifier, password: form.password, rememberMe: true }
         : { username: identifier, password: form.password, rememberMe: true };
       await authFetch(path, body);
-      await session.refetch();
-      window.dispatchEvent(new Event("jokaflix:auth-changed"));
+      const profileSession = await waitForProfileSession();
+      window.dispatchEvent(new CustomEvent("jokaflix:auth-changed", { detail: profileSession }));
       router.refresh();
       toast.success("Signed in");
       router.push(nextPath);
@@ -282,8 +300,8 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
     try {
       const result = await authClient.signIn.passkey();
       if (result.error) throw new Error(result.error.message);
-      await session.refetch();
-      window.dispatchEvent(new Event("jokaflix:auth-changed"));
+      const profileSession = await waitForProfileSession();
+      window.dispatchEvent(new CustomEvent("jokaflix:auth-changed", { detail: profileSession }));
       router.refresh();
       toast.success("Signed in with passkey");
       router.push(nextPath);

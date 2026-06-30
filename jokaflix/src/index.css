@@ -273,6 +273,8 @@ html {
 
 :root {
   --radius: 0.625rem;
+  --content-wide: calc(100vw - clamp(1.5rem, 4vw, 7rem));
+  --page-gutter: clamp(1rem, 4vw, 4rem);
   --app-bg: #f8f8f9;
   --app-bg-2: #ffffff;
   --app-text: #111114;
@@ -619,7 +621,7 @@ html {
 
 .movie-strip .movie-card {
   width: 100% !important;
-  height: clamp(275px, 18vw, 335px) !important;
+  height: clamp(275px, 18vw, 520px) !important;
   box-shadow: none !important;
 }
 
@@ -654,6 +656,26 @@ html {
       z-index: 5;
       flex-grow: 1.55;
       transform: translateY(-12px) scale(1.055);
+    }
+  }
+
+  @media (min-width: 1536px) {
+    .movie-strip {
+      gap: clamp(1.4rem, 1.1vw, 3rem);
+    }
+
+    .movie-strip .movie-card-link {
+      flex-basis: clamp(260px, 18vw, 740px);
+    }
+
+    .movie-strip .movie-card {
+      height: clamp(320px, 14vw, 560px) !important;
+    }
+  }
+
+  @media (min-width: 2560px) {
+    .movie-strip .movie-card {
+      height: clamp(420px, 13vw, 680px) !important;
     }
   }
 
@@ -715,7 +737,7 @@ html {
       scroll-padding-inline: 0.05rem;
       scroll-snap-type: x mandatory;
       overscroll-behavior-x: contain;
-      touch-action: pan-x;
+      touch-action: pan-x pan-y;
     }
 
     .movie-strip .movie-card-link {
@@ -2276,7 +2298,7 @@ select:disabled {
   left: 50% !important;
   right: auto !important;
   top: 1rem !important;
-  width: min(1760px, calc(100vw - 1.5rem)) !important;
+  width: min(var(--content-wide), calc(100vw - 1.5rem)) !important;
   transform: translateX(-50%);
   padding-left: clamp(0.75rem, 2vw, 1.5rem) !important;
   padding-right: clamp(0.75rem, 2vw, 1.5rem) !important;
@@ -2388,7 +2410,7 @@ select:disabled {
 .page-hero,
 .detail-section,
 .detail-flick-shell {
-  width: min(1760px, calc(100vw - 1.5rem)) !important;
+  width: min(var(--content-wide), calc(100vw - 1.5rem)) !important;
   max-width: none !important;
   margin-left: auto !important;
   margin-right: auto !important;
@@ -2606,7 +2628,7 @@ select:disabled {
 }
 
   .movies-library {
-    width: min(1760px, calc(100vw - 1.5rem));
+    width: min(var(--content-wide), calc(100vw - 1.5rem));
     margin: 0 auto;
     padding-bottom: 6rem;
   }
@@ -2660,7 +2682,7 @@ select:disabled {
 
 .movies-grid .movie-card {
   width: 100% !important;
-  height: clamp(260px, 20vw, 330px) !important;
+  height: clamp(260px, 17vw, 430px) !important;
 }
 
 .movies-grid .movie-card-link {
@@ -2675,7 +2697,7 @@ select:disabled {
 }
 
 .movies-card-skeleton {
-  height: clamp(260px, 20vw, 330px);
+  height: clamp(260px, 17vw, 430px);
   border-radius: 28px;
   background: color-mix(in oklab, var(--app-panel) 86%, var(--app-text) 8%);
 }
@@ -2705,6 +2727,24 @@ select:disabled {
 @media (min-width: 1280px) {
   .movies-grid {
     grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1536px) {
+  .movies-grid {
+    grid-template-columns: repeat(auto-fit, minmax(clamp(260px, 14vw, 420px), 1fr));
+  }
+
+  .movies-grid .movie-card,
+  .movies-card-skeleton {
+    height: clamp(300px, 15vw, 520px) !important;
+  }
+}
+
+@media (min-width: 2560px) {
+  .movies-grid .movie-card,
+  .movies-card-skeleton {
+    height: clamp(360px, 14vw, 620px) !important;
   }
 }
 
@@ -3008,7 +3048,7 @@ select:disabled {
 
 .cinema-home-hero {
   position: relative;
-  width: min(1760px, calc(100vw - 1.5rem));
+  width: min(var(--content-wide), calc(100vw - 1.5rem));
   min-height: min(860px, 88vh);
   margin: 0.75rem auto 0;
   overflow: hidden;
@@ -4720,7 +4760,7 @@ select:disabled {
     scrollbar-width: none;
     flex-wrap: nowrap;
     overscroll-behavior-x: contain;
-    touch-action: pan-x;
+    touch-action: pan-x pan-y;
   }
 
   .cinema-thumb-strip::-webkit-scrollbar {
@@ -4953,7 +4993,7 @@ select:disabled {
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 1rem;
-  width: min(1760px, calc(100vw - 1.5rem));
+  width: min(var(--content-wide), calc(100vw - 1.5rem));
   margin: 0 auto clamp(1rem, 2vw, 1.35rem);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 999px;
@@ -4990,7 +5030,7 @@ select:disabled {
 }
 
 .player-frame-shell {
-  width: min(1760px, calc(100vw - 1.5rem));
+  width: min(var(--content-wide), calc(100vw - 1.5rem));
   height: calc(100vh - 6.25rem);
   min-height: 520px;
   margin: 0 auto;
@@ -5391,7 +5431,7 @@ select:disabled {
 }
 
 .detail-cinema-more {
-  width: min(1760px, calc(100vw - 1.5rem)) !important;
+  width: min(var(--content-wide), calc(100vw - 1.5rem)) !important;
   padding-top: clamp(2.5rem, 5vw, 5rem);
 }
 
@@ -5475,7 +5515,7 @@ select:disabled {
 
 .detail-more-grid .movie-card {
   width: 100% !important;
-  height: clamp(260px, 19vw, 330px) !important;
+  height: clamp(260px, 17vw, 430px) !important;
 }
 
 .detail-more-grid:has(.movie-card-link:hover) .movie-card-link:not(:hover) {
@@ -5486,6 +5526,22 @@ select:disabled {
 @media (max-width: 1023px) {
   .detail-more-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1536px) {
+  .detail-more-grid {
+    grid-template-columns: repeat(auto-fit, minmax(clamp(260px, 14vw, 420px), 1fr));
+  }
+
+  .detail-more-grid .movie-card {
+    height: clamp(300px, 15vw, 520px) !important;
+  }
+}
+
+@media (min-width: 2560px) {
+  .detail-more-grid .movie-card {
+    height: clamp(360px, 14vw, 620px) !important;
   }
 }
 
@@ -6608,6 +6664,22 @@ select:disabled {
 .profile-title-card:hover {
   transform: scale(1.04);
   border-color: rgba(229, 9, 20, 0.7);
+}
+
+@media (min-width: 1536px) {
+  .profile-rail {
+    grid-template-columns: repeat(auto-fit, minmax(clamp(250px, 13vw, 410px), 1fr));
+  }
+
+  .profile-title-card {
+    min-height: clamp(220px, 12vw, 440px);
+  }
+}
+
+@media (min-width: 2560px) {
+  .profile-title-card {
+    min-height: clamp(280px, 11vw, 540px);
+  }
 }
 
 .profile-title-card-loading {

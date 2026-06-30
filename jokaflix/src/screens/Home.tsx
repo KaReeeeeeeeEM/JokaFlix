@@ -12,7 +12,7 @@ export default function Home() {
   // const bottyApiUrl = `${baseUrl}/api`
 
   return (
-    <main className='app-shell relative min-h-screen overflow-hidden'>
+    <main className='app-shell relative min-h-screen overflow-x-hidden'>
       <div className='app-ambient pointer-events-none fixed inset-0 z-0' />
       <div className='relative z-10'>
         <Hero />

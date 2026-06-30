@@ -16,6 +16,11 @@ type AudioWindow = Window & {
   webkitAudioContext?: typeof AudioContext;
 };
 
+type ProfileSessionEvent = CustomEvent<{
+  user?: unknown;
+  profile?: { avatar_url?: string | null } | null;
+}>;
+
 export default function Header() {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
@@ -55,7 +60,12 @@ export default function Header() {
   }, [loadProfile]);
 
   React.useEffect(() => {
-    const authListener = async () => {
+    const authListener = async (event: Event) => {
+      const detail = (event as ProfileSessionEvent).detail;
+      if (detail?.user) {
+        setProfile(detail.profile || null);
+        setAvatarUrl(detail.profile?.avatar_url || "");
+      }
       await session.refetch();
       await loadProfile(true);
     };

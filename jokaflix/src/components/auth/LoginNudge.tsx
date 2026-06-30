@@ -14,7 +14,9 @@ export default function LoginNudge() {
   const searchParams = useSearchParams();
   const [open, setOpen] = React.useState(false);
   const next = `${pathname}${searchParams?.toString() ? `?${searchParams.toString()}` : ""}`;
-  const isAuthRoute = pathname.startsWith("/signin") || pathname.startsWith("/signup");
+  const isBlockedRoute = ["/signin", "/signup", "/verify-email"].some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`)
+  );
 
   React.useEffect(() => {
     if (session.data?.user) {
@@ -24,7 +26,7 @@ export default function LoginNudge() {
   }, [session.data?.user]);
 
   React.useEffect(() => {
-    if (isAuthRoute) {
+    if (isBlockedRoute) {
       setOpen(false);
       return;
     }
@@ -37,7 +39,7 @@ export default function LoginNudge() {
     }, 1800);
 
     return () => window.clearTimeout(timer);
-  }, [isAuthRoute, session.data?.user, session.isPending]);
+  }, [isBlockedRoute, session.data?.user, session.isPending]);
 
   React.useEffect(() => {
     const closeForAuthenticatedUser = () => {
@@ -53,11 +55,11 @@ export default function LoginNudge() {
   React.useEffect(() => {
     const listener = async () => {
       await session.refetch();
-      if (!isAuthRoute && !session.data?.user) setOpen(true);
+      if (!isBlockedRoute && !session.data?.user) setOpen(true);
     };
     window.addEventListener("jokaflix:login-nudge", listener);
     return () => window.removeEventListener("jokaflix:login-nudge", listener);
-  }, [isAuthRoute, session]);
+  }, [isBlockedRoute, session]);
 
   const dismiss = () => {
     window.localStorage.setItem("jokaflix-login-nudge-dismissed", "1");
@@ -65,7 +67,7 @@ export default function LoginNudge() {
   };
 
   return (
-    <Dialog open={open && !session.data?.user && !isAuthRoute} onOpenChange={setOpen}>
+    <Dialog open={open && !session.data?.user && !isBlockedRoute} onOpenChange={setOpen}>
       <DialogContent className="login-nudge-dialog" showCloseButton={false}>
         <button type="button" className="login-nudge-close" onClick={dismiss} aria-label="Close">
           <X />
