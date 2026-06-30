@@ -6536,14 +6536,17 @@ select:disabled {
 
 .profile-side-actions {
   display: grid;
-  width: min(100%, 34rem);
+  width: auto;
+  margin-left: auto;
   gap: 0.8rem;
+  justify-items: end;
 }
 
 .profile-actions {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .profile-action-button {
@@ -6704,6 +6707,16 @@ select:disabled {
   .profile-hero {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .profile-side-actions {
+    width: 100%;
+    margin-left: 0;
+    justify-items: stretch;
+  }
+
+  .profile-actions {
+    justify-content: flex-start;
   }
 
   .profile-identity {
