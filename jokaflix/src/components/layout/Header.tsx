@@ -7,10 +7,9 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import React from "react";
-import { Film, Grid3X3, Home, Loader2, QrCode, Save, Search, Tv, User, type LucideIcon } from "lucide-react";
+import { Film, Grid3X3, Home, QrCode, Search, Tv, User, type LucideIcon } from "lucide-react";
 import { ThemeToggle } from "../global/header/theme-toggle";
 import { authClient } from "../../lib/auth-client";
-import { toast } from "sonner";
 
 type AudioWindow = Window & {
   webkitAudioContext?: typeof AudioContext;
@@ -26,9 +25,6 @@ export default function Header() {
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const [qrOpen, setQROpen] = React.useState(false);
-  const [avatarOpen, setAvatarOpen] = React.useState(false);
-  const [avatarUrl, setAvatarUrl] = React.useState("");
-  const [avatarSaving, setAvatarSaving] = React.useState(false);
   const [profile, setProfile] = React.useState<{ avatar_url?: string | null } | null>(null);
   const session = authClient.useSession();
   const user = session.data?.user as { name?: string | null; username?: string | null; email?: string | null } | undefined;
@@ -41,18 +37,15 @@ export default function Header() {
   const loadProfile = React.useCallback(async (allowSessionRefresh = false) => {
     if (!allowSessionRefresh && !session.data?.user) {
       setProfile(null);
-      setAvatarUrl("");
       return;
     }
     const response = await fetch("/api/me", { credentials: "include" });
     const data = await response.json().catch(() => ({}));
     if (!data.user) {
       setProfile(null);
-      setAvatarUrl("");
       return;
     }
     setProfile(data.profile || null);
-    setAvatarUrl(data.profile?.avatar_url || "");
   }, [session.data?.user]);
 
   React.useEffect(() => {
@@ -64,7 +57,6 @@ export default function Header() {
       const detail = (event as ProfileSessionEvent).detail;
       if (detail?.user) {
         setProfile(detail.profile || null);
-        setAvatarUrl(detail.profile?.avatar_url || "");
       }
       await session.refetch();
       await loadProfile(true);
@@ -122,29 +114,7 @@ export default function Header() {
       router.push(`/signin?next=${encodeURIComponent(pathname)}`);
       return;
     }
-    setAvatarOpen(true);
-  };
-
-  const saveAvatar = async () => {
-    setAvatarSaving(true);
-    try {
-      const response = await fetch("/api/me", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ avatarUrl }),
-      });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data?.error || "Unable to save profile image");
-      toast.success("Profile image updated");
-      window.dispatchEvent(new Event("jokaflix:profile-updated"));
-      await loadProfile();
-      setAvatarOpen(false);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Unable to save profile image");
-    } finally {
-      setAvatarSaving(false);
-    }
+    router.push("/profile");
   };
 
   const mobileLinks: { label: string; href: string; icon: LucideIcon }[] = [
@@ -232,33 +202,6 @@ export default function Header() {
             style={{ imageRendering: "pixelated" }}
           />
           <span className="text-xs text-gray-400 break-all">{qrUrl}</span>
-        </DialogContent>
-      </Dialog>
-      <Dialog open={avatarOpen} onOpenChange={setAvatarOpen}>
-        <DialogContent className="avatar-dialog" showCloseButton>
-          <DialogTitle>Profile Image</DialogTitle>
-          <div className="avatar-preview">
-            {avatarUrl ? <img src={avatarUrl} alt="" /> : <span>{initials}</span>}
-          </div>
-          <label className="avatar-url-field">
-            <span>Image URL</span>
-            <input value={avatarUrl} onChange={(event) => setAvatarUrl(event.target.value)} placeholder="https://example.com/avatar.jpg" />
-          </label>
-          <div className="avatar-dialog-actions">
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setAvatarOpen(false);
-                router.push("/profile");
-              }}
-            >
-              Open profile
-            </Button>
-            <Button className="auth-primary-button" onClick={saveAvatar} disabled={avatarSaving}>
-              {avatarSaving ? <Loader2 className="animate-spin" /> : <Save />}
-              Save image
-            </Button>
-          </div>
         </DialogContent>
       </Dialog>
       <nav className="mobile-bottom-nav md:hidden" aria-label="Primary mobile navigation">

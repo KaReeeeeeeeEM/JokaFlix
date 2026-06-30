@@ -7,8 +7,9 @@ import { toast } from "sonner";
 import { Button } from "../components/ui/button";
 import { authClient } from "../lib/auth-client";
 import { Dialog, DialogContent, DialogTitle } from "../components/ui/dialog";
+import ContinueWatchingRail, { type ContinueWatchingItem } from "../components/profile/ContinueWatchingRail";
 
-type ProfileTitleItem = {
+type ProfileTitleItem = ContinueWatchingItem & {
   media_type: "movie" | "tv";
   tmdb_id: string | number;
   title?: string | null;
@@ -195,15 +196,7 @@ export default function ProfilePage() {
           <Clock />
           <h2>Continue Watching</h2>
         </div>
-        <div className="profile-rail">
-          {continueWatching.length ? continueWatching.map((item) => (
-            <Link href={titleHref(item)} className="profile-title-card" key={`${item.media_type}-${item.tmdb_id}-${item.season || 0}-${item.episode || 0}`}>
-              {posterUrl(item.backdrop_path || item.poster_path) && <img src={posterUrl(item.backdrop_path || item.poster_path)} alt="" />}
-              <span>{item.title || `${item.media_type === "tv" ? "Series" : "Movie"} ${item.tmdb_id}`}</span>
-              <small>{item.season ? `S${item.season} E${item.episode || 1}` : "Movie"}</small>
-            </Link>
-          )) : <EmptyProfileRail message="No movies yet" />}
-        </div>
+        <ContinueWatchingRail items={continueWatching} />
       </section>
 
       <section className="profile-section">

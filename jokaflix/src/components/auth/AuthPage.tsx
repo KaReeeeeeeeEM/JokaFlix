@@ -445,22 +445,14 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
 
         <aside className="auth-carousel-panel" aria-label="JokaFlix account benefits">
           {authSlides.map((slide, index) => (
-            <article className={`auth-carousel-slide ${index === activeSlide ? "is-active" : ""}`} key={slide.title}>
+            <article className={`auth-carousel-slide ${index === activeSlide ? "is-active" : ""}`} key={slide.image}>
               <img src={slide.image} alt="" className="auth-carousel-bg" />
-              <div className="auth-carousel-copy">
-                <div className="auth-page-brand is-small">
-                  <img src="/logo-sub.png" alt="" />
-                  <span>JokaFlix</span>
-                </div>
-                <h2>{slide.title}</h2>
-                <p>{slide.copy}</p>
-              </div>
               <img src={slide.poster} alt="" className="auth-floating-poster" />
             </article>
           ))}
           <div className="auth-carousel-dots">
             {authSlides.map((slide, index) => (
-              <button type="button" aria-label={`Show ${slide.title}`} className={index === activeSlide ? "is-active" : ""} key={slide.title} onClick={() => setActiveSlide(index)} />
+              <button type="button" aria-label={`Show carousel image ${index + 1}`} className={index === activeSlide ? "is-active" : ""} key={slide.image} onClick={() => setActiveSlide(index)} />
             ))}
           </div>
         </aside>
