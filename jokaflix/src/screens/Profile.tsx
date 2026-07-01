@@ -26,8 +26,15 @@ type ProfileTitleItem = ContinueWatchingItem & {
   rating?: string | number | null;
 };
 
+type ProfileUser = {
+  id?: string;
+  username?: string | null;
+  name?: string | null;
+  email?: string | null;
+};
+
 type ProfileData = {
-  user?: unknown;
+  user?: ProfileUser | null;
   profile?: {
     avatar_url?: string | null;
   } | null;
@@ -73,7 +80,6 @@ function ProfileSkeleton() {
 }
 
 export default function ProfilePage() {
-  const session = authClient.useSession();
   const [data, setData] = React.useState<ProfileData | null>(null);
   const [avatarUrl, setAvatarUrl] = React.useState("");
   const [avatarSaving, setAvatarSaving] = React.useState(false);
@@ -87,7 +93,7 @@ export default function ProfilePage() {
         setAvatarUrl(result?.profile?.avatar_url || "");
       })
       .catch(() => setData({ user: null }));
-  }, [session.data?.user?.id]);
+  }, []);
 
   React.useEffect(() => {
     void loadProfile();
@@ -100,12 +106,14 @@ export default function ProfilePage() {
     };
 
     window.addEventListener("jokaflix:watch-later-updated", refreshProfile);
+    window.addEventListener("jokaflix:auth-changed", refreshProfile);
     window.addEventListener("storage", refreshProfile);
     window.addEventListener("focus", refreshProfile);
     document.addEventListener("visibilitychange", refreshWhenVisible);
 
     return () => {
       window.removeEventListener("jokaflix:watch-later-updated", refreshProfile);
+      window.removeEventListener("jokaflix:auth-changed", refreshProfile);
       window.removeEventListener("storage", refreshProfile);
       window.removeEventListener("focus", refreshProfile);
       document.removeEventListener("visibilitychange", refreshWhenVisible);
@@ -182,11 +190,11 @@ export default function ProfilePage() {
     }
   };
 
-  if (session.isPending || !data) {
+  if (!data) {
     return <ProfileSkeleton />;
   }
 
-  if (!session.data?.user) {
+  if (!data.user) {
     return (
       <main className="profile-page">
         <section className="profile-empty">
@@ -201,7 +209,7 @@ export default function ProfilePage() {
     );
   }
 
-  const user = session.data.user as { username?: string | null; name?: string | null; email?: string | null };
+  const user = data.user;
   const displayName = user.username || user.name || "JokaFlix user";
   const initials = displayName.trim().slice(0, 1).toUpperCase() || "J";
   const continueWatching = data.continueWatching || [];

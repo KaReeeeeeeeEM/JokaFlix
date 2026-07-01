@@ -7523,7 +7523,12 @@ select:disabled {
 .profile-title-card-shell {
   position: relative;
   min-width: 0;
-  transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    width 1200ms cubic-bezier(0.16, 1, 0.3, 1),
+    flex-basis 1200ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 900ms ease,
+    filter 900ms ease,
+    transform 1000ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .profile-title-card-shell .profile-title-card {
@@ -7739,6 +7744,7 @@ select:disabled {
   grid-template-columns: none;
   --continue-gap: clamp(0.9rem, 1.2vw, 1.35rem);
   --continue-cards: 5;
+  --profile-rail-card-basis: calc((100% - (var(--continue-gap) * (var(--continue-cards) - 1))) / var(--continue-cards));
   gap: var(--continue-gap);
   overflow-x: auto;
   overflow-y: hidden;
@@ -7756,13 +7762,54 @@ select:disabled {
 
 .profile-rail-horizontal > .profile-title-card,
 .profile-rail-horizontal .profile-title-card-shell {
-  flex: 0 0 calc((100% - (var(--continue-gap) * (var(--continue-cards) - 1))) / var(--continue-cards));
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: var(--profile-rail-card-basis);
+  width: var(--profile-rail-card-basis);
   min-height: clamp(190px, 15vw, 320px);
   scroll-snap-align: start;
+  transition:
+    width 1200ms cubic-bezier(0.16, 1, 0.3, 1),
+    flex-basis 1200ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 900ms ease,
+    filter 900ms ease,
+    transform 1000ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .profile-rail-horizontal .profile-title-card-shell .profile-title-card {
   min-height: inherit;
+}
+
+@media (min-width: 1024px) {
+  .profile-rail-horizontal:has(.profile-title-card:hover) > .profile-title-card:not(:hover),
+  .profile-rail-horizontal:has(.profile-title-card:hover) .profile-title-card-shell:not(:hover) {
+    opacity: 0.5;
+    filter: saturate(0.68) brightness(0.72);
+    transform: scale(0.96);
+  }
+
+  .profile-rail-horizontal > .profile-title-card:hover,
+  .profile-rail-horizontal .profile-title-card-shell:hover {
+    z-index: 6;
+    width: calc(
+      var(--profile-rail-card-basis) +
+      var(--profile-rail-card-basis) +
+      var(--profile-rail-card-basis) +
+      var(--continue-gap) +
+      var(--continue-gap)
+    );
+    flex-basis: calc(
+      var(--profile-rail-card-basis) +
+      var(--profile-rail-card-basis) +
+      var(--profile-rail-card-basis) +
+      var(--continue-gap) +
+      var(--continue-gap)
+    );
+  }
+
+  .profile-rail-horizontal .profile-title-card:hover {
+    transform: translateY(-10px) scale(1.06);
+  }
 }
 
 .profile-rail-horizontal .profile-empty-rail {
