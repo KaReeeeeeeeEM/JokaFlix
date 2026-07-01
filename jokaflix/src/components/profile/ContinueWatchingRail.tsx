@@ -50,6 +50,20 @@ function formatProgress(seconds?: number | string | null) {
   return `${hours}:${String(minutes % 60).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
 }
 
+function progressRatio(item: ContinueWatchingItem) {
+  const progress = Math.max(0, Math.floor(Number(item.progress_seconds || 0)));
+  const duration = Math.max(0, Math.floor(Number(item.duration_seconds || 0)));
+
+  if (!progress) return 0;
+
+  if (duration > 0) {
+    return Math.min(1, Math.max(0.03, progress / duration));
+  }
+
+  const fallbackDuration = item.media_type === "tv" ? 45 * 60 : 2 * 60 * 60;
+  return Math.min(0.96, Math.max(0.03, progress / fallbackDuration));
+}
+
 function EmptyRail({ message }: { message: string }) {
   return (
     <div className="profile-empty-rail">
@@ -124,16 +138,26 @@ export default function ContinueWatchingRail({
         </div>
       )}
       <div className="profile-rail profile-rail-horizontal" ref={trackRef}>
-        {isLoading ? <ContinueWatchingSkeleton /> : items.length ? items.map((item) => (
-          <Link href={playerHref(item)} className="profile-title-card continue-watching-card" key={`${item.media_type}-${item.tmdb_id}-${item.season || 0}-${item.episode || 0}`}>
-            {posterUrl(item.backdrop_path || item.poster_path) && <img src={posterUrl(item.backdrop_path || item.poster_path)} alt="" />}
-            <span>{item.title || `${item.media_type === "tv" ? "Series" : "Movie"} ${item.tmdb_id}`}</span>
-            <small>
-              {item.season ? `S${item.season} E${item.episode || 1}` : "Movie"}
-              {formatProgress(item.progress_seconds) ? ` - Resume ${formatProgress(item.progress_seconds)}` : ""}
-            </small>
-          </Link>
-        )) : <EmptyRail message={emptyMessage} />}
+        {isLoading ? <ContinueWatchingSkeleton /> : items.length ? items.map((item) => {
+          const ratio = progressRatio(item);
+          const resumeLabel = formatProgress(item.progress_seconds);
+
+          return (
+            <Link href={playerHref(item)} className="profile-title-card continue-watching-card" key={`${item.media_type}-${item.tmdb_id}-${item.season || 0}-${item.episode || 0}`}>
+              {posterUrl(item.backdrop_path || item.poster_path) && <img src={posterUrl(item.backdrop_path || item.poster_path)} alt="" />}
+              <span>{item.title || `${item.media_type === "tv" ? "Series" : "Movie"} ${item.tmdb_id}`}</span>
+              <small>
+                {item.season ? `S${item.season} E${item.episode || 1}` : "Movie"}
+                {resumeLabel ? ` - Resume ${resumeLabel}` : ""}
+              </small>
+              {ratio > 0 && (
+                <div className="continue-watch-progress" role="progressbar" aria-label="Watch progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(ratio * 100)}>
+                  <span style={{ transform: `scaleX(${ratio})` }} />
+                </div>
+              )}
+            </Link>
+          );
+        }) : <EmptyRail message={emptyMessage} />}
       </div>
     </div>
   );

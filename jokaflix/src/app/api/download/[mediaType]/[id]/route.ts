@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { blockedMediaRequest, forbiddenMediaResponse, mediaHeaders } from "../../../../../lib/media-security";
 
 const qualityProfiles: Record<string, { label: string; size: string }> = {
   "1080p": { label: "Full HD", size: "2.4 GB" },
@@ -70,6 +71,10 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ mediaType: string; id: string }> }
 ) {
+  if (blockedMediaRequest(request)) {
+    return forbiddenMediaResponse();
+  }
+
   const { mediaType, id } = await params;
   const searchParams = request.nextUrl.searchParams;
   const quality = searchParams.get("quality") || "720p";
@@ -86,7 +91,10 @@ export async function GET(
       quality,
       season,
     });
-    return NextResponse.redirect(sourceUrl);
+    return NextResponse.redirect(sourceUrl, {
+      status: 307,
+      headers: mediaHeaders(),
+    });
   }
 
   const fileName = `jokaflix-${safeMediaType}-${id}${season ? `-season-${season}` : ""}-${quality}.txt`;
@@ -108,9 +116,9 @@ export async function GET(
 
   return new NextResponse(body, {
     headers: {
+      ...mediaHeaders(),
       "Content-Type": "text/plain; charset=utf-8",
       "Content-Disposition": `attachment; filename="${fileName}"`,
-      "Cache-Control": "no-store",
     },
   });
 }

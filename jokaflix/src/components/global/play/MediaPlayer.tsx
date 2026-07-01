@@ -52,41 +52,6 @@ type SeasonDetails = {
   season_number?: number;
 };
 
-function addResumeToEmbedUrl(src: string, resumeSeconds: number) {
-  if (!src || resumeSeconds <= 0) return src;
-
-  const separator = src.includes("?") || src.includes("&") ? "&" : "?";
-  const encodedResume = encodeURIComponent(String(resumeSeconds));
-
-  return `${src}${separator}start=${encodedResume}&t=${encodedResume}&startTime=${encodedResume}&resume=${encodedResume}`;
-}
-
-function buildVidsrcUrl({
-  tmdbId,
-  type,
-  season,
-  episode,
-}: {
-  tmdbId: string;
-  type: "movie" | "tv";
-  season?: string | null;
-  episode?: string | null;
-}) {
-  const params = new URLSearchParams({
-    tmdb: tmdbId,
-    autoplay: "1",
-  });
-
-  if (type === "tv") {
-    if (season) params.set("season", season);
-    if (episode) params.set("episode", episode);
-    params.set("autonext", "1");
-    return `https://vidsrc-embed.ru/embed/tv?${params.toString()}`;
-  }
-
-  return `https://vidsrc-embed.ru/embed/movie?${params.toString()}`;
-}
-
 function buildPlayerPath({
   tmdbId,
   type,
@@ -110,6 +75,40 @@ function buildPlayerPath({
   }
 
   const path = `/play/${type === "tv" ? "tv-show" : "movie"}/${tmdbId}`;
+  const query = params.toString();
+
+  return query ? `${path}?${query}` : path;
+}
+
+function buildPlayerEmbedPath({
+  tmdbId,
+  type,
+  player,
+  season,
+  episode,
+  full,
+  resumeSeconds,
+}: {
+  tmdbId: string;
+  type: "movie" | "tv";
+  player: "vidsrc" | "2embed";
+  season?: string | number | null;
+  episode?: string | number | null;
+  full?: boolean;
+  resumeSeconds?: number;
+}) {
+  const params = new URLSearchParams();
+
+  if (player === "2embed") params.set("player", "2embed");
+  if (full) params.set("full", "1");
+  if (resumeSeconds && resumeSeconds > 0) params.set("resume", String(resumeSeconds));
+
+  if (type === "tv") {
+    params.set("season", String(season || 1));
+    params.set("episode", String(episode || 1));
+  }
+
+  const path = `/api/player/${type === "tv" ? "tv-show" : "movie"}/${tmdbId}`;
   const query = params.toString();
 
   return query ? `${path}?${query}` : path;
@@ -221,26 +220,18 @@ export default function MediaPlayer() {
     return () => controller.abort();
   }, [activeEpisode, activeSeason, queryResumeSeconds, tmdbId, type]);
 
-  let src = "";
-  let title = "";
-  if (selectedPlayer === "vidsrc") {
-    src = buildVidsrcUrl({ tmdbId, type, season: activeSeason, episode: activeEpisode });
-    title = type === "tv" ? `Series Player - S${activeSeason}E${activeEpisode}` : "Movie Player";
-  } else if (type === "movie") {
-    src = addResumeToEmbedUrl(`https://www.2embed.cc/embed/${tmdbId}`, resumeSeconds);
-    title = "Movie Player";
-  } else if (type === "tv") {
-    if (full) {
-      src = addResumeToEmbedUrl(`https://www.2embed.cc/embedtvfull/${tmdbId}`, resumeSeconds);
-      title = "Series Player";
-    } else if (activeSeason && activeEpisode) {
-      src = addResumeToEmbedUrl(`https://www.2embed.skin/embedtv/${tmdbId}&s=${activeSeason}&e=${activeEpisode}`, resumeSeconds);
-      title = `Series Player - S${activeSeason}E${activeEpisode}`;
-    } else {
-      src = addResumeToEmbedUrl(`https://www.2embed.skin/embedtvfull/${tmdbId}`, resumeSeconds);
-      title = "Series Player";
-    }
-  }
+  const src = tmdbId
+    ? buildPlayerEmbedPath({
+        tmdbId,
+        type,
+        player: selectedPlayer,
+        season: activeSeason,
+        episode: activeEpisode,
+        full,
+        resumeSeconds,
+      })
+    : "";
+  const title = type === "tv" ? `Series Player - S${activeSeason}E${activeEpisode}` : "Movie Player";
 
   React.useEffect(() => {
     if (!tmdbId || !details) return;
@@ -392,7 +383,7 @@ export default function MediaPlayer() {
             src={src}
             width="100%"
             height="100%"
-            allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+            allow="autoplay *; encrypted-media *; fullscreen *; picture-in-picture *"
             referrerPolicy="no-referrer"
             allowFullScreen
             frameBorder={0}
