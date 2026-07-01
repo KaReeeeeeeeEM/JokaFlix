@@ -7426,8 +7426,11 @@ select:disabled {
 
 .profile-rail {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  --profile-card-width: clamp(250px, 19vw, 390px);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--profile-card-width)), var(--profile-card-width)));
   gap: 1rem;
+  justify-content: start;
+  align-items: start;
 }
 
 .profile-title-card {
@@ -7511,7 +7514,7 @@ select:disabled {
 
 @media (min-width: 1536px) {
   .profile-rail {
-    grid-template-columns: repeat(auto-fit, minmax(clamp(250px, 13vw, 410px), 1fr));
+    --profile-card-width: clamp(300px, 18vw, 440px);
   }
 
   .profile-title-card {
@@ -7807,14 +7810,14 @@ select:disabled {
     align-items: flex-start;
   }
 
-  .profile-rail {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .profile-rail:not(.profile-rail-horizontal) {
+    --profile-card-width: clamp(220px, 44vw, 340px);
   }
 }
 
 @media (max-width: 560px) {
   .auth-select-grid,
-  .profile-rail {
+  .profile-rail:not(.profile-rail-horizontal) {
     grid-template-columns: 1fr;
   }
 
