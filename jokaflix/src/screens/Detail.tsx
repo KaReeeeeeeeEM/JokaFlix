@@ -170,7 +170,7 @@ export default function DetailPage({ mediaType }: DetailPageProps) {
 
   React.useEffect(() => {
     if (!id) return;
-    fetch(`/api/user/title?mediaType=${apiType}&tmdbId=${id}`, { credentials: "include" })
+    fetch(`/api/user/title?mediaType=${apiType}&tmdbId=${id}`, { credentials: "include", cache: "no-store" })
       .then((response) => response.json())
       .then(setTitleState)
       .catch(() =>
@@ -222,6 +222,7 @@ export default function DetailPage({ mediaType }: DetailPageProps) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
+      cache: "no-store",
       body: JSON.stringify({ ...titlePayload, action, ...extra }),
     });
 
@@ -240,6 +241,14 @@ export default function DetailPage({ mediaType }: DetailPageProps) {
     }
 
     setTitleState((current) => ({ ...current, ...next, authenticated: true }));
+    if (action === "watch-later" || action === "remove-watch-later") {
+      window.dispatchEvent(new CustomEvent("jokaflix:watch-later-updated", { detail: { ...titlePayload, watchLater: next.watchLater } }));
+      try {
+        window.localStorage.setItem("jokaflix:watch-later-updated", String(Date.now()));
+      } catch {
+        // The in-tab event above is enough when storage is unavailable.
+      }
+    }
     return true;
   };
 

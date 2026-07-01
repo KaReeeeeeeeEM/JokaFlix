@@ -3,6 +3,8 @@ import { query } from "../../../../lib/db";
 import { requireUser } from "../../../../lib/server-session";
 import { getUserTitleState, normalizeTitlePayload } from "../../../../lib/user-titles";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
   const user = await requireUser();
 
@@ -19,17 +21,20 @@ export async function GET(request: Request) {
         )
       : { rows: [] };
 
-    return NextResponse.json({
-      authenticated: false,
-      rating: null,
-      ratingComment: "",
-      publicRating:
-        Number(aggregate.rows[0]?.rating_count || 0) >= 3 && aggregate.rows[0]?.average_rating
-          ? Number(aggregate.rows[0].average_rating)
-          : null,
-      ratingCount: Number(aggregate.rows[0]?.rating_count || 0),
-      watchLater: false,
-    });
+    return NextResponse.json(
+      {
+        authenticated: false,
+        rating: null,
+        ratingComment: "",
+        publicRating:
+          Number(aggregate.rows[0]?.rating_count || 0) >= 3 && aggregate.rows[0]?.average_rating
+            ? Number(aggregate.rows[0].average_rating)
+            : null,
+        ratingCount: Number(aggregate.rows[0]?.rating_count || 0),
+        watchLater: false,
+      },
+      { headers: { "Cache-Control": "no-store" } }
+    );
   }
 
   const url = new URL(request.url);
@@ -37,18 +42,18 @@ export async function GET(request: Request) {
   const tmdbId = url.searchParams.get("tmdbId") || "";
 
   if (!tmdbId) {
-    return NextResponse.json({ error: "Missing tmdbId" }, { status: 400 });
+    return NextResponse.json({ error: "Missing tmdbId" }, { status: 400, headers: { "Cache-Control": "no-store" } });
   }
 
   const state = await getUserTitleState(user.id, mediaType, tmdbId);
-  return NextResponse.json({ authenticated: true, ...state });
+  return NextResponse.json({ authenticated: true, ...state }, { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function POST(request: Request) {
   const user = await requireUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Login required" }, { status: 401 });
+    return NextResponse.json({ error: "Login required" }, { status: 401, headers: { "Cache-Control": "no-store" } });
   }
 
   const body = await request.json();
@@ -56,13 +61,13 @@ export async function POST(request: Request) {
   const title = normalizeTitlePayload(body);
 
   if (!title.tmdbId) {
-    return NextResponse.json({ error: "Missing tmdbId" }, { status: 400 });
+    return NextResponse.json({ error: "Missing tmdbId" }, { status: 400, headers: { "Cache-Control": "no-store" } });
   }
 
   if (action === "rate") {
     const rating = Number(body.rating);
     if (!Number.isFinite(rating) || rating < 0 || rating > 10) {
-      return NextResponse.json({ error: "Rating must be between 0 and 10" }, { status: 400 });
+      return NextResponse.json({ error: "Rating must be between 0 and 10" }, { status: 400, headers: { "Cache-Control": "no-store" } });
     }
 
     const existing = await query<{ rating: string; comment: string | null }>(
@@ -74,7 +79,7 @@ export async function POST(request: Request) {
       const state = await getUserTitleState(user.id, title.mediaType, title.tmdbId);
       return NextResponse.json(
         { error: "You have already rated this title.", ...state },
-        { status: 409 }
+        { status: 409, headers: { "Cache-Control": "no-store" } }
       );
     }
 
@@ -116,5 +121,5 @@ export async function POST(request: Request) {
   }
 
   const state = await getUserTitleState(user.id, title.mediaType, title.tmdbId);
-  return NextResponse.json({ ok: true, ...state });
+  return NextResponse.json({ ok: true, ...state }, { headers: { "Cache-Control": "no-store" } });
 }

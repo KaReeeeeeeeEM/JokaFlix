@@ -2,11 +2,13 @@ import { NextResponse } from "next/server";
 import { query } from "../../../lib/db";
 import { requireUser } from "../../../lib/server-session";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const user = await requireUser();
 
   if (!user) {
-    return NextResponse.json({ user: null });
+    return NextResponse.json({ user: null }, { headers: { "Cache-Control": "no-store" } });
   }
 
   const [profile, ratings, watchLater, history] = await Promise.all([
@@ -16,13 +18,16 @@ export async function GET() {
     query(`select media_type, tmdb_id, title, poster_path, backdrop_path, season, episode, progress_seconds, duration_seconds, watched_at from user_watch_history where user_id = $1 order by watched_at desc limit 30`, [user.id]),
   ]);
 
-  return NextResponse.json({
-    user,
-    profile: profile.rows[0] || null,
-    ratings: ratings.rows,
-    watchLater: watchLater.rows,
-    continueWatching: history.rows,
-  });
+  return NextResponse.json(
+    {
+      user,
+      profile: profile.rows[0] || null,
+      ratings: ratings.rows,
+      watchLater: watchLater.rows,
+      continueWatching: history.rows,
+    },
+    { headers: { "Cache-Control": "no-store" } }
+  );
 }
 
 export async function PATCH(request: Request) {

@@ -79,8 +79,8 @@ export default function ProfilePage() {
   const [avatarSaving, setAvatarSaving] = React.useState(false);
   const [avatarOpen, setAvatarOpen] = React.useState(false);
 
-  React.useEffect(() => {
-    fetch("/api/me", { credentials: "include" })
+  const loadProfile = React.useCallback(() => {
+    return fetch("/api/me", { credentials: "include", cache: "no-store" })
       .then((response) => response.json())
       .then((result) => {
         setData(result);
@@ -88,6 +88,29 @@ export default function ProfilePage() {
       })
       .catch(() => setData({ user: null }));
   }, [session.data?.user?.id]);
+
+  React.useEffect(() => {
+    void loadProfile();
+  }, [loadProfile]);
+
+  React.useEffect(() => {
+    const refreshProfile = () => void loadProfile();
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") void loadProfile();
+    };
+
+    window.addEventListener("jokaflix:watch-later-updated", refreshProfile);
+    window.addEventListener("storage", refreshProfile);
+    window.addEventListener("focus", refreshProfile);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+
+    return () => {
+      window.removeEventListener("jokaflix:watch-later-updated", refreshProfile);
+      window.removeEventListener("storage", refreshProfile);
+      window.removeEventListener("focus", refreshProfile);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
+  }, [loadProfile]);
 
   const signOut = async () => {
     await authClient.signOut();

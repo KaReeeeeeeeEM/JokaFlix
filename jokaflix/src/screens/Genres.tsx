@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronLeft, Film } from "lucide-react";
 import { useFetch } from "../api";
 import { Skeleton } from "../components/ui/skeleton";
 import type { TrendingMovie } from "../../types";
@@ -107,6 +107,7 @@ export function GenreDetailPage() {
   const sentinelRef = React.useRef<HTMLDivElement | null>(null);
   const requestRef = React.useRef(0);
   const genreName = searchParams?.get("name") || "Genre";
+  const emptyLabel = activeTab === "movies" ? "movie" : "show";
 
   const { data: tvGenresData } = useFetch<{ genres: Genre[] }>(
     {
@@ -195,6 +196,10 @@ export function GenreDetailPage() {
   return (
     <main className="page-shell movies-page genre-detail-page">
       <section className="page-hero movies-page-hero">
+        <Link href="/genres" className="genre-back-button">
+          <ChevronLeft aria-hidden="true" />
+          Back to genres
+        </Link>
         <p className="section-kicker">Selected mood</p>
         <h1>{genreName}</h1>
         <p>Movies and shows collected for this genre.</p>
@@ -232,6 +237,13 @@ export function GenreDetailPage() {
               <Skeleton key={`${activeTab}-loading-${page}-${index}`} className="movies-card-skeleton" />
             ))}
         </div>
+
+        {!loading && !error && items.length === 0 && (
+          <div className="genre-empty-state" role="status">
+            <Film aria-hidden="true" />
+            <p>There is no {emptyLabel} for this category.</p>
+          </div>
+        )}
 
         {error && <p className="movies-page-error">{error}</p>}
         <div ref={sentinelRef} className="movies-scroll-sentinel" aria-hidden="true" />
