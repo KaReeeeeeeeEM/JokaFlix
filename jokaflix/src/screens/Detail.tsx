@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { Bookmark, CheckCircle2, ChevronLeft, Copy, Play, Share2, Star, ThumbsUp, X } from "lucide-react";
+import { CheckCircle2, ChevronLeft, Copy, Play, Plus, Share2, Star, ThumbsUp, X } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../components/ui/dialog";
 import { useFetch } from "../api";
@@ -486,9 +486,13 @@ export default function DetailPage({ mediaType }: DetailPageProps) {
               type="button"
               onClick={toggleWatchLater}
               className={`detail-soft-action ${titleState.watchLater ? "is-saved" : ""}`}
-              aria-label="Save to watch later"
+              aria-label={titleState.watchLater ? "Remove from watch later" : "Add to watch later"}
             >
-              <Bookmark className="h-5 w-5" fill={titleState.watchLater ? "currentColor" : "none"} />
+              {titleState.watchLater ? (
+                <CheckCircle2 className="h-5 w-5" fill="currentColor" stroke="#080808" />
+              ) : (
+                <Plus className="h-5 w-5" />
+              )}
             </button>
             <button type="button" onClick={openTitleRating} className="detail-soft-action detail-rate-action" aria-label="Rate this title">
               <ThumbsUp className="h-5 w-5" fill={titleState.rating ? "currentColor" : "none"} />

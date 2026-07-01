@@ -79,9 +79,15 @@ export const auth = betterAuth({
       overrideDefaultEmailVerification: true,
       async sendVerificationOTP({ email, otp, type }) {
         const template = verificationEmailTemplate({ otp, type });
+        const subject =
+          type === "sign-in"
+            ? "Your JokaFlix sign-in code"
+            : type === "forget-password"
+              ? "Your JokaFlix password reset code"
+              : "Your JokaFlix verification code";
         await sendEmail({
           to: email,
-          subject: type === "sign-in" ? "Your JokaFlix sign-in code" : "Your JokaFlix verification code",
+          subject,
           html: template.html,
           text: template.text,
         });

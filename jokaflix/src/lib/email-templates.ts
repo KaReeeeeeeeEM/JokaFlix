@@ -94,11 +94,18 @@ function commercialEmailLayout({
 }
 
 export function verificationEmailTemplate({ otp, type = "email-verification" }: VerificationEmailInput) {
-  const title = type === "sign-in" ? "Your sign-in code is ready." : "Your screen is almost ready.";
+  const title =
+    type === "sign-in"
+      ? "Your sign-in code is ready."
+      : type === "forget-password"
+        ? "Reset your JokaFlix password."
+        : "Your screen is almost ready.";
   const body =
     type === "sign-in"
       ? "Enter this code to continue signing in and get back to your watchlist, ratings, and recommendations."
-      : "Enter this code to finish setting up your profile and start saving the movies and series you want to watch next.";
+      : type === "forget-password"
+        ? "Enter this code in JokaFlix to choose a new password and get back to your watchlist, ratings, and recommendations."
+        : "Enter this code to finish setting up your profile and start saving the movies and series you want to watch next.";
 
   return {
     html: commercialEmailLayout({
@@ -106,7 +113,7 @@ export function verificationEmailTemplate({ otp, type = "email-verification" }: 
       title,
       preview: `Your JokaFlix verification code is ${otp}.`,
       body,
-      ctaLabel: "Enter this code in JokaFlix to verify your email.",
+      ctaLabel: type === "forget-password" ? "Enter this code in JokaFlix to reset your password." : "Enter this code in JokaFlix to verify your email.",
       code: otp,
     }),
     text: [

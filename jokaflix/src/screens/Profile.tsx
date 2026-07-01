@@ -2,11 +2,17 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Bookmark, Clock, KeyRound, LogOut, Save, Star, User } from "lucide-react";
+import { Bookmark, Clock, KeyRound, LogOut, MoreVertical, Save, Star, Trash2, User } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "../components/ui/button";
 import { authClient } from "../lib/auth-client";
 import { Dialog, DialogContent, DialogTitle } from "../components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu";
 import ContinueWatchingRail, { type ContinueWatchingItem } from "../components/profile/ContinueWatchingRail";
 
 type ProfileTitleItem = ContinueWatchingItem & {
@@ -96,6 +102,39 @@ export default function ProfilePage() {
       return;
     }
     toast.success("Passkey added");
+  };
+
+  const removeWatchLater = async (item: ProfileTitleItem) => {
+    const previous = data?.watchLater || [];
+    setData((current) => current ? {
+      ...current,
+      watchLater: (current.watchLater || []).filter(
+        (title) => !(String(title.tmdb_id) === String(item.tmdb_id) && title.media_type === item.media_type)
+      ),
+    } : current);
+
+    const response = await fetch("/api/user/title", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        action: "remove-watch-later",
+        tmdbId: item.tmdb_id,
+        mediaType: item.media_type,
+        title: item.title || "Untitled",
+        posterPath: item.poster_path || null,
+        backdropPath: item.backdrop_path || null,
+      }),
+    });
+
+    if (!response.ok) {
+      setData((current) => current ? { ...current, watchLater: previous } : current);
+      const result = await response.json().catch(() => ({}));
+      toast.error(result?.error || "Could not remove from watch later");
+      return;
+    }
+
+    toast.success("Removed from watch later");
   };
 
   const saveAvatar = async () => {
@@ -206,11 +245,30 @@ export default function ProfilePage() {
         </div>
         <div className="profile-rail">
           {watchLater.length ? watchLater.map((item) => (
-            <Link href={titleHref(item)} className="profile-title-card" key={`${item.media_type}-${item.tmdb_id}`}>
-              {posterUrl(item.backdrop_path || item.poster_path) && <img src={posterUrl(item.backdrop_path || item.poster_path)} alt="" />}
-              <span>{item.title}</span>
-              <small>{item.media_type === "tv" ? "Series" : "Movie"}</small>
-            </Link>
+            <article className="profile-title-card-shell" key={`${item.media_type}-${item.tmdb_id}`}>
+              <Link href={titleHref(item)} className="profile-title-card">
+                {posterUrl(item.backdrop_path || item.poster_path) && <img src={posterUrl(item.backdrop_path || item.poster_path)} alt="" />}
+                <span>{item.title}</span>
+                <small>{item.media_type === "tv" ? "Series" : "Movie"}</small>
+              </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button type="button" className="profile-card-menu-trigger" aria-label={`Open actions for ${item.title || item.tmdb_id}`}>
+                    <MoreVertical className="h-4 w-4" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="profile-card-menu">
+                  <DropdownMenuItem
+                    variant="destructive"
+                    className="profile-card-menu-item"
+                    onSelect={() => void removeWatchLater(item)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Remove from watch later
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </article>
           )) : <EmptyProfileRail message="No saved movies yet" />}
         </div>
       </section>

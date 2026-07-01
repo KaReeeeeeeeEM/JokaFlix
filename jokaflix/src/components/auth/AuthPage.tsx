@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getCountryDataList } from "countries-list";
-import { Check, ChevronDown, ChevronLeft, Eye, EyeOff, KeyRound, Loader2, LogIn, UserPlus, X } from "lucide-react";
+import { Check, CheckCircle2, ChevronDown, ChevronLeft, Eye, EyeOff, KeyRound, Loader2, LogIn, UserPlus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { authClient } from "../../lib/auth-client";
@@ -32,6 +32,26 @@ const passwordRequirements = [
   { id: "symbol", label: "One symbol", test: (password: string) => /[^A-Za-z0-9]/.test(password) },
 ];
 
+type AuthErrorPayload = {
+  code?: string;
+  message?: string;
+  error?: string | { code?: string; message?: string };
+};
+
+class AuthRequestError extends Error {
+  code?: string;
+  status: number;
+  payload: AuthErrorPayload;
+
+  constructor(message: string, status: number, payload: AuthErrorPayload) {
+    super(message);
+    this.name = "AuthRequestError";
+    this.code = payload.code || (typeof payload.error === "object" ? payload.error.code : undefined);
+    this.status = status;
+    this.payload = payload;
+  }
+}
+
 function passwordScore(password: string) {
   let score = 0;
   if (password.length >= 10) score += 1;
@@ -50,9 +70,13 @@ async function authFetch(path: string, body: Record<string, unknown>) {
     body: JSON.stringify(body),
   });
 
-  const data = await response.json().catch(() => ({}));
+  const data = (await response.json().catch(() => ({}))) as AuthErrorPayload;
   if (!response.ok) {
-    throw new Error(data?.message || data?.error || "Authentication failed");
+    const errorMessage =
+      data?.message ||
+      (typeof data?.error === "string" ? data.error : data?.error?.message) ||
+      (response.status === 401 ? "Invalid email or password" : "We could not complete this auth request");
+    throw new AuthRequestError(errorMessage, response.status, data);
   }
   return data;
 }
@@ -66,6 +90,46 @@ function normalizeUsername(value: string) {
     .toLowerCase()
     .replace(/[^a-z0-9_]/g, "")
     .slice(0, 24);
+}
+
+function isEmailNotVerifiedError(error: unknown) {
+  if (!(error instanceof AuthRequestError)) return false;
+  const raw = `${error.code || ""} ${error.message || ""}`.toLowerCase();
+  return raw.includes("email_not_verified") || raw.includes("email not verified");
+}
+
+function signInErrorMessage(error: unknown, usingEmail: boolean) {
+  if (!(error instanceof AuthRequestError)) {
+    return error instanceof Error ? error.message : "Unable to sign in right now. Please try again.";
+  }
+
+  const raw = `${error.code || ""} ${error.message || ""}`.toLowerCase();
+
+  if (raw.includes("invalid_email") && !raw.includes("password")) {
+    return "Enter a valid email address, or use your username instead.";
+  }
+
+  if (raw.includes("invalid_email_or_password") || raw.includes("invalid_username_or_password") || raw.includes("invalid email or password") || raw.includes("invalid username or password")) {
+    return usingEmail
+      ? "That email and password do not match. Use the newest password from your reset, or request a fresh reset code."
+      : "That username and password do not match. Try the email address for this account, or reset the password again.";
+  }
+
+  if (raw.includes("email_not_verified") || raw.includes("email not verified")) {
+    return usingEmail
+      ? "Your email is not verified yet. Enter the OTP we sent to activate your account."
+      : "Your email is not verified yet. Sign in with your email so we can take you to verification.";
+  }
+
+  if (raw.includes("failed_to_create_session") || raw.includes("failed_to_get_session")) {
+    return "Your password was accepted, but your session could not start. Refresh the page and try again.";
+  }
+
+  if (error.status >= 500) {
+    return "JokaFlix cannot reach the account database right now. Your password may be correct, but sign-in cannot finish until the connection is back.";
+  }
+
+  return error.message || "Unable to sign in right now. Please try again.";
 }
 
 function usernameSuggestions(name: string, email: string) {
@@ -129,6 +193,7 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
     email: "",
     username: "",
     password: "",
+    confirmPassword: "",
     nationality: "Tanzania",
     gender: "Prefer not to say",
   });
@@ -137,6 +202,7 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
   const nextPath = searchParams?.get("next") || "/profile";
   const suggestions = React.useMemo(() => usernameSuggestions(form.name, form.email), [form.email, form.name]);
   const cleanUsername = normalizeUsername(form.username);
+  const passwordsMatch = form.password.length > 0 && form.password === form.confirmPassword;
   const passwordChecks = passwordRequirements.map((requirement) => ({
     ...requirement,
     met: requirement.test(form.password),
@@ -215,7 +281,7 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
     if (signupStep === 2) {
       return Boolean(form.nationality && form.gender);
     }
-    return cleanUsername.length >= 3 && usernameAvailable !== false && !usernameChecking && score >= 4;
+    return cleanUsername.length >= 3 && usernameAvailable !== false && !usernameChecking && score >= 4 && passwordsMatch;
   };
 
   const nextSignupStep = () => {
@@ -225,7 +291,9 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
           ? "Enter your name and a valid email"
           : signupStep === 2
             ? "Choose your nationality and gender"
-            : "Choose an available username and a stronger password"
+            : passwordsMatch
+              ? "Choose an available username and a stronger password"
+              : "Confirm your password before creating the account"
       );
       return;
     }
@@ -233,13 +301,22 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
   };
 
   const signIn = async () => {
+    const identifier = form.email.trim();
+    if (!identifier) {
+      toast.error("Enter your email or username");
+      return;
+    }
+    if (!form.password) {
+      toast.error("Enter your password");
+      return;
+    }
+
     setLoading(true);
     try {
-      const identifier = form.email.trim();
       const path = identifier.includes("@") ? "/sign-in/email" : "/sign-in/username";
       const body = identifier.includes("@")
-        ? { email: identifier, password: form.password, rememberMe: true }
-        : { username: identifier, password: form.password, rememberMe: true };
+        ? { email: identifier.toLowerCase(), password: form.password, rememberMe: true, callbackURL: nextPath }
+        : { username: identifier, password: form.password, rememberMe: true, callbackURL: nextPath };
       await authFetch(path, body);
       const profileSession = await waitForProfileSession();
       window.dispatchEvent(new CustomEvent("jokaflix:auth-changed", { detail: profileSession }));
@@ -247,7 +324,13 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
       toast.success("Signed in");
       router.push(nextPath);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Unable to sign in");
+      const usingEmail = form.email.trim().includes("@");
+      const message = signInErrorMessage(error, usingEmail);
+      toast.error(message);
+
+      if (usingEmail && isEmailNotVerifiedError(error)) {
+        router.push(`/verify-email?email=${encodeURIComponent(form.email.trim().toLowerCase())}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -264,6 +347,10 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
     }
     if (usernameAvailable === false) {
       toast.error("That username is already taken");
+      return;
+    }
+    if (!passwordsMatch) {
+      toast.error("Passwords do not match");
       return;
     }
 
@@ -316,11 +403,6 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
     <main className="auth-page">
       <section className="auth-page-shell reveal-up">
         <div className={`auth-form-panel ${isSignUp ? "is-signup" : "is-signin"}`}>
-          <Link href="/" className="auth-page-brand">
-            <img src="/logo-sub.png" alt="" />
-            <span>JokaFlix</span>
-          </Link>
-
           <div className="auth-copy">
             <p>{isSignUp ? "Start your account" : "Welcome back"}</p>
             <h1>{isSignUp ? "Create account" : "Sign in"}</h1>
@@ -355,6 +437,9 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
                   </button>
                 </div>
               </label>
+              <Link href="/forgot-password" className="auth-forgot-link">
+                Forgot password?
+              </Link>
             </>
           ) : signupStep === 1 ? (
             <>
@@ -406,6 +491,14 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
                     </span>
                   ))}
                 </div>
+              </label>
+              <label className="auth-field">
+                <span>Confirm password</span>
+                <div className="auth-password-row">
+                  <input type={showPassword ? "text" : "password"} value={form.confirmPassword} onChange={update("confirmPassword")} placeholder="Repeat your password" />
+                  <CheckCircle2 className={passwordsMatch ? "auth-confirm-icon is-valid" : "auth-confirm-icon"} />
+                </div>
+                {form.confirmPassword.length > 0 && !passwordsMatch && <small className="auth-bad">Passwords do not match</small>}
               </label>
             </>
           )}

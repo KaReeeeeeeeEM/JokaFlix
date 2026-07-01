@@ -12,7 +12,7 @@ import LoginNudge from "../components/auth/LoginNudge";
 export default function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() ?? "/";
   const isPlayerRoute = pathname.startsWith("/play/");
-  const isAuthFlowRoute = ["/signin", "/signup", "/verify-email"].some(
+  const isAuthFlowRoute = ["/signin", "/signup", "/verify-email", "/forgot-password"].some(
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
 

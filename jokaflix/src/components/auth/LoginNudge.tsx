@@ -14,7 +14,7 @@ export default function LoginNudge() {
   const searchParams = useSearchParams();
   const [open, setOpen] = React.useState(false);
   const next = `${pathname}${searchParams?.toString() ? `?${searchParams.toString()}` : ""}`;
-  const isBlockedRoute = ["/signin", "/signup", "/verify-email"].some(
+  const isBlockedRoute = ["/signin", "/signup", "/verify-email", "/forgot-password"].some(
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
 

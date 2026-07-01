@@ -1,11 +1,15 @@
 import { setDefaultResultOrder } from "node:dns";
 import { Pool as NeonPool, neonConfig } from "@neondatabase/serverless";
 import { Pool as PgPool, type QueryResult, type QueryResultRow } from "pg";
+import ws from "ws";
 
 type AppPool = NeonPool | PgPool;
 
 setDefaultResultOrder("ipv4first");
-neonConfig.poolQueryViaFetch = true;
+neonConfig.poolQueryViaFetch = false;
+neonConfig.webSocketConstructor = ws;
+
+const poolWrapped = Symbol.for("jokaflix.database.poolWrapped");
 
 declare global {
   // eslint-disable-next-line no-var
@@ -29,7 +33,117 @@ function normalizeConnectionString(value: string | undefined) {
 
 const normalizedConnectionString = normalizeConnectionString(connectionString);
 const useNeonServerless = normalizedConnectionString ? new URL(normalizedConnectionString).hostname.endsWith(".neon.tech") : false;
-const poolKey = `${normalizedConnectionString ?? ""}:driver-${useNeonServerless ? "neon-serverless" : "pg"}:timeout-15000:max-5`;
+const poolKey = `${normalizedConnectionString ?? ""}:driver-${useNeonServerless ? "neon-serverless-ws" : "pg"}:timeout-15000:max-5`;
+
+function findNestedError(error: unknown): Error | undefined {
+  if (error instanceof Error) return error;
+  if (!error || typeof error !== "object") return undefined;
+
+  for (const symbol of Object.getOwnPropertySymbols(error)) {
+    const value = (error as Record<symbol, unknown>)[symbol];
+    if (value instanceof Error) return value;
+  }
+
+  return undefined;
+}
+
+function databaseErrorMessage(error: unknown) {
+  const nested = findNestedError(error);
+  if (nested) {
+    const code = "code" in nested && typeof nested.code === "string" ? nested.code : undefined;
+    return `Database connection failed${code ? ` (${code})` : ""}: ${nested.message || "connection error"}`;
+  }
+
+  if (error instanceof Error) {
+    return `Database connection failed: ${error.message}`;
+  }
+
+  return "Database connection failed before the auth query could complete.";
+}
+
+function normalizeDatabaseError(error: unknown) {
+  const normalized = new Error(databaseErrorMessage(error), { cause: error });
+  normalized.name = "JokaFlixDatabaseError";
+  return normalized;
+}
+
+function wrapPool<T extends AppPool>(poolToWrap: T): T {
+  const poolRecord = poolToWrap as unknown as {
+    [poolWrapped]?: boolean;
+    connect?: (...args: unknown[]) => unknown;
+    query?: (...args: unknown[]) => unknown;
+  };
+
+  if (poolRecord[poolWrapped]) return poolToWrap;
+  poolRecord[poolWrapped] = true;
+
+  const originalQuery = poolRecord.query?.bind(poolToWrap);
+  if (originalQuery) {
+    poolRecord.query = (...args: unknown[]) => {
+      try {
+        const result = originalQuery(...args);
+        if (result && typeof (result as Promise<unknown>).then === "function") {
+          return (result as Promise<unknown>).catch((error) => {
+            throw normalizeDatabaseError(error);
+          });
+        }
+        return result;
+      } catch (error) {
+        throw normalizeDatabaseError(error);
+      }
+    };
+  }
+
+  const originalConnect = poolRecord.connect?.bind(poolToWrap);
+  if (originalConnect) {
+    poolRecord.connect = (...args: unknown[]) => {
+      try {
+        const result = originalConnect(...args);
+        if (result && typeof (result as Promise<unknown>).then === "function") {
+          return (result as Promise<unknown>)
+            .then((client) => wrapPoolClient(client))
+            .catch((error) => {
+              throw normalizeDatabaseError(error);
+            });
+        }
+        return result;
+      } catch (error) {
+        throw normalizeDatabaseError(error);
+      }
+    };
+  }
+
+  return poolToWrap;
+}
+
+function wrapPoolClient(client: unknown) {
+  const clientRecord = client as {
+    [poolWrapped]?: boolean;
+    query?: (...args: unknown[]) => unknown;
+  };
+
+  if (!clientRecord || typeof clientRecord !== "object" || clientRecord[poolWrapped]) return client;
+  clientRecord[poolWrapped] = true;
+
+  const originalQuery = clientRecord.query?.bind(client);
+  if (originalQuery) {
+    clientRecord.query = (...args: unknown[]) => {
+      try {
+        const result = originalQuery(...args);
+        if (result && typeof (result as Promise<unknown>).then === "function") {
+          return (result as Promise<unknown>).catch((error) => {
+            throw normalizeDatabaseError(error);
+          });
+        }
+        return result;
+      } catch (error) {
+        throw normalizeDatabaseError(error);
+      }
+    };
+  }
+
+  return client;
+}
 
 function createPool() {
   if (useNeonServerless) {
@@ -57,7 +171,7 @@ function createPool() {
 export const pool =
   globalThis.jokaflixPoolKey === poolKey && globalThis.jokaflixPool
     ? globalThis.jokaflixPool
-    : createPool();
+    : wrapPool(createPool());
 
 if (process.env.NODE_ENV !== "production") {
   globalThis.jokaflixPool = pool;
