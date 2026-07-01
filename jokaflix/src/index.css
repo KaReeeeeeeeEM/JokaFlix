@@ -5389,10 +5389,6 @@ select:disabled {
   color: white;
 }
 
-.player-season-menu [data-slot="dropdown-menu-item"].is-active {
-  box-shadow: inset 3px 0 0 #e50914;
-}
-
 .player-season-menu small {
   color: rgba(255, 255, 255, 0.52);
   font-size: 0.68rem;
