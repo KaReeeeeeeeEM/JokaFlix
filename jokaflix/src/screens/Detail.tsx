@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { CheckCircle2, ChevronLeft, Copy, Play, Plus, Share2, Star, ThumbsUp, X } from "lucide-react";
+import { Check, CheckCircle2, ChevronLeft, Copy, Play, Plus, Share2, Star, ThumbsUp, X } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../components/ui/dialog";
 import { useFetch } from "../api";
@@ -489,7 +489,7 @@ export default function DetailPage({ mediaType }: DetailPageProps) {
               aria-label={titleState.watchLater ? "Remove from watch later" : "Add to watch later"}
             >
               {titleState.watchLater ? (
-                <CheckCircle2 className="h-5 w-5" fill="currentColor" stroke="#080808" />
+                <Check className="h-5 w-5 text-white" />
               ) : (
                 <Plus className="h-5 w-5" />
               )}
