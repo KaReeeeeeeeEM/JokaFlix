@@ -5128,8 +5128,8 @@ select:disabled {
 
 .player-frame-shell {
   width: min(var(--content-wide), calc(100vw - 1.5rem));
-  height: clamp(460px, 64vh, 860px);
-  min-height: 460px;
+  height: calc(100vh - 6.25rem);
+  min-height: 520px;
   margin: 0 auto;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -5159,22 +5159,90 @@ select:disabled {
   font-weight: 900;
 }
 
+.player-episodes-toggle {
+  border-color: rgba(229, 9, 20, 0.38);
+  background: rgba(229, 9, 20, 0.12);
+}
+
+.player-next-episode {
+  border-color: rgba(229, 9, 20, 0.5);
+  background:
+    linear-gradient(135deg, rgba(229, 9, 20, 0.92), rgba(229, 9, 20, 0.58)),
+    rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 16px 42px rgba(229, 9, 20, 0.22);
+}
+
+.player-next-episode:hover {
+  background:
+    linear-gradient(135deg, #ff111d, #e50914),
+    rgba(229, 9, 20, 0.92);
+}
+
+.player-episodes-drawer-shell {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+}
+
+.player-episodes-drawer-shell.is-open {
+  pointer-events: auto;
+}
+
+.player-episodes-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(0, 0, 0, 0);
+  cursor: pointer;
+  opacity: 0;
+  transition: background 240ms ease, opacity 240ms ease;
+}
+
+.player-episodes-drawer-shell.is-open .player-episodes-backdrop {
+  background: rgba(0, 0, 0, 0.42);
+  opacity: 1;
+}
+
 .player-episodes-panel {
-  width: min(var(--content-wide), calc(100vw - 1.5rem));
-  margin: clamp(1rem, 2vw, 1.4rem) auto 0;
+  position: absolute;
+  top: clamp(0.8rem, 2vw, 1.5rem);
+  right: clamp(0.8rem, 2vw, 1.5rem);
+  bottom: clamp(0.8rem, 2vw, 1.5rem);
+  display: grid;
+  width: min(440px, calc(100vw - 1.6rem));
+  max-width: 440px;
+  grid-template-rows: auto auto minmax(0, 1fr);
   border: 1px solid rgba(255, 255, 255, 0.11);
   border-radius: 28px;
-  background: rgba(255, 255, 255, 0.055);
+  background:
+    radial-gradient(circle at 20% 0%, rgba(229, 9, 20, 0.16), transparent 28%),
+    rgba(8, 8, 8, 0.94);
   padding: clamp(1rem, 2vw, 1.4rem);
-  backdrop-filter: blur(24px);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.42);
+  transform: translateX(calc(100% + 2rem));
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(26px);
+}
+
+.player-episodes-drawer-shell.is-open .player-episodes-panel {
+  transform: translateX(0);
 }
 
 .player-episodes-heading {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.65rem;
+}
+
+.player-episodes-title-group {
+  display: grid;
+  min-width: 0;
+  gap: 0.8rem;
 }
 
 .player-episodes-heading h2 {
@@ -5184,8 +5252,100 @@ select:disabled {
   font-weight: 950;
 }
 
-.player-episodes-heading > span {
+.player-season-trigger {
   display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.55rem 0.85rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.78rem;
+  font-weight: 950;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: border-color 180ms ease, background 180ms ease, color 180ms ease;
+}
+
+.player-season-trigger:hover,
+.player-season-trigger:focus-visible {
+  border-color: rgba(229, 9, 20, 0.58);
+  background: rgba(229, 9, 20, 0.16);
+  color: white;
+  outline: none;
+}
+
+.player-season-menu {
+  z-index: 140;
+  min-width: 13rem;
+  max-height: min(24rem, 52vh);
+  border-color: rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(229, 9, 20, 0.18), transparent 28%),
+    rgba(9, 9, 9, 0.96);
+  color: white;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(22px);
+}
+
+.player-season-menu [data-slot="dropdown-menu-item"] {
+  display: flex;
+  min-height: 2.7rem;
+  cursor: pointer;
+  justify-content: space-between;
+  gap: 1rem;
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.82);
+  font-weight: 900;
+}
+
+.player-season-menu [data-slot="dropdown-menu-item"]:focus,
+.player-season-menu [data-slot="dropdown-menu-item"].is-active {
+  background: rgba(229, 9, 20, 0.18);
+  color: white;
+}
+
+.player-season-menu [data-slot="dropdown-menu-item"].is-active {
+  box-shadow: inset 3px 0 0 #e50914;
+}
+
+.player-season-menu small {
+  color: rgba(255, 255, 255, 0.52);
+  font-size: 0.68rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.player-episode-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.player-episodes-heading > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex: 0 0 auto;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+  color: white;
+}
+
+.player-episode-now {
+  display: inline-flex;
+  width: fit-content;
   align-items: center;
   gap: 0.45rem;
   border: 1px solid rgba(229, 9, 20, 0.42);
@@ -5199,19 +5359,19 @@ select:disabled {
 }
 
 .player-episode-strip {
-  display: flex;
-  gap: 0.9rem;
-  overflow-x: auto;
-  padding-bottom: 0.35rem;
-  scroll-snap-type: x proximity;
+  display: grid;
+  align-content: start;
+  gap: 0.8rem;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 0.2rem;
   scrollbar-width: thin;
 }
 
 .player-episode-card {
   position: relative;
   display: grid;
-  flex: 0 0 clamp(220px, 18vw, 340px);
-  min-height: 190px;
+  min-height: 188px;
   align-content: end;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -5221,7 +5381,6 @@ select:disabled {
     #111;
   padding: 1rem;
   color: white;
-  scroll-snap-align: start;
   transition: border-color 220ms ease, transform 220ms ease, box-shadow 220ms ease;
 }
 
@@ -5230,6 +5389,17 @@ select:disabled {
   border-color: rgba(229, 9, 20, 0.78);
   transform: translateY(-3px);
   box-shadow: 0 18px 48px rgba(229, 9, 20, 0.16);
+}
+
+.player-episode-card.is-active {
+  border-color: #e50914;
+  box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.95), 0 18px 48px rgba(229, 9, 20, 0.2);
+}
+
+.player-episode-card.is-active::before {
+  background:
+    linear-gradient(180deg, rgba(229, 9, 20, 0.08) 0%, rgba(0, 0, 0, 0.38) 42%, rgba(0, 0, 0, 0.9) 100%),
+    linear-gradient(90deg, rgba(229, 9, 20, 0.28), transparent 44%);
 }
 
 .player-episode-card.is-active::after {
@@ -5322,12 +5492,16 @@ select:disabled {
 
 @media (min-width: 1920px) {
   .player-frame-shell {
-    height: clamp(620px, 62vh, 1040px);
+    height: calc(100vh - 6.5rem);
+  }
+
+  .player-episodes-panel {
+    width: min(520px, 26vw);
+    max-width: 520px;
   }
 
   .player-episode-card {
-    flex-basis: clamp(300px, 16vw, 520px);
-    min-height: clamp(220px, 12vw, 340px);
+    min-height: clamp(220px, 11vw, 320px);
   }
 }
 
@@ -5351,8 +5525,8 @@ select:disabled {
   }
 
   .player-frame-shell {
-    height: clamp(360px, 58vh, 620px);
-    min-height: 360px;
+    height: calc(100vh - 10.5rem);
+    min-height: 420px;
     border-radius: 22px;
   }
 }
@@ -5374,10 +5548,6 @@ select:disabled {
     padding: 0 0.8rem;
   }
 
-  .player-detail-link {
-    flex: 0 0 auto;
-  }
-
   .player-server-switcher a {
     min-height: 2.45rem;
     padding: 0 0.55rem;
@@ -5390,22 +5560,34 @@ select:disabled {
   }
 
   .player-frame-shell {
-    height: clamp(280px, 52vh, 520px);
-    min-height: 280px;
+    height: calc(100vh - 12rem);
+    min-height: 330px;
   }
 
   .player-episodes-panel {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-width: none;
+    max-height: min(78vh, 720px);
     border-radius: 22px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    transform: translateY(105%);
+  }
+
+  .player-episodes-drawer-shell.is-open .player-episodes-panel {
+    transform: translateY(0);
   }
 
   .player-episodes-heading {
     align-items: flex-start;
-    flex-direction: column;
   }
 
   .player-episode-card {
-    flex-basis: min(78vw, 300px);
-    min-height: 180px;
+    min-height: clamp(180px, 44vw, 250px);
   }
 }
 
@@ -5963,11 +6145,6 @@ select:disabled {
     width: calc(100vw - 1rem);
     grid-template-columns: auto 1fr;
     border-radius: 24px;
-  }
-
-  .player-detail-link {
-    grid-column: 1 / -1;
-    width: 100%;
   }
 
   .player-frame-shell {

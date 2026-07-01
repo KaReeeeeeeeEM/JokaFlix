@@ -2,9 +2,22 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { ChevronLeft, ExternalLink, ListVideo, Server } from "lucide-react";
+import { useParams, useSearchParams } from "next/navigation";
+import { ChevronDown, ChevronLeft, ListVideo, Server, SkipForward, X } from "lucide-react";
 import { useFetch } from "../../../api";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../../ui/dropdown-menu";
+
+type TvSeasonSummary = {
+  id?: number;
+  name?: string;
+  season_number?: number;
+  episode_count?: number;
+};
 
 type PlayableDetails = {
   title?: string;
@@ -13,6 +26,7 @@ type PlayableDetails = {
   backdrop_path?: string | null;
   release_date?: string | null;
   first_air_date?: string | null;
+  seasons?: TvSeasonSummary[];
 };
 
 type WatchHistoryItem = {
@@ -105,7 +119,6 @@ export default function MediaPlayer() {
   const params = useParams<{ category: string; id: string }>();
   const category = params?.category ?? "";
   const tmdbId = params?.id ?? "";
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const full = searchParams?.get("full") === "1";
@@ -115,12 +128,15 @@ export default function MediaPlayer() {
   const queryResumeSeconds = Math.max(0, Math.floor(Number(searchParams?.get("resume") || 0)));
   const [storedResumeSeconds, setStoredResumeSeconds] = React.useState(0);
   const [isResumeLookupPending, setIsResumeLookupPending] = React.useState(false);
+  const [isEpisodeDrawerOpen, setIsEpisodeDrawerOpen] = React.useState(false);
+  const [drawerSeason, setDrawerSeason] = React.useState("1");
   const type = category === "tv-show" ? "tv" : "movie";
   const titleKey = type === "tv" ? "name" : "title";
-  const dateKey = type === "tv" ? "first_air_date" : "release_date";
   const resumeSeconds = queryResumeSeconds || storedResumeSeconds;
   const activeSeason = season || "1";
   const activeEpisode = episode || "1";
+  const activeSeasonNumber = Number(activeSeason || 1);
+  const activeEpisodeNumber = Number(activeEpisode || 1);
 
   const { data: details } = useFetch<PlayableDetails>(
     {
@@ -131,7 +147,7 @@ export default function MediaPlayer() {
 
   const { data: seasonDetails, loading: seasonLoading } = useFetch<SeasonDetails>(
     {
-      url: `https://api.themoviedb.org/3/tv/${tmdbId}/season/${activeSeason}?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}`,
+      url: `https://api.themoviedb.org/3/tv/${tmdbId}/season/${drawerSeason}?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}`,
     },
     { enabled: Boolean(tmdbId) && type === "tv" }
   );
@@ -249,39 +265,101 @@ export default function MediaPlayer() {
     };
   }, [details, postProgress, resumeSeconds, tmdbId]);
 
-  const resumeLabel = React.useMemo(() => {
-    if (!resumeSeconds) return "";
-    const minutes = Math.floor(resumeSeconds / 60);
-    const seconds = resumeSeconds % 60;
-    if (minutes < 60) return `${minutes}:${String(seconds).padStart(2, "0")}`;
-    const hours = Math.floor(minutes / 60);
-    return `${hours}:${String(minutes % 60).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-  }, [resumeSeconds]);
-
   const serverOptions = [
-    { id: "vidsrc" as const, label: "Vidsrc", href: buildPlayerPath({ tmdbId, type, player: "vidsrc", season: activeSeason, episode: activeEpisode }) },
-    { id: "2embed" as const, label: "Server 2", href: buildPlayerPath({ tmdbId, type, player: "2embed", season: activeSeason, episode: activeEpisode }) },
+    { id: "vidsrc" as const, label: "Src 1", href: buildPlayerPath({ tmdbId, type, player: "vidsrc", season: activeSeason, episode: activeEpisode }) },
+    { id: "2embed" as const, label: "Src 2", href: buildPlayerPath({ tmdbId, type, player: "2embed", season: activeSeason, episode: activeEpisode }) },
   ];
 
+  const seasons = React.useMemo(() => {
+    return (details?.seasons || [])
+      .filter((item) => Number(item.season_number) > 0)
+      .sort((a, b) => Number(a.season_number) - Number(b.season_number));
+  }, [details?.seasons]);
+  const drawerSeasonData = seasons.find((item) => Number(item.season_number) === Number(drawerSeason));
+  const drawerSeasonLabel = drawerSeasonData?.name || `Season ${drawerSeason}`;
+  const playingSeasonData = seasons.find((item) => Number(item.season_number) === activeSeasonNumber);
+  const nextSeasonData = seasons.find((item) => Number(item.season_number) > activeSeasonNumber);
   const episodes = seasonDetails?.episodes || [];
-  const showEpisodePanel = type === "tv";
+  const showEpisodeDrawer = type === "tv";
+  const nextEpisodeHref = React.useMemo(() => {
+    if (!showEpisodeDrawer || !tmdbId || !playingSeasonData?.episode_count) return "";
+
+    if (activeEpisodeNumber < Number(playingSeasonData.episode_count)) {
+      return buildPlayerPath({
+        tmdbId,
+        type,
+        player: selectedPlayer,
+        season: activeSeasonNumber,
+        episode: activeEpisodeNumber + 1,
+      });
+    }
+
+    if (nextSeasonData?.season_number) {
+      return buildPlayerPath({
+        tmdbId,
+        type,
+        player: selectedPlayer,
+        season: nextSeasonData.season_number,
+        episode: 1,
+      });
+    }
+
+    return "";
+  }, [
+    activeEpisodeNumber,
+    activeSeasonNumber,
+    nextSeasonData?.season_number,
+    playingSeasonData?.episode_count,
+    selectedPlayer,
+    showEpisodeDrawer,
+    tmdbId,
+    type,
+  ]);
+  const switchSeason = React.useCallback((nextSeason: number) => {
+    if (nextSeason === Number(drawerSeason)) return;
+    setDrawerSeason(String(nextSeason));
+  }, [drawerSeason]);
+
+  React.useEffect(() => {
+    setIsEpisodeDrawerOpen(false);
+  }, [selectedPlayer]);
+
+  React.useEffect(() => {
+    if (!isEpisodeDrawerOpen) setDrawerSeason(activeSeason);
+  }, [activeSeason, isEpisodeDrawerOpen]);
 
   return (
     <main className="player-page">
       <header className="player-topbar">
-        <button type="button" onClick={() => router.back()} className="player-action" aria-label="Go back">
+        <Link href={type === "tv" ? `/series/${tmdbId}` : `/movie/${tmdbId}`} className="player-action" aria-label="Back to details">
           <ChevronLeft className="h-5 w-5" />
-        </button>
+        </Link>
         <div>
           <p className="section-kicker">Now playing</p>
           <h1>{details?.[titleKey] ? `${details[titleKey]}${type === "tv" ? ` - S${activeSeason}E${activeEpisode}` : ""}` : title}</h1>
-          <div className="player-meta-row">
-            {details?.[dateKey] && <span className="player-year">{String(details[dateKey]).slice(0, 4)}</span>}
-            <span className="player-server-label">{selectedPlayer === "vidsrc" ? "Vidsrc server" : "Server 2"}</span>
-            {resumeLabel && <span className="player-resume-note">Resuming at {resumeLabel}</span>}
-          </div>
         </div>
         <div className="player-topbar-actions">
+          {nextEpisodeHref && (
+            <Link href={nextEpisodeHref} className="player-action player-next-episode" aria-label="Play next episode">
+              <SkipForward className="h-4 w-4" />
+              Play next
+            </Link>
+          )}
+          {showEpisodeDrawer && (
+            <button
+              type="button"
+              className="player-action player-episodes-toggle"
+              onClick={() => {
+                setDrawerSeason(activeSeason);
+                setIsEpisodeDrawerOpen(true);
+              }}
+              aria-expanded={isEpisodeDrawerOpen}
+              aria-controls="player-episodes-drawer"
+            >
+              <ListVideo className="h-4 w-4" />
+              Episodes
+            </button>
+          )}
           <div className="player-server-switcher" aria-label="Player servers">
             {serverOptions.map((option) => (
               <Link href={option.href} className={selectedPlayer === option.id ? "is-active" : ""} key={option.id}>
@@ -290,10 +368,6 @@ export default function MediaPlayer() {
               </Link>
             ))}
           </div>
-          <Link href={type === "tv" ? `/series/${tmdbId}` : `/movie/${tmdbId}`} className="player-action player-detail-link">
-            Details
-            <ExternalLink className="h-4 w-4" />
-          </Link>
         </div>
       </header>
 
@@ -315,17 +389,68 @@ export default function MediaPlayer() {
         )}
       </section>
 
-      {showEpisodePanel && (
-        <section className="player-episodes-panel" aria-label={`Season ${activeSeason} episodes`}>
+      {showEpisodeDrawer && (
+        <div className={`player-episodes-drawer-shell ${isEpisodeDrawerOpen ? "is-open" : ""}`} aria-hidden={!isEpisodeDrawerOpen}>
+          <button
+            type="button"
+            className="player-episodes-backdrop"
+            onClick={() => setIsEpisodeDrawerOpen(false)}
+            aria-label="Close episodes"
+            tabIndex={isEpisodeDrawerOpen ? 0 : -1}
+          />
+          <aside
+            className="player-episodes-panel"
+            id="player-episodes-drawer"
+            aria-label={`${drawerSeasonLabel} episodes`}
+            aria-modal={isEpisodeDrawerOpen}
+            inert={!isEpisodeDrawerOpen ? true : undefined}
+            role="dialog"
+          >
           <div className="player-episodes-heading">
-            <div>
-              <p className="section-kicker">Episodes</p>
-              <h2>{seasonDetails?.name || `Season ${activeSeason}`}</h2>
+            <div className="player-episodes-title-group">
+              <div>
+                <p className="section-kicker">Episodes</p>
+                <h2>{seasonDetails?.name || drawerSeasonLabel}</h2>
+              </div>
             </div>
-            <span>
+            <button type="button" onClick={() => setIsEpisodeDrawerOpen(false)} aria-label="Close episodes">
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="player-episode-controls-row">
+            {seasons.length > 1 ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button type="button" className="player-season-trigger" aria-label="Switch season">
+                    {drawerSeasonLabel}
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="player-season-menu" style={{ zIndex: 140 }}>
+                  {seasons.map((seasonItem) => {
+                    const seasonNumber = Number(seasonItem.season_number);
+                    const isActiveSeason = seasonNumber === Number(drawerSeason);
+
+                    return (
+                      <DropdownMenuItem
+                        className={isActiveSeason ? "is-active" : ""}
+                        onSelect={() => switchSeason(seasonNumber)}
+                        key={seasonItem.id || seasonNumber}
+                      >
+                        <span>{seasonItem.name || `Season ${seasonNumber}`}</span>
+                        {seasonItem.episode_count ? <small>{seasonItem.episode_count} episodes</small> : null}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <span />
+            )}
+            <div className="player-episode-now">
               <ListVideo className="h-4 w-4" />
-              Episode {activeEpisode}
-            </span>
+              S{activeSeason}E{activeEpisode} playing
+            </div>
           </div>
           <div className="player-episode-strip">
             {seasonLoading
@@ -335,12 +460,14 @@ export default function MediaPlayer() {
               : episodes.length
                 ? episodes.map((episodeItem) => {
                     const episodeNumber = Number(episodeItem.episode_number || 1);
-                    const isActive = episodeNumber === Number(activeEpisode);
+                    const isActive = Number(drawerSeason) === Number(activeSeason) && episodeNumber === Number(activeEpisode);
                     return (
                       <Link
-                        href={buildPlayerPath({ tmdbId, type, player: selectedPlayer, season: activeSeason, episode: episodeNumber })}
+                        href={buildPlayerPath({ tmdbId, type, player: selectedPlayer, season: drawerSeason, episode: episodeNumber })}
                         className={`player-episode-card ${isActive ? "is-active" : ""}`}
                         aria-current={isActive ? "true" : undefined}
+                        onClick={() => setIsEpisodeDrawerOpen(false)}
+                        tabIndex={isEpisodeDrawerOpen ? 0 : -1}
                         key={episodeItem.id || episodeNumber}
                       >
                         {episodeItem.still_path ? (
@@ -358,7 +485,8 @@ export default function MediaPlayer() {
                     <div className="player-episodes-empty">No episodes available for this season.</div>
                   )}
           </div>
-        </section>
+          </aside>
+        </div>
       )}
     </main>
   );
