@@ -32,7 +32,8 @@ function normalizeConnectionString(value: string | undefined) {
 }
 
 const normalizedConnectionString = normalizeConnectionString(connectionString);
-const useNeonServerless = normalizedConnectionString ? new URL(normalizedConnectionString).hostname.endsWith(".neon.tech") : false;
+const isNeonConnection = normalizedConnectionString ? new URL(normalizedConnectionString).hostname.endsWith(".neon.tech") : false;
+const useNeonServerless = process.env.NODE_ENV === "production" && isNeonConnection;
 const poolKey = `${normalizedConnectionString ?? ""}:driver-${useNeonServerless ? "neon-serverless-ws" : "pg"}:timeout-15000:max-5`;
 
 function findNestedError(error: unknown): Error | undefined {

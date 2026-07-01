@@ -6,7 +6,19 @@ import { pool, query } from "./db";
 import { sendEmail } from "./email";
 import { verificationEmailTemplate } from "./email-templates";
 
-const baseURL = process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const configuredBaseURL = process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const isDevelopment = process.env.NODE_ENV !== "production";
+const isLocalURL = (value: string) => value.startsWith("http://localhost") || value.startsWith("http://127.0.0.1");
+const baseURL = isDevelopment && !isLocalURL(configuredBaseURL) ? "http://localhost:3000" : configuredBaseURL;
+const passkeyRpID = isDevelopment ? "localhost" : process.env.BETTER_AUTH_RP_ID || new URL(baseURL).hostname;
+const authOrigins = [
+  baseURL,
+  "http://localhost:3000",
+  "http://localhost:3003",
+  "http://localhost:3004",
+  "https://jokaflix.vercel.app",
+  ...(process.env.NEXT_PUBLIC_APP_URL ? [process.env.NEXT_PUBLIC_APP_URL] : []),
+];
 
 async function upsertProfile(user: Record<string, unknown>) {
   await query(
@@ -26,12 +38,7 @@ export const auth = betterAuth({
   appName: "JokaFlix",
   baseURL,
   database: pool,
-  trustedOrigins: [
-    "http://localhost:3000",
-    "http://localhost:3004",
-    "https://jokaflix.vercel.app",
-    ...(process.env.NEXT_PUBLIC_APP_URL ? [process.env.NEXT_PUBLIC_APP_URL] : []),
-  ],
+  trustedOrigins: authOrigins,
   user: {
     additionalFields: {
       nationality: {
@@ -99,13 +106,8 @@ export const auth = betterAuth({
     }),
     passkey({
       rpName: "JokaFlix",
-      rpID: process.env.BETTER_AUTH_RP_ID || new URL(baseURL).hostname,
-      origin: [
-        baseURL,
-        "http://localhost:3000",
-        "http://localhost:3004",
-        "https://jokaflix.vercel.app",
-      ],
+      rpID: passkeyRpID,
+      origin: authOrigins,
     }),
     nextCookies(),
   ],
