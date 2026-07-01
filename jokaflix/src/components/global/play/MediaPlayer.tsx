@@ -88,6 +88,7 @@ function buildPlayerEmbedPath({
   episode,
   full,
   resumeSeconds,
+  playbackToken,
 }: {
   tmdbId: string;
   type: "movie" | "tv";
@@ -96,12 +97,14 @@ function buildPlayerEmbedPath({
   episode?: string | number | null;
   full?: boolean;
   resumeSeconds?: number;
+  playbackToken?: string;
 }) {
   const params = new URLSearchParams();
 
   if (player === "2embed") params.set("player", "2embed");
   if (full) params.set("full", "1");
   if (resumeSeconds && resumeSeconds > 0) params.set("resume", String(resumeSeconds));
+  if (playbackToken) params.set("token", playbackToken);
 
   if (type === "tv") {
     params.set("season", String(season || 1));
@@ -114,7 +117,7 @@ function buildPlayerEmbedPath({
   return query ? `${path}?${query}` : path;
 }
 
-export default function MediaPlayer() {
+export default function MediaPlayer({ playbackToken }: { playbackToken?: string }) {
   const params = useParams<{ category: string; id: string }>();
   const category = params?.category ?? "";
   const tmdbId = params?.id ?? "";
@@ -229,6 +232,7 @@ export default function MediaPlayer() {
         episode: activeEpisode,
         full,
         resumeSeconds,
+        playbackToken,
       })
     : "";
   const title = type === "tv" ? `Series Player - S${activeSeason}E${activeEpisode}` : "Movie Player";

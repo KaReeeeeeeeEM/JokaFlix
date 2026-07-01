@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { buildProviderPlayerUrl } from "../../../../../lib/player-sources";
-import { blockedMediaRequest, forbiddenMediaResponse, mediaHeaders } from "../../../../../lib/media-security";
+import { forbiddenMediaResponse, mediaHeaders, verifyPlaybackToken } from "../../../../../lib/media-security";
 
 export const dynamic = "force-dynamic";
 
@@ -8,10 +8,6 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ category: string; id: string }> }
 ) {
-  if (blockedMediaRequest(request, "iframe")) {
-    return forbiddenMediaResponse();
-  }
-
   const { category, id } = await params;
   const type = category === "tv-show" ? "tv" : category === "movie" ? "movie" : null;
 
@@ -21,14 +17,22 @@ export async function GET(
 
   const searchParams = request.nextUrl.searchParams;
   const player = searchParams.get("player") === "2embed" ? "2embed" : "vidsrc";
+  const season = searchParams.get("season") || "1";
+  const episode = searchParams.get("episode") || "1";
+  const full = searchParams.get("full") === "1";
+
+  if (!verifyPlaybackToken(searchParams.get("token"), { category, id, player, season, episode, full })) {
+    return forbiddenMediaResponse();
+  }
+
   const resumeSeconds = Math.max(0, Math.floor(Number(searchParams.get("resume") || 0)));
   const sourceUrl = buildProviderPlayerUrl({
     tmdbId: id,
     type,
     player,
-    season: searchParams.get("season") || "1",
-    episode: searchParams.get("episode") || "1",
-    full: searchParams.get("full") === "1",
+    season,
+    episode,
+    full,
     resumeSeconds,
   });
 
