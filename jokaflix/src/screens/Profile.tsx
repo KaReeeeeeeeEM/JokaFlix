@@ -61,7 +61,7 @@ function ProfileSkeleton() {
             <span className="profile-loading-title-dot" />
             <h2>{title}</h2>
           </div>
-          <div className="profile-rail">
+          <div className="profile-rail profile-rail-horizontal">
             {Array.from({ length: 4 }).map((_, index) => (
               <div className="profile-title-card profile-title-card-loading" aria-hidden="true" key={index} />
             ))}
@@ -266,7 +266,7 @@ export default function ProfilePage() {
           <Bookmark />
           <h2>Watch Later</h2>
         </div>
-        <div className="profile-rail">
+        <div className="profile-rail profile-rail-horizontal">
           {watchLater.length ? watchLater.map((item) => (
             <article className="profile-title-card-shell" key={`${item.media_type}-${item.tmdb_id}`}>
               <Link href={titleHref(item)} className="profile-title-card">
@@ -301,7 +301,7 @@ export default function ProfilePage() {
           <Star />
           <h2>Your Ratings</h2>
         </div>
-        <div className="profile-rail">
+        <div className="profile-rail profile-rail-horizontal">
           {ratings.length ? ratings.map((item) => (
             <Link href={titleHref(item)} className="profile-title-card" key={`${item.media_type}-${item.tmdb_id}`}>
               {posterUrl(item.backdrop_path || item.poster_path) && <img src={posterUrl(item.backdrop_path || item.poster_path)} alt="" />}

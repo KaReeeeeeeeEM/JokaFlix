@@ -7513,12 +7513,17 @@ select:disabled {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1), border-color 700ms ease;
+  will-change: transform;
+  transition:
+    transform 700ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 700ms ease,
+    box-shadow 700ms ease;
 }
 
 .profile-title-card-shell {
   position: relative;
   min-width: 0;
+  transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .profile-title-card-shell .profile-title-card {
@@ -7527,8 +7532,10 @@ select:disabled {
 }
 
 .profile-title-card:hover {
-  transform: scale(1.04);
+  z-index: 4;
   border-color: rgba(229, 9, 20, 0.7);
+  box-shadow: 0 22px 54px rgba(0, 0, 0, 0.35);
+  transform: translateY(-5px) scale(1.045);
 }
 
 .profile-card-menu-trigger {
@@ -7623,6 +7630,13 @@ select:disabled {
   height: 100%;
   object-fit: cover;
   opacity: 0.72;
+  transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1), opacity 700ms ease;
+  will-change: transform;
+}
+
+.profile-title-card:hover img {
+  opacity: 0.84;
+  transform: scale(1.06);
 }
 
 .profile-title-card::after {
@@ -7728,7 +7742,7 @@ select:disabled {
   gap: var(--continue-gap);
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 0.25rem 0 0.9rem;
+  padding: 0.6rem 0 1.1rem;
   scroll-padding-inline: 0.25rem;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
@@ -7740,10 +7754,15 @@ select:disabled {
   display: none;
 }
 
-.profile-rail-horizontal .profile-title-card {
+.profile-rail-horizontal > .profile-title-card,
+.profile-rail-horizontal .profile-title-card-shell {
   flex: 0 0 calc((100% - (var(--continue-gap) * (var(--continue-cards) - 1))) / var(--continue-cards));
   min-height: clamp(190px, 15vw, 320px);
   scroll-snap-align: start;
+}
+
+.profile-rail-horizontal .profile-title-card-shell .profile-title-card {
+  min-height: inherit;
 }
 
 .profile-rail-horizontal .profile-empty-rail {
@@ -7772,7 +7791,8 @@ select:disabled {
 }
 
 @media (min-width: 1536px) {
-  .profile-rail-horizontal .profile-title-card {
+  .profile-rail-horizontal > .profile-title-card,
+  .profile-rail-horizontal .profile-title-card-shell {
     min-height: clamp(240px, 12vw, 460px);
   }
 }
@@ -7792,7 +7812,8 @@ select:disabled {
     --continue-cards: 1.25;
   }
 
-  .profile-rail-horizontal .profile-title-card {
+  .profile-rail-horizontal > .profile-title-card,
+  .profile-rail-horizontal .profile-title-card-shell {
     min-height: clamp(190px, 52vw, 280px);
   }
 }
@@ -7897,5 +7918,22 @@ select:disabled {
 
   .profile-identity {
     display: grid;
+  }
+
+  .profile-section-title h2 {
+    font-size: clamp(1.15rem, 7vw, 1.6rem);
+  }
+
+  .profile-title-card {
+    padding: 0.85rem;
+  }
+
+  .profile-title-card span {
+    font-size: 0.9rem;
+    line-height: 1.28;
+  }
+
+  .profile-title-card small {
+    font-size: 0.72rem;
   }
 }
