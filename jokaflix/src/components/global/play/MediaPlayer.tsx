@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { ChevronDown, ChevronLeft, ListVideo, Server, SkipForward, X } from "lucide-react";
+import { ChevronDown, ChevronLeft, ListVideo, Server, SkipForward, SlidersHorizontal, X } from "lucide-react";
 import { useFetch } from "../../../api";
 import {
   DropdownMenu,
@@ -129,6 +129,7 @@ export default function MediaPlayer() {
   const [storedResumeSeconds, setStoredResumeSeconds] = React.useState(0);
   const [isResumeLookupPending, setIsResumeLookupPending] = React.useState(false);
   const [isEpisodeDrawerOpen, setIsEpisodeDrawerOpen] = React.useState(false);
+  const [areMobileControlsOpen, setAreMobileControlsOpen] = React.useState(false);
   const [drawerSeason, setDrawerSeason] = React.useState("1");
   const type = category === "tv-show" ? "tv" : "movie";
   const titleKey = type === "tv" ? "name" : "title";
@@ -322,6 +323,7 @@ export default function MediaPlayer() {
 
   React.useEffect(() => {
     setIsEpisodeDrawerOpen(false);
+    setAreMobileControlsOpen(false);
   }, [selectedPlayer]);
 
   React.useEffect(() => {
@@ -338,7 +340,17 @@ export default function MediaPlayer() {
           <p className="section-kicker">Now playing</p>
           <h1>{details?.[titleKey] ? `${details[titleKey]}${type === "tv" ? ` - S${activeSeason}E${activeEpisode}` : ""}` : title}</h1>
         </div>
-        <div className="player-topbar-actions">
+        <button
+          type="button"
+          className="player-action player-mobile-controls-toggle"
+          onClick={() => setAreMobileControlsOpen((current) => !current)}
+          aria-expanded={areMobileControlsOpen}
+          aria-controls="player-mobile-controls"
+        >
+          <SlidersHorizontal className="h-4 w-4" />
+          Controls
+        </button>
+        <div id="player-mobile-controls" className={`player-topbar-actions ${areMobileControlsOpen ? "is-open" : ""}`}>
           {nextEpisodeHref && (
             <Link href={nextEpisodeHref} className="player-action player-next-episode" aria-label="Play next episode">
               <SkipForward className="h-4 w-4" />
