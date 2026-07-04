@@ -78,7 +78,7 @@ export default function TVShows() {
 
   const handleStripScroll = React.useCallback(() => {
     const strip = stripRef.current;
-    if (!strip || window.innerWidth >= 768) return;
+    if (!strip || window.innerWidth >= 1024) return;
 
     const stripCenter = strip.getBoundingClientRect().left + strip.clientWidth / 2;
     const cards = Array.from(strip.querySelectorAll<HTMLElement>(".movie-card-link"));

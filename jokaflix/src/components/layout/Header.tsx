@@ -7,7 +7,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import React from "react";
-import { Film, Grid3X3, Home, QrCode, Search, Tv, User, type LucideIcon } from "lucide-react";
+import { Film, Grid3X3, Home, QrCode, Search, Tv, User, UsersRound, type LucideIcon } from "lucide-react";
 import { ThemeToggle } from "../global/header/theme-toggle";
 import { authClient } from "../../lib/auth-client";
 
@@ -121,6 +121,7 @@ export default function Header() {
     { label: "Home", href: "/", icon: Home },
     { label: "Movies", href: "/movies", icon: Film },
     { label: "Series", href: "/series", icon: Tv },
+    { label: "Actors", href: "/actors", icon: UsersRound },
     { label: "Genres", href: "/genres", icon: Grid3X3 },
   ];
 
@@ -135,15 +136,16 @@ export default function Header() {
           className="h-12 w-12 cursor-pointer rounded-full object-contain md:h-14 md:w-14"
           onClick={() => router.push("/")}
         />
-        <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center rounded-full border border-[var(--app-border)] bg-[var(--app-panel)] p-1 text-xs font-semibold text-[var(--app-muted)] shadow-2xl shadow-black/10 backdrop-blur-xl md:flex">
+        <nav className="header-primary-nav absolute left-1/2 hidden -translate-x-1/2 items-center rounded-full border border-[var(--app-border)] bg-[var(--app-panel)] p-1 text-xs font-semibold text-[var(--app-muted)] shadow-2xl shadow-black/10 backdrop-blur-xl lg:flex">
           {[
             ["Home", "/"],
             ["Movies", "/movies"],
             ["Series", "/series"],
+            ["Actors", "/actors"],
             ["Genres", "/genres"],
           ].map(([label, href]) => (
             <Link
-              className={`rounded-full px-5 py-2 transition hover:text-[#e50914] ${
+              className={`header-primary-link rounded-full px-5 py-2 transition hover:text-[#e50914] ${
                 pathname === href ? "bg-gradient-to-r from-[#b20710] to-[#e50914] text-white" : ""
               }`}
               href={href}
@@ -153,7 +155,7 @@ export default function Header() {
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-2 rounded-full border border-[var(--app-border)] bg-[var(--app-panel)] p-1 backdrop-blur-xl">
+        <div className="header-actions flex items-center gap-2 rounded-full border border-[var(--app-border)] bg-[var(--app-panel)] p-1 backdrop-blur-xl">
           <Button variant="ghost" size="icon" onClick={handleSearch} className="h-10 w-10 cursor-pointer rounded-full text-[#e50914] hover:bg-white/10 hover:text-[#e50914]" aria-label="Search">
             <Search className="h-5 w-5" />
           </Button>
@@ -176,7 +178,7 @@ export default function Header() {
           <Button
             variant="ghost"
             size="icon"
-            className="hidden h-10 w-10 cursor-pointer rounded-full bg-gradient-to-r from-[#b20710] to-[#e50914] text-white hover:opacity-90 md:grid"
+            className="hidden h-10 w-10 cursor-pointer rounded-full bg-gradient-to-r from-[#b20710] to-[#e50914] text-white hover:opacity-90 xl:grid"
             onClick={() => setQROpen(true)}
             aria-label="Share QR"
           >
@@ -204,7 +206,7 @@ export default function Header() {
           <span className="text-xs text-gray-400 break-all">{qrUrl}</span>
         </DialogContent>
       </Dialog>
-      <nav className="mobile-bottom-nav md:hidden" aria-label="Primary mobile navigation">
+      <nav className="mobile-bottom-nav lg:hidden" aria-label="Primary mobile navigation">
         {mobileLinks.map(({ label, href, icon: NavIcon }) => {
           return (
             <Link
