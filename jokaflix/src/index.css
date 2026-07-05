@@ -10261,9 +10261,10 @@ body.is-admin-console .mobile-bottom-nav {
   height: 1rem;
 }
 
-.admin-leaderboard-page .admin-console-main {
-  margin-left: 0;
-  padding-top: clamp(2rem, 5vw, 4rem);
+.admin-leaderboard-topbar {
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 .admin-console-leaderboard-toolbar {
@@ -10457,6 +10458,30 @@ body.is-admin-console .mobile-bottom-nav {
   margin-top: 0.2rem;
   color: var(--app-muted);
   font-size: 0.74rem;
+}
+
+.admin-leaderboard-table {
+  table-layout: fixed;
+}
+
+.admin-leaderboard-table th:first-child,
+.admin-leaderboard-table td:first-child {
+  width: 5rem;
+}
+
+.admin-leaderboard-table th:nth-child(2),
+.admin-leaderboard-table td:nth-child(2) {
+  width: auto;
+}
+
+.admin-leaderboard-table th:nth-child(3),
+.admin-leaderboard-table td:nth-child(3) {
+  width: 12rem;
+}
+
+.admin-leaderboard-table th:last-child,
+.admin-leaderboard-table td:last-child {
+  width: 8rem;
 }
 
 .admin-console-action-menu {

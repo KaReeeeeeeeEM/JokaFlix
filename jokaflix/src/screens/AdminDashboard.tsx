@@ -1007,7 +1007,7 @@ function CategoryBars({ items, maxItems = 5 }: { items: CategoryRank[]; maxItems
   );
 }
 
-function AdminSidenav({
+export function AdminSidenav({
   activeSection,
   collapsed,
   mobileOpen,

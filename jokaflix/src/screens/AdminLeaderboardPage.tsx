@@ -1,7 +1,11 @@
+"use client";
+
+import * as React from "react";
 import Link from "next/link";
 import { ArrowLeft, ListOrdered } from "lucide-react";
 import type { AdminUser } from "../lib/admin";
-import { adminLeaderboardTitle, type AdminLeaderboardRow, type AdminLeaderboardType } from "../lib/admin-leaderboards";
+import type { AdminLeaderboardRow, AdminLeaderboardType } from "../lib/admin-leaderboards";
+import { AdminSidenav } from "./AdminDashboard";
 
 function formatNumber(value: number | string | undefined | null) {
   const numericValue = Number(value || 0);
@@ -21,6 +25,14 @@ function formatNumber(value: number | string | undefined | null) {
   return `${compactValue.toLocaleString(undefined, { maximumFractionDigits: Math.abs(compactValue) >= 10 ? 0 : 1 })}${match.suffix}`;
 }
 
+function adminLeaderboardDisplayTitle(type: AdminLeaderboardType) {
+  if (type === "movies") return "Movie Leaderboard";
+  if (type === "series") return "Series Leaderboard";
+  if (type === "genres") return "Genre Leaderboard";
+  if (type === "users") return "User Leaderboard";
+  return "Recent Activity";
+}
+
 export default function AdminLeaderboardPage({
   admin,
   type,
@@ -32,14 +44,30 @@ export default function AdminLeaderboardPage({
   periodLabel: string;
   rows: AdminLeaderboardRow[];
 }) {
-  const title = adminLeaderboardTitle(type);
+  const [collapsed, setCollapsed] = React.useState(false);
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const title = adminLeaderboardDisplayTitle(type);
   const isRecentActivity = type === "recent-activity";
   const dashboardHref = type === "recent-activity" ? "/admin?section=users" : `/admin?section=leaderboards&leaderboardTab=${type}`;
+  const activeSection = type === "recent-activity" ? "users" : "leaderboards";
+
+  React.useEffect(() => {
+    document.body.classList.add("is-admin-console");
+    return () => document.body.classList.remove("is-admin-console");
+  }, []);
 
   return (
-    <main className="admin-console-page admin-leaderboard-page">
+    <main className={`admin-console-page admin-leaderboard-page ${collapsed ? "is-nav-collapsed" : ""} ${mobileOpen ? "is-mobile-nav-open" : ""}`}>
+      <AdminSidenav
+        activeSection={activeSection}
+        collapsed={collapsed}
+        mobileOpen={mobileOpen}
+        setActiveSection={() => undefined}
+        setCollapsed={setCollapsed}
+        setMobileOpen={setMobileOpen}
+      />
       <section className="admin-console-main">
-        <header className="admin-console-topbar">
+        <header className="admin-console-topbar admin-leaderboard-topbar">
           <Link className="admin-console-back-link" href={dashboardHref}>
             <ArrowLeft />
             Back to dashboard
@@ -61,7 +89,7 @@ export default function AdminLeaderboardPage({
               <ListOrdered />
             </div>
             <div className="admin-console-table-wrap">
-              <table className="admin-console-table">
+              <table className="admin-console-table admin-leaderboard-table">
                 <thead>
                   <tr>
                     <th>{isRecentActivity ? "No." : "Rank"}</th>
