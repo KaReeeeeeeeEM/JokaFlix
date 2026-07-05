@@ -11453,15 +11453,72 @@ body.is-admin-console .mobile-bottom-nav {
   line-height: 1.65;
 }
 
+.admin-console-chat-bubble strong {
+  color: var(--app-text);
+  font-weight: 950;
+}
+
+.admin-console-chat-bubble em {
+  color: var(--app-muted);
+  font-style: italic;
+}
+
+.admin-console-chat-bubble u {
+  color: #ff8a91;
+  text-decoration-color: rgba(229, 9, 20, 0.9);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.18em;
+}
+
 .admin-console-chat-bubble p + p,
 .admin-console-chat-bubble ul + p,
-.admin-console-chat-bubble p + ul {
+.admin-console-chat-bubble p + ul,
+.admin-console-chat-bubble p + .admin-console-chat-table-wrap,
+.admin-console-chat-bubble .admin-console-chat-table-wrap + p,
+.admin-console-chat-bubble .admin-console-chat-table-wrap + ul {
   margin-top: 0.65rem;
 }
 
 .admin-console-chat-bubble ul {
   margin: 0.4rem 0 0;
   padding-left: 1.15rem;
+}
+
+.admin-console-chat-table-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.admin-console-chat-table {
+  width: 100%;
+  min-width: 420px;
+  border-collapse: collapse;
+  color: var(--app-text);
+  font-size: 0.82rem;
+}
+
+.admin-console-chat-table th,
+.admin-console-chat-table td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.admin-console-chat-table th {
+  background: rgba(229, 9, 20, 0.14);
+  color: #ffb3b8;
+  font-size: 0.72rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.admin-console-chat-table tr:last-child td {
+  border-bottom: 0;
 }
 
 .admin-console-chat-composer {

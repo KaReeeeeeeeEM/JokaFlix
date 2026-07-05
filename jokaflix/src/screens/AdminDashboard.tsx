@@ -2117,16 +2117,103 @@ function ReportsPage({ data }: { data: AnalyticsData | null }) {
 }
 
 function FormattedMessage({ content }: { content: string }) {
-  const lines = content.split("\n").map((line) => line.trim()).filter(Boolean);
-  if (!lines.length) return null;
+  const parseInline = (value: string, keyPrefix: string): React.ReactNode[] => {
+    const nodes: React.ReactNode[] = [];
+    const pattern = /(<u>.*?<\/u>|\+\+.*?\+\+|\*\*.*?\*\*|__.*?__|\*[^*\n]+\*|_[^_\n]+_)/g;
+    let cursor = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = pattern.exec(value)) !== null) {
+      if (match.index > cursor) nodes.push(value.slice(cursor, match.index));
+      const token = match[0];
+      const key = `${keyPrefix}-${match.index}`;
+
+      if (token.startsWith("**") && token.endsWith("**")) {
+        nodes.push(<strong key={key}>{token.slice(2, -2)}</strong>);
+      } else if (token.startsWith("__") && token.endsWith("__")) {
+        nodes.push(<u key={key}>{token.slice(2, -2)}</u>);
+      } else if (token.startsWith("++") && token.endsWith("++")) {
+        nodes.push(<u key={key}>{token.slice(2, -2)}</u>);
+      } else if (token.startsWith("<u>") && token.endsWith("</u>")) {
+        nodes.push(<u key={key}>{token.slice(3, -4)}</u>);
+      } else if ((token.startsWith("*") && token.endsWith("*")) || (token.startsWith("_") && token.endsWith("_"))) {
+        nodes.push(<em key={key}>{token.slice(1, -1)}</em>);
+      } else {
+        nodes.push(token);
+      }
+
+      cursor = match.index + token.length;
+    }
+
+    if (cursor < value.length) nodes.push(value.slice(cursor));
+    return nodes;
+  };
+
+  const normalizeTableRow = (line: string) =>
+    line
+      .trim()
+      .replace(/^\|/, "")
+      .replace(/\|$/, "")
+      .split("|")
+      .map((cell) => cell.trim());
+
+  const blocks = content
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+  if (!blocks.length) return null;
 
   return (
     <>
-      {lines.map((line, index) => {
-        if (line.startsWith("- ") || line.startsWith("* ")) {
-          return <ul key={`${line}-${index}`}><li>{line.slice(2)}</li></ul>;
+      {blocks.map((block, index) => {
+        const lines = block.split("\n").map((line) => line.trim()).filter(Boolean);
+        const looksLikeTable = lines.length >= 2 && lines.every((line) => line.includes("|")) && /^:?-{3,}:?$/.test(normalizeTableRow(lines[1])[0] || "");
+
+        if (looksLikeTable) {
+          const [headLine, , ...bodyLines] = lines;
+          const headers = normalizeTableRow(headLine);
+          const rows = bodyLines.map(normalizeTableRow);
+          return (
+            <div className="admin-console-chat-table-wrap" key={`table-${index}`}>
+              <table className="admin-console-chat-table">
+                <thead>
+                  <tr>
+                    {headers.map((header, cellIndex) => (
+                      <th key={`${header}-${cellIndex}`}>{parseInline(header, `th-${index}-${cellIndex}`)}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row, rowIndex) => (
+                    <tr key={`row-${index}-${rowIndex}`}>
+                      {headers.map((_, cellIndex) => (
+                        <td key={`cell-${index}-${rowIndex}-${cellIndex}`}>
+                          {parseInline(row[cellIndex] || "", `td-${index}-${rowIndex}-${cellIndex}`)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          );
         }
-        return <p key={`${line}-${index}`}>{line}</p>;
+
+        if (lines.every((line) => line.startsWith("- ") || line.startsWith("* "))) {
+          return (
+            <ul key={`list-${index}`}>
+              {lines.map((line, lineIndex) => (
+                <li key={`${line}-${lineIndex}`}>{parseInline(line.slice(2), `li-${index}-${lineIndex}`)}</li>
+              ))}
+            </ul>
+          );
+        }
+
+        return (
+          <p key={`paragraph-${index}`}>
+            {parseInline(lines.join(" "), `p-${index}`)}
+          </p>
+        );
       })}
     </>
   );
