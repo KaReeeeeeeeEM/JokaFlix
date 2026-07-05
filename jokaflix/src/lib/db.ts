@@ -1,6 +1,7 @@
-import { setDefaultResultOrder } from "node:dns";
+import { lookup, setDefaultResultOrder } from "node:dns";
+import net from "node:net";
 import { Pool as NeonPool, neonConfig } from "@neondatabase/serverless";
-import { Pool as PgPool, type QueryResult, type QueryResultRow } from "pg";
+import { Pool as PgPool, type PoolConfig, type QueryResult, type QueryResultRow } from "pg";
 import ws from "ws";
 
 type AppPool = NeonPool | PgPool;
@@ -34,7 +35,7 @@ function normalizeConnectionString(value: string | undefined) {
 const normalizedConnectionString = normalizeConnectionString(connectionString);
 const isNeonConnection = normalizedConnectionString ? new URL(normalizedConnectionString).hostname.endsWith(".neon.tech") : false;
 const useNeonServerless = process.env.NODE_ENV === "production" && isNeonConnection;
-const poolKey = `${normalizedConnectionString ?? ""}:driver-${useNeonServerless ? "neon-serverless-ws" : "pg"}:timeout-15000:max-5`;
+const poolKey = `${normalizedConnectionString ?? ""}:driver-${useNeonServerless ? "neon-serverless-ws" : isNeonConnection ? "pg-neon-pooler-ipv4" : "pg"}:timeout-15000:max-5`;
 
 function findNestedError(error: unknown): Error | undefined {
   if (error instanceof Error) return error;
@@ -146,6 +147,44 @@ function wrapPoolClient(client: unknown) {
   return client;
 }
 
+function createNeonPgPoolConfig(value: string): PoolConfig {
+  const url = new URL(value);
+  const poolerHost = url.hostname.replace(/^(ep-[^.]+)\./, "$1-pooler.");
+  const port = Number(url.port || 5432);
+
+  return {
+    host: poolerHost,
+    port,
+    database: url.pathname.slice(1),
+    user: decodeURIComponent(url.username),
+    password: decodeURIComponent(url.password),
+    ssl: { rejectUnauthorized: false },
+    connectionTimeoutMillis: 15000,
+    idleTimeoutMillis: 30000,
+    max: 5,
+    stream: () => {
+      const socket = new net.Socket();
+      const originalConnect = socket.connect.bind(socket);
+
+      socket.connect = ((connectPort: number, _host?: string | (() => void), listener?: () => void) => {
+        const callback = typeof _host === "function" ? _host : listener;
+
+        lookup(poolerHost, { family: 4 }, (error, address) => {
+          if (error) {
+            socket.destroy(error);
+            return;
+          }
+          originalConnect(connectPort || port, address, callback);
+        });
+
+        return socket;
+      }) as typeof socket.connect;
+
+      return socket;
+    },
+  };
+}
+
 function createPool() {
   if (useNeonServerless) {
     const neonPool = new NeonPool({
@@ -155,6 +194,14 @@ function createPool() {
       console.error("[JokaFlix database] Neon pool error", error);
     });
     return neonPool;
+  }
+
+  if (isNeonConnection && normalizedConnectionString) {
+    const pgPool = new PgPool(createNeonPgPoolConfig(normalizedConnectionString));
+    pgPool.on("error", (error: Error) => {
+      console.error("[JokaFlix database] Neon Postgres pool error", error);
+    });
+    return pgPool;
   }
 
   const pgPool = new PgPool({
@@ -190,6 +237,9 @@ export async function query<T extends QueryResultRow = QueryResultRow>(text: str
 
 export async function ensureAppSchema() {
   await query(`
+    alter table if exists "user"
+      add column if not exists role text not null default 'user';
+
     create table if not exists user_profiles (
       user_id text primary key references "user"(id) on delete cascade,
       nationality text,
@@ -260,5 +310,77 @@ export async function ensureAppSchema() {
 
     create index if not exists user_watch_history_recent_idx
       on user_watch_history (user_id, watched_at desc);
+
+    create table if not exists analytics_events (
+      id text primary key,
+      event_type text not null,
+      media_type text,
+      tmdb_id text,
+      title text,
+      category text,
+      user_id text references "user"(id) on delete set null,
+      visitor_id text,
+      pathname text,
+      metadata jsonb not null default '{}'::jsonb,
+      created_at timestamptz not null default now()
+    );
+
+    create index if not exists analytics_events_created_at_idx
+      on analytics_events (created_at desc);
+
+    create index if not exists analytics_events_movie_click_idx
+      on analytics_events (event_type, media_type, tmdb_id, created_at desc);
+
+    create index if not exists analytics_events_visitor_idx
+      on analytics_events (coalesce(user_id, visitor_id), created_at desc);
+
+    create table if not exists admin_reports (
+      id text primary key,
+      report_type text not null,
+      format text not null,
+      title text not null,
+      generated_by text references "user"(id) on delete set null,
+      template_id text,
+      duration text not null default 'last_30_days',
+      sections jsonb not null default '[]'::jsonb,
+      row_count integer not null default 0,
+      created_at timestamptz not null default now()
+    );
+
+    alter table admin_reports
+      add column if not exists template_id text,
+      add column if not exists duration text not null default 'last_30_days',
+      add column if not exists sections jsonb not null default '[]'::jsonb;
+
+    create index if not exists admin_reports_created_at_idx
+      on admin_reports (created_at desc);
+
+    create table if not exists admin_report_templates (
+      id text primary key,
+      name text not null,
+      description text,
+      report_type text not null,
+      sections jsonb not null default '[]'::jsonb,
+      fields jsonb not null default '[]'::jsonb,
+      duration text not null default 'last_30_days',
+      ai_prompt text,
+      template_body text not null,
+      created_by text references "user"(id) on delete set null,
+      created_at timestamptz not null default now(),
+      updated_at timestamptz not null default now()
+    );
+
+    create index if not exists admin_report_templates_created_at_idx
+      on admin_report_templates (created_at desc);
   `);
+}
+
+let appSchemaPromise: Promise<void> | null = null;
+
+export function ensureAppSchemaOnce() {
+  appSchemaPromise ??= ensureAppSchema().catch((error) => {
+    appSchemaPromise = null;
+    throw error;
+  });
+  return appSchemaPromise;
 }

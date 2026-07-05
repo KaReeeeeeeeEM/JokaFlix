@@ -41,6 +41,9 @@ try {
   await runMigrations();
 
   await pool.query(`
+    alter table if exists "user"
+      add column if not exists role text not null default 'user';
+
     create table if not exists user_profiles (
       user_id text primary key references "user"(id) on delete cascade,
       nationality text,
@@ -123,6 +126,68 @@ try {
 
     alter table if exists user_episode_ratings
       add column if not exists comment text;
+
+    create table if not exists analytics_events (
+      id text primary key,
+      event_type text not null,
+      media_type text,
+      tmdb_id text,
+      title text,
+      category text,
+      user_id text references "user"(id) on delete set null,
+      visitor_id text,
+      pathname text,
+      metadata jsonb not null default '{}'::jsonb,
+      created_at timestamptz not null default now()
+    );
+
+    create index if not exists analytics_events_created_at_idx
+      on analytics_events (created_at desc);
+
+    create index if not exists analytics_events_movie_click_idx
+      on analytics_events (event_type, media_type, tmdb_id, created_at desc);
+
+    create index if not exists analytics_events_visitor_idx
+      on analytics_events (coalesce(user_id, visitor_id), created_at desc);
+
+    create table if not exists admin_reports (
+      id text primary key,
+      report_type text not null,
+      format text not null,
+      title text not null,
+      generated_by text references "user"(id) on delete set null,
+      template_id text,
+      duration text not null default 'last_30_days',
+      sections jsonb not null default '[]'::jsonb,
+      row_count integer not null default 0,
+      created_at timestamptz not null default now()
+    );
+
+    alter table admin_reports
+      add column if not exists template_id text,
+      add column if not exists duration text not null default 'last_30_days',
+      add column if not exists sections jsonb not null default '[]'::jsonb;
+
+    create index if not exists admin_reports_created_at_idx
+      on admin_reports (created_at desc);
+
+    create table if not exists admin_report_templates (
+      id text primary key,
+      name text not null,
+      description text,
+      report_type text not null,
+      sections jsonb not null default '[]'::jsonb,
+      fields jsonb not null default '[]'::jsonb,
+      duration text not null default 'last_30_days',
+      ai_prompt text,
+      template_body text not null,
+      created_by text references "user"(id) on delete set null,
+      created_at timestamptz not null default now(),
+      updated_at timestamptz not null default now()
+    );
+
+    create index if not exists admin_report_templates_created_at_idx
+      on admin_report_templates (created_at desc);
   `);
 
   console.log("Database migrations completed.");

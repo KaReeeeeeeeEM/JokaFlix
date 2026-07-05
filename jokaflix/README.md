@@ -10,6 +10,12 @@ BETTER_AUTH_SECRET=replace_with_a_long_random_secret
 BETTER_AUTH_URL=https://your-domain.example
 NEXT_PUBLIC_APP_URL=https://your-domain.example
 BETTER_AUTH_RP_ID=your-domain.example
+SUPERADMIN_EMAIL=superadmin@jokaflix.local
+SUPERADMIN_USERNAME=superadmin
+SUPERADMIN_NAME=JokaFlix Superadmin
+SUPERADMIN_PASSWORD=replace_with_a_strong_admin_password
+OPENAI_API_KEY=optional_openai_api_key_for_ai_manager
+OPENAI_MODEL=gpt-4.1-mini
 
 # Email verification through Nodemailer Gmail SMTP.
 GMAIL_USER=your_gmail_address@gmail.com
@@ -25,6 +31,14 @@ Run database migrations after setting `DATABASE_URL`:
 ```bash
 pnpm db:migrate
 ```
+
+Seed or promote a superadmin account after migrations:
+
+```bash
+SUPERADMIN_PASSWORD='replace_with_a_strong_admin_password' pnpm db:seed:superadmin
+```
+
+`OPENAI_API_KEY` is optional. When it is missing, the admin AI Manager still answers from live JokaFlix analytics using deterministic database summaries.
 
 The download API supports these placeholders:
 

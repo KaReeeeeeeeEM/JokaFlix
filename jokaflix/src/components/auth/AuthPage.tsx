@@ -143,6 +143,11 @@ function usernameSuggestions(name: string, email: string) {
   ]));
 }
 
+function redirectPathForSession(profileSession: unknown, fallback: string) {
+  const role = (profileSession as { user?: { role?: string | null } })?.user?.role;
+  return role === "superadmin" || role === "admin" ? "/admin" : fallback;
+}
+
 function AuthDropdown({
   label,
   value,
@@ -231,7 +236,8 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
 
   React.useEffect(() => {
     if (!session.data?.user) return;
-    router.replace(nextPath);
+    const role = (session.data.user as { role?: string | null }).role;
+    router.replace(role === "superadmin" || role === "admin" ? "/admin" : nextPath);
   }, [nextPath, router, session.data?.user]);
 
   React.useEffect(() => {
@@ -322,7 +328,7 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
       window.dispatchEvent(new CustomEvent("jokaflix:auth-changed", { detail: profileSession }));
       router.refresh();
       toast.success("Signed in");
-      router.push(nextPath);
+      router.push(redirectPathForSession(profileSession, nextPath));
     } catch (error) {
       const usingEmail = form.email.trim().includes("@");
       const message = signInErrorMessage(error, usingEmail);
@@ -391,7 +397,7 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
       window.dispatchEvent(new CustomEvent("jokaflix:auth-changed", { detail: profileSession }));
       router.refresh();
       toast.success("Signed in with passkey");
-      router.push(nextPath);
+      router.push(redirectPathForSession(profileSession, nextPath));
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Passkey sign-in failed");
     } finally {

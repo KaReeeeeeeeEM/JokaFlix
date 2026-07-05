@@ -690,7 +690,7 @@ export default function DetailPage({ mediaType }: DetailPageProps) {
             </div>
             <div className="detail-more-grid">
               {similar.map((item: TrendingMovie) =>
-                isMovie ? <MovieCard key={item.id} movie={{ ...item, media_type: "movie" }} /> : <SeriesCard key={item.id} movie={{ ...item, media_type: "tv" }} />
+                isMovie ? <MovieCard key={item.id} movie={{ ...item, media_type: "movie" }} source="More Like This" /> : <SeriesCard key={item.id} movie={{ ...item, media_type: "tv" }} source="More Like This" />
               )}
             </div>
           </div>

@@ -130,7 +130,7 @@ export default function MoviesPage() {
 
         <div className="movies-grid">
           {movies.map((movie, index) => (
-            <MovieCard key={`${activeTab}-${movie.id}`} movie={movie} index={index} />
+            <MovieCard key={`${activeTab}-${movie.id}`} movie={movie} index={index} source={tabs.find((tab) => tab.id === activeTab)?.label || "Movies"} />
           ))}
           {loading &&
             Array.from({ length: page === 1 ? 10 : 5 }).map((_, index) => (

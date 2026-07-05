@@ -120,7 +120,7 @@ export default function PopularMovies() {
               style={{ maxHeight: "80vh" }}
             >
               {allMovies.map((movie) => (
-                <MovieCard key={movie.id} movie={movie} />
+                <MovieCard key={movie.id} movie={movie} source="Popular Movies" />
               ))}
               {loading || isFetchingNext
                 ? Array.from({ length: 16 }).map((_, i) => (
@@ -149,7 +149,7 @@ export default function PopularMovies() {
             ))
           : movies
               .slice(0, 5)
-              .map((movie, index) => <MovieCard key={movie.id} movie={movie} index={index} active={index === activePreview} />)}
+              .map((movie, index) => <MovieCard key={movie.id} movie={movie} index={index} active={index === activePreview} source="Popular Movies" />)}
       </div>
     </section>
   );

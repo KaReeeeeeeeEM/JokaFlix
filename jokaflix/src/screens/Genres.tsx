@@ -227,9 +227,9 @@ export function GenreDetailPage() {
         <div className="movies-grid">
           {items.map((item, index) =>
             activeTab === "movies" ? (
-              <MovieCard key={`${activeTab}-${item.id}`} movie={item} index={index} />
+              <MovieCard key={`${activeTab}-${item.id}`} movie={item} index={index} source={`${genreName} Movies`} />
             ) : (
-              <SeriesCard key={`${activeTab}-${item.id}`} movie={item} index={index} />
+              <SeriesCard key={`${activeTab}-${item.id}`} movie={item} index={index} source={`${genreName} Series`} />
             )
           )}
           {loading &&

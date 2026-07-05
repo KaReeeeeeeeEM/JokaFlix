@@ -27,7 +27,7 @@ export default function Header() {
   const [qrOpen, setQROpen] = React.useState(false);
   const [profile, setProfile] = React.useState<{ avatar_url?: string | null } | null>(null);
   const session = authClient.useSession();
-  const user = session.data?.user as { name?: string | null; username?: string | null; email?: string | null } | undefined;
+  const user = session.data?.user as { name?: string | null; username?: string | null; email?: string | null; role?: string | null } | undefined;
   const displayName = user?.username || user?.name || user?.email || "JokaFlix user";
   const initials = displayName.trim().slice(0, 1).toUpperCase() || "J";
 
@@ -114,7 +114,7 @@ export default function Header() {
       router.push(`/signin?next=${encodeURIComponent(pathname)}`);
       return;
     }
-    router.push("/profile");
+    router.push(user?.role === "superadmin" || user?.role === "admin" ? "/admin" : "/profile");
   };
 
   const mobileLinks: { label: string; href: string; icon: LucideIcon }[] = [

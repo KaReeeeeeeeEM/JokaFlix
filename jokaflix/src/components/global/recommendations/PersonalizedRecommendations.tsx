@@ -22,7 +22,7 @@ export default function PersonalizedRecommendations() {
       </div>
       <div className="movie-strip">
         {recommendations.slice(0, 5).map((movie, index) => (
-          <MovieCard key={movie.id} movie={movie} index={index} active={index === 0} />
+          <MovieCard key={movie.id} movie={movie} index={index} active={index === 0} source="For You" />
         ))}
       </div>
     </section>

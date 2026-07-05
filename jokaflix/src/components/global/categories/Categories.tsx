@@ -120,7 +120,7 @@ export default function Categories() {
                     style={{ maxHeight: "95vh" }}
                   >
                     {allMovies.map((movie) => (
-                      <MovieCard key={movie.id} movie={movie} />
+                      <MovieCard key={movie.id} movie={movie} source={genre.name} />
                     ))}
                     {moviesLoading || isFetchingNext
                       ? Array.from({ length: 16 }).map((_, i) => (

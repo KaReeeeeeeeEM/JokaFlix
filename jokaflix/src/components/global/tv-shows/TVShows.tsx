@@ -122,7 +122,7 @@ export default function TVShows() {
               style={{ maxHeight: "80vh" }}
             >
               {allShows.map((show) => (
-                <SeriesCard key={show.id} movie={show} />
+                <SeriesCard key={show.id} movie={show} source="Popular Series" />
               ))}
               {loading || isFetchingNext
                 ? Array.from({ length: 16 }).map((_, i) => (
@@ -151,7 +151,7 @@ export default function TVShows() {
             ))
           : shows
               .slice(0, 5)
-              .map((show, index) => <SeriesCard key={show.id} movie={show} index={index} active={index === activePreview} />)}
+              .map((show, index) => <SeriesCard key={show.id} movie={show} index={index} active={index === activePreview} source="Popular Series" />)}
       </div>
     </section>
   );

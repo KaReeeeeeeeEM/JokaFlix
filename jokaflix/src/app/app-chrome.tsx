@@ -12,18 +12,20 @@ import LoginNudge from "../components/auth/LoginNudge";
 export default function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() ?? "/";
   const isPlayerRoute = pathname.startsWith("/play/");
+  const isAdminRoute = pathname === "/admin" || pathname.startsWith("/admin/");
   const isAuthFlowRoute = ["/signin", "/signup", "/verify-email", "/forgot-password"].some(
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
+  const showPublicChrome = !isPlayerRoute && !isAdminRoute;
 
   return (
     <>
       <PWARegister />
       <SplashScreen />
       <Suspense fallback={null}>
-        {!isAuthFlowRoute && <LoginNudge />}
-        {!isPlayerRoute && <Header />}
-        {!isPlayerRoute && <SearchDrawer />}
+        {!isAuthFlowRoute && !isAdminRoute && <LoginNudge />}
+        {showPublicChrome && <Header />}
+        {showPublicChrome && <SearchDrawer />}
       </Suspense>
       <Toaster richColors position="top-center" toastOptions={{ className: "jokaflix-toast" }} />
       <Suspense fallback={null}>{children}</Suspense>

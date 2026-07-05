@@ -156,7 +156,7 @@ export default function ActorMoviesPage() {
 
         <div className="movies-grid actor-movies-grid">
           {movies.map((movie, index) => (
-            <MovieCard key={`${actorId}-${movie.id}`} movie={movie} index={index} />
+            <MovieCard key={`${actorId}-${movie.id}`} movie={movie} index={index} source={actor ? `${actor.name} Movies` : "Actor Movies"} />
           ))}
           {loading &&
             Array.from({ length: 10 }).map((_, index) => (
