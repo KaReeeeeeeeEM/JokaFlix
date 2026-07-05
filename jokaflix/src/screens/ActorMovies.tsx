@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, Film, UserRound } from "lucide-react";
+import { ArrowLeft, Film, Search, UserRound } from "lucide-react";
 import { MovieCard } from "../components/global/cards/MovieCard";
 import { Skeleton } from "../components/ui/skeleton";
 import type { TrendingMovie } from "../../types";
@@ -72,14 +72,30 @@ export default function ActorMoviesPage() {
   const actorId = Array.isArray(params?.id) ? params.id[0] : params?.id;
   const [actor, setActor] = React.useState<ActorDetails | null>(null);
   const [movies, setMovies] = React.useState<TrendingMovie[]>([]);
+  const [movieQuery, setMovieQuery] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+
+  const filteredMovies = React.useMemo(() => {
+    const query = movieQuery.trim().toLowerCase();
+    if (!query) return movies;
+
+    return movies.filter((movie) => {
+      const releaseYear = movie.release_date?.slice(0, 4) || "";
+      return [movie.title, movie.original_title, movie.overview, releaseYear].some((value) =>
+        value?.toLowerCase().includes(query),
+      );
+    });
+  }, [movies, movieQuery]);
 
   React.useEffect(() => {
     if (!actorId) return;
 
     let cancelled = false;
     const currentActorId = actorId;
+    setActor(null);
+    setMovies([]);
+    setMovieQuery("");
 
     async function loadActorMovies() {
       setLoading(true);
@@ -151,11 +167,23 @@ export default function ActorMoviesPage() {
             <p className="section-kicker">Movies</p>
             <h2>{actor ? `${actor.name} movies` : "Loading movies"}</h2>
           </div>
-          {loading && <div className="netflix-loader" aria-label="Loading actor movies" />}
+          <div className="actor-movies-tools">
+            <label className="actor-movie-search">
+              <Search aria-hidden="true" />
+              <input
+                type="search"
+                value={movieQuery}
+                onChange={(event) => setMovieQuery(event.target.value)}
+                placeholder="Search this filmography"
+                aria-label={actor ? `Search ${actor.name} movies` : "Search actor movies"}
+              />
+            </label>
+            {loading && <div className="netflix-loader" aria-label="Loading actor movies" />}
+          </div>
         </div>
 
         <div className="movies-grid actor-movies-grid">
-          {movies.map((movie, index) => (
+          {filteredMovies.map((movie, index) => (
             <MovieCard key={`${actorId}-${movie.id}`} movie={movie} index={index} source={actor ? `${actor.name} Movies` : "Actor Movies"} />
           ))}
           {loading &&
@@ -165,10 +193,10 @@ export default function ActorMoviesPage() {
         </div>
 
         {error && <p className="movies-page-error">{error}</p>}
-        {!loading && !error && movies.length === 0 && (
+        {!loading && !error && filteredMovies.length === 0 && (
           <div className="genre-empty-state">
             <Film />
-            <p>No movies found for this actor.</p>
+            <p>{movies.length > 0 ? `No movies match "${movieQuery.trim()}".` : "No movies found for this actor."}</p>
           </div>
         )}
       </section>

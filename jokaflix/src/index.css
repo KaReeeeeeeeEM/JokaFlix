@@ -3063,6 +3063,58 @@ select:disabled {
   line-height: 0.98;
 }
 
+.actor-movies-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.actor-movie-search {
+  display: flex;
+  min-width: min(100%, 340px);
+  min-height: 3.15rem;
+  align-items: center;
+  gap: 0.65rem;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--app-panel-strong) 84%, transparent);
+  padding: 0 1rem;
+  color: #e50914;
+  box-shadow: 0 16px 42px var(--app-shadow);
+  backdrop-filter: blur(18px);
+  transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.actor-movie-search:focus-within {
+  border-color: rgba(229, 9, 20, 0.68);
+  background: color-mix(in oklab, var(--app-panel-strong) 92%, transparent);
+  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.14), 0 18px 48px var(--app-shadow);
+}
+
+.actor-movie-search svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  flex: 0 0 auto;
+}
+
+.actor-movie-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--app-text);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 850;
+}
+
+.actor-movie-search input::placeholder {
+  color: var(--app-muted);
+}
+
 .actor-movies-grid {
   margin-top: clamp(1.2rem, 2.6vw, 2.4rem);
 }
@@ -3245,6 +3297,13 @@ select:disabled {
 
     .actor-movies-heading {
       align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .actor-movies-tools,
+    .actor-movie-search {
+      width: 100%;
+      justify-content: flex-start;
     }
 
     .actor-detail-layout {
