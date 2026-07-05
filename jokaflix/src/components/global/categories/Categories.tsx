@@ -7,6 +7,7 @@ import { Drawer, DrawerContent, DrawerTrigger } from "../../ui/drawer";
 import { Button } from "../../ui/button";
 import { Skeleton } from "../../ui/skeleton";
 import type { TrendingMovie } from "../../../../types";
+import { trackAnalyticsEvent } from "../../../lib/analytics-client";
 
 export default function Categories() {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -103,6 +104,11 @@ export default function Categories() {
                     variant="outline"
                     className="shrink-0 rounded-full border-0 bg-transparent px-5 py-2 text-sm font-semibold text-white/70 hover:bg-[#e50914] hover:text-white"
                     onClick={() => {
+                      trackAnalyticsEvent({
+                        eventType: "category_click",
+                        category: genre.name,
+                        metadata: { genreId: genre.id, source: "home-categories" },
+                      });
                       setSelectedGenre(genre);
                       setDrawerOpen(true);
                     }}

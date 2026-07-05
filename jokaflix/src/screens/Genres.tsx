@@ -9,6 +9,7 @@ import { Skeleton } from "../components/ui/skeleton";
 import type { TrendingMovie } from "../../types";
 import { MovieCard } from "../components/global/cards/MovieCard";
 import { SeriesCard } from "../components/global/cards/SeriesCard";
+import { trackAnalyticsEvent } from "../lib/analytics-client";
 
 type Genre = {
   id: number;
@@ -55,6 +56,13 @@ export default function GenresPage() {
               <Link
                 href={`/genres/${genre.id}?name=${encodeURIComponent(genre.name)}`}
                 className="genre-sample-card"
+                onClick={() =>
+                  trackAnalyticsEvent({
+                    eventType: "category_click",
+                    category: genre.name,
+                    metadata: { genreId: genre.id, source: "genres-page" },
+                  })
+                }
                 key={genre.id}
               >
                 {genre.cover && (

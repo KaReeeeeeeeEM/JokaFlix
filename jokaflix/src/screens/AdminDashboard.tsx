@@ -78,6 +78,7 @@ import {
 type Summary = {
   clicksToday: number;
   activeToday: number;
+  onlineNow: number;
   totalUsers: number;
   registeredToday: number;
   totalClicks30Days: number;
@@ -592,6 +593,33 @@ function Panel({
 
 function ChartBox({ children, tall = false }: { children: React.ReactNode; tall?: boolean }) {
   return <div className={`admin-console-chart ${tall ? "is-tall" : ""}`}>{children}</div>;
+}
+
+function AdminProfileChartCard({
+  title,
+  kicker,
+  icon: Icon,
+  children,
+  wide = false,
+}: {
+  title: string;
+  kicker: string;
+  icon: LucideIcon;
+  children: React.ReactNode;
+  wide?: boolean;
+}) {
+  return (
+    <article className={`admin-profile-chart-card ${wide ? "is-wide" : ""}`}>
+      <header>
+        <div>
+          <p>{kicker}</p>
+          <h3>{title}</h3>
+        </div>
+        <Icon aria-hidden="true" />
+      </header>
+      {children}
+    </article>
+  );
 }
 
 function StatCard({ label, value, detail, icon: Icon }: { label: string; value: string; detail: string; icon: LucideIcon }) {
@@ -1142,54 +1170,136 @@ function AdminProfilePage({ admin, data }: { admin: AdminUser; data: AnalyticsDa
   const displayName = admin.name || admin.username || admin.email || "JokaFlix Admin";
   const username = admin.username || "Not set";
   const email = admin.email || "No email";
-  const topMovie = data?.topMovies?.[0]?.title || "No movie leader yet";
-  const topSeries = data?.topSeries?.[0]?.title || "No series leader yet";
-  const topCategory = data?.bestCategories?.[0]?.category || "No category leader yet";
+  const initial = displayName.trim().charAt(0).toUpperCase() || "J";
+  const hasWeeklyTrend = hasValues(data?.weeklyTrend, ["clicks", "users"]);
+  const hasMediaSplit = hasValues(data?.mediaSplit, ["value"]);
+  const hasActiveUsers = hasValues(data?.activeUsers, ["users"]);
+  const hasBestCategories = Boolean(data?.bestCategories?.length);
 
   return (
-    <>
-      <section className="admin-console-stat-grid">
-        <StatCard label="Role" value={admin.role} detail="dashboard access level" icon={ShieldCheck} />
-        <StatCard label="Users managed" value={formatNumber(data?.summary.totalUsers)} detail={`${formatNumber(data?.summary.active30Days)} active in 30 days`} icon={Users} />
-        <StatCard label="Content clicks" value={formatNumber(data?.summary.totalClicks30Days)} detail={data?.period.label || "selected period"} icon={Activity} />
-        <StatCard label="Catalog reach" value={formatNumber((data?.summary.moviesTouched30Days ?? 0) + (data?.summary.seriesTouched30Days ?? 0))} detail="movies and series touched" icon={Film} />
+    <div className="admin-profile-page">
+      <section className="profile-hero admin-profile-hero reveal-up">
+        <div className="profile-identity">
+          <div className="profile-avatar admin-profile-avatar" aria-hidden="true">
+            <span>{initial}</span>
+          </div>
+          <div>
+            <p className="section-kicker">Admin Profile</p>
+            <h1>{displayName}</h1>
+            <p>{email}</p>
+          </div>
+        </div>
+
+        <div className="profile-side-actions">
+          <div className="admin-profile-badges">
+            <span><ShieldCheck />{admin.role}</span>
+            <span><User />@{username}</span>
+            <span><CheckCircle2 />{formatNumber(data?.summary.onlineNow)} online</span>
+          </div>
+        </div>
       </section>
 
-      <section className="admin-console-grid">
-        <Panel title={displayName} kicker="Admin identity" icon={User} className="is-wide">
-          <div className="admin-console-user-profile">
-            <div>
-              <strong>{email}</strong>
-              <p>@{username} · {admin.role} · ID {admin.id.slice(0, 8)}</p>
-            </div>
-            <div>
-              <span>Analytics access</span>
-              <span>Reports access</span>
-              <span>User operations</span>
-              <span>Audit visibility</span>
-            </div>
-          </div>
-        </Panel>
+      <section className="profile-section admin-profile-section">
+        <div className="profile-section-title">
+          <Activity />
+          <h2>Activity Charts</h2>
+        </div>
+        <div className="admin-profile-chart-grid">
+          <AdminProfileChartCard title="Clicks And Users" kicker={data?.period.label || "Selected period"} icon={LineChartIcon} wide>
+            <ChartBox tall>
+              {hasWeeklyTrend ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={data?.weeklyTrend ?? []}>
+                    <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
+                    <XAxis dataKey="day" stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} />
+                    <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} width={42} />
+                    <Tooltip contentStyle={tooltipStyle} />
+                    <Legend />
+                    <Area type="monotone" dataKey="clicks" fill="#e50914" fillOpacity={0.18} stroke="#e50914" strokeWidth={3} />
+                    <Bar dataKey="users" fill="#38bdf8" radius={[8, 8, 0, 0]} />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              ) : (
+                <EmptyChart label="Clicks and user activity will appear after people interact with titles." />
+              )}
+            </ChartBox>
+          </AdminProfileChartCard>
 
-        <Panel title="Access Scope" kicker="Permissions" icon={ShieldCheck}>
-          <div className="admin-console-signal-list">
-            <div><span />View platform analytics</div>
-            <div><span />Generate investor reports</div>
-            <div><span />Review users and activity</div>
-            <div><span />Inspect audit logs</div>
-          </div>
-        </Panel>
+          <AdminProfileChartCard title="Media Split" kicker="Movie versus series demand" icon={PieChartIcon}>
+            <ChartBox>
+              {hasMediaSplit ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={data?.mediaSplit ?? []} dataKey="value" nameKey="name" innerRadius={58} outerRadius={92} paddingAngle={5}>
+                      {(data?.mediaSplit ?? []).map((entry, index) => (
+                        <Cell key={entry.name} fill={chartColors[index % chartColors.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={tooltipStyle} />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <EmptyChart label="Media split appears when movies or series are opened." />
+              )}
+            </ChartBox>
+          </AdminProfileChartCard>
 
-        <Panel title="Operating Snapshot" kicker="Current signals" icon={Gauge}>
-          <div className="admin-console-signal-list">
-            <div><span />Top movie: {topMovie}</div>
-            <div><span />Top series: {topSeries}</div>
-            <div><span />Best category: {topCategory}</div>
-            <div><span />Online users: {formatNumber((data?.userDirectory ?? []).filter((user) => user.online).length)}</div>
-          </div>
-        </Panel>
+          <AdminProfileChartCard title="Category Winners" kicker="Highest intent shelves" icon={Tags}>
+            {hasBestCategories ? (
+              <CategoryBars items={data?.bestCategories ?? []} />
+            ) : (
+              <EmptyChart label="Top categories will appear after tracked title clicks." />
+            )}
+          </AdminProfileChartCard>
+        </div>
       </section>
-    </>
+
+      <section className="profile-section admin-profile-section">
+        <div className="profile-section-title">
+          <Users />
+          <h2>Audience Charts</h2>
+        </div>
+        <div className="admin-profile-chart-grid">
+          <AdminProfileChartCard title="Active Users" kicker="Daily unique visitors" icon={Users} wide>
+            <ChartBox>
+              {hasActiveUsers ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={data?.activeUsers ?? []}>
+                    <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
+                    <XAxis dataKey="day" stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} />
+                    <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} width={42} />
+                    <Tooltip contentStyle={tooltipStyle} />
+                    <Line type="monotone" dataKey="users" stroke="#22c55e" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <EmptyChart label="Active user charts will appear after traffic is recorded." />
+              )}
+            </ChartBox>
+          </AdminProfileChartCard>
+
+          <AdminProfileChartCard title="Admin Access" kicker="Current operating scope" icon={Gauge}>
+            <div className="admin-console-signal-list">
+              <div><span />Analytics access</div>
+              <div><span />Reports access</div>
+              <div><span />User operations</div>
+              <div><span />Audit visibility</div>
+              <div><span />Admin ID: {admin.id.slice(0, 8)}</div>
+            </div>
+          </AdminProfileChartCard>
+
+          <AdminProfileChartCard title="Live Snapshot" kicker="Session-backed presence" icon={CheckCircle2}>
+            <div className="admin-console-signal-list">
+              <div><span />Online now: {formatNumber(data?.summary.onlineNow)}</div>
+              <div><span />Total users: {formatNumber(data?.summary.totalUsers)}</div>
+              <div><span />Active today: {formatNumber(data?.summary.activeToday)}</div>
+              <div><span />Registered today: {formatNumber(data?.summary.registeredToday)}</div>
+            </div>
+          </AdminProfileChartCard>
+        </div>
+      </section>
+    </div>
   );
 }
 
@@ -1302,7 +1412,7 @@ function UsersPage({ data }: { data: AnalyticsData | null }) {
   const [tab, setTab] = React.useState<"overview" | "table">(() => readQueryOption("usersTab", "overview", ["overview", "table"]));
   const [detail, setDetail] = React.useState<UserDetail | null>(null);
   const [detailLoading, setDetailLoading] = React.useState(false);
-  const onlineUsers = (data?.userDirectory ?? []).filter((user) => user.online).length;
+  const onlineUsers = data?.summary.onlineNow ?? (data?.userDirectory ?? []).filter((user) => user.online).length;
   const setUsersTab = (nextTab: "overview" | "table") => {
     setTab(nextTab);
     updateDashboardQuery({ usersTab: nextTab === "overview" ? null : nextTab });
@@ -1345,7 +1455,7 @@ function UsersPage({ data }: { data: AnalyticsData | null }) {
         <>
           <section className="admin-console-stat-grid">
             <StatCard label="Total users" value={formatNumber(data?.summary.totalUsers)} detail={`${formatNumber(data?.summary.registeredToday)} joined today`} icon={Users} />
-            <StatCard label="Online now" value={formatNumber(onlineUsers)} detail="active in the last few minutes" icon={CheckCircle2} />
+            <StatCard label="Online now" value={formatNumber(onlineUsers)} detail="active sessions" icon={CheckCircle2} />
             <StatCard label="Active today" value={formatNumber(data?.summary.activeToday)} detail="users and guest sessions" icon={Activity} />
             <StatCard label="30d active" value={formatNumber(data?.summary.active30Days)} detail={`${formatNumber(data?.summary.clicksPerActiveUser)} clicks per active`} icon={BarChart3} />
           </section>

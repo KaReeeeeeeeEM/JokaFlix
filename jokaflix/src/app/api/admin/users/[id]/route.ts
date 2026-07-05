@@ -38,7 +38,7 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
   }
 
   const { id } = await context.params;
-  const [profile, stats, activityTrend, mediaMix, categoryMix, topTitles, recentEvents] = await Promise.all([
+  const [profile, stats, activeSession, activityTrend, mediaMix, categoryMix, topTitles, recentEvents] = await Promise.all([
     query<StatRow>(
       `
         select
@@ -51,6 +51,15 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
           to_char("createdAt", 'Mon DD, YYYY') as joined_at
         from "user"
         where id = $1
+      `,
+      [id]
+    ),
+    query<StatRow>(
+      `
+        select count(*)::text as count
+        from "session"
+        where "userId" = $1
+          and "expiresAt" > now()
       `,
       [id]
     ),
@@ -150,7 +159,7 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
       profile: profileRow,
       stats: {
         ...statRow,
-        online: statRow.last_seen_at ? Date.now() - new Date(String(statRow.last_seen_at)).getTime() <= 5 * 60 * 1000 : false,
+        online: toNumber(activeSession.rows[0]?.count) > 0,
         behaviorTags: behaviorTags(statRow),
       },
       activityTrend: activityTrend.rows,

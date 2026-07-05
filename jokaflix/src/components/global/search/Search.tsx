@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { PlayCircle, Search } from "lucide-react";
 import type { TrendingMovie } from "../../../../types";
 import { useFetch } from "../../../api";
+import { trackAnalyticsEvent } from "../../../lib/analytics-client";
 
 export default function SearchDrawer() {
   const pathname = usePathname() ?? "/";
@@ -100,6 +101,35 @@ export default function SearchDrawer() {
     router.replace(queryString ? `${pathname}?${queryString}` : pathname, { scroll: false });
   };
 
+  const handleResultClick = (item: any, title: string, isSeries: boolean) => {
+    trackAnalyticsEvent({
+      eventType: "movie_click",
+      mediaType: isSeries ? "tv" : "movie",
+      tmdbId: item.id,
+      title,
+      category: showingResults ? "Search" : "Search suggestions",
+      metadata: {
+        query: debounced,
+        source: showingResults ? "search-results" : "search-suggestions",
+      },
+    });
+
+    if (showingResults) {
+      trackAnalyticsEvent({
+        eventType: "search",
+        category: "Search",
+        metadata: {
+          query: debounced,
+          resultId: item.id,
+          resultTitle: title,
+          mediaType: isSeries ? "tv" : "movie",
+        },
+      });
+    }
+
+    handleClose();
+  };
+
   if (!open) return null;
 
   return (
@@ -151,7 +181,7 @@ export default function SearchDrawer() {
                 return (
                   <Link
                     href={isSeries ? `/series/${item.id}` : `/movie/${item.id}`}
-                    onClick={handleClose}
+                    onClick={() => handleResultClick(item, title, isSeries)}
                     className="search-suggestion-row"
                     style={{ transitionDelay: `${Math.min(index, 18) * 35}ms` }}
                     key={`${item.media_type}-${item.id}`}

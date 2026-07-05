@@ -35,6 +35,7 @@ export async function GET(request: Request) {
   const [
     clicksToday,
     activeToday,
+    onlineNow,
     totalUsers,
     registeredToday,
     totals30Days,
@@ -57,6 +58,7 @@ export async function GET(request: Request) {
   ] = await Promise.all([
     query<CountRow>(`select count(*)::text as count from analytics_events where event_type = 'movie_click' and ${eventPeriod}`),
     query<CountRow>(`select count(distinct coalesce(user_id, visitor_id))::text as count from analytics_events where ${eventPeriod}`),
+    query<CountRow>(`select count(distinct "userId")::text as count from "session" where "expiresAt" > now()`),
     query<CountRow>(`select count(*)::text as count from "user"`),
     query<CountRow>(`select count(*)::text as count from "user" where ${userPeriod}`),
     query<StatRow>(`
@@ -131,7 +133,7 @@ export async function GET(request: Request) {
     query<StatRow>(`
       select coalesce(category, 'Uncategorized') as category, count(*)::int as clicks
       from analytics_events
-      where event_type = 'movie_click'
+      where event_type in ('movie_click', 'category_click')
         and ${eventPeriod}
       group by category
       order by clicks desc, category asc
@@ -201,6 +203,12 @@ export async function GET(request: Request) {
         to_char(u."createdAt", 'Mon DD, YYYY') as joined_at,
         max(e.created_at) as last_seen_at,
         to_char(max(e.created_at), 'Mon DD, HH24:MI') as last_seen,
+        exists(
+          select 1
+          from "session" s
+          where s."userId" = u.id
+            and s."expiresAt" > now()
+        ) as online,
         count(e.id) filter (where ${aliasedEventPeriod})::int as clicks_30d,
         count(distinct date_trunc('hour', e.created_at)) filter (where ${aliasedEventPeriod})::int as active_hours_30d,
         coalesce((
@@ -319,6 +327,7 @@ export async function GET(request: Request) {
       summary: {
         clicksToday: toNumber(clicksToday.rows[0]?.count),
         activeToday: toNumber(activeToday.rows[0]?.count),
+        onlineNow: toNumber(onlineNow.rows[0]?.count),
         totalUsers: toNumber(totalUsers.rows[0]?.count),
         registeredToday: toNumber(registeredToday.rows[0]?.count),
         totalClicks30Days,
@@ -339,10 +348,7 @@ export async function GET(request: Request) {
       mediaSplit: mediaSplit.rows,
       engagementSplit: engagementSplit.rows,
       newUsersTrend: newUsersTrend.rows,
-      userDirectory: userDirectory.rows.map((user) => ({
-        ...user,
-        online: user.last_seen_at ? Date.now() - new Date(String(user.last_seen_at)).getTime() <= 5 * 60 * 1000 : false,
-      })),
+      userDirectory: userDirectory.rows.map((user) => ({ ...user, online: Boolean(user.online) })),
       reportHistory: reportHistory.rows,
       reportTemplates: reportTemplates.rows,
       auditLogs: auditLogs.rows,
