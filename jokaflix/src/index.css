@@ -1609,6 +1609,12 @@ html {
   padding: 0.75rem;
 }
 
+.cast-strip .cast-card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
 .cast-strip img {
   width: 100%;
   aspect-ratio: 1;
@@ -6816,12 +6822,39 @@ select:disabled {
   backdrop-filter: blur(18px);
 }
 
+.cast-strip .cast-card {
+  position: relative;
+  min-height: 170px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1.1rem;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(18px);
+  transition: border-color 260ms ease, transform 260ms ease, box-shadow 260ms ease;
+}
+
 .cast-strip article::after {
   content: "";
   position: absolute;
   inset: 0;
   background: linear-gradient(0deg, rgba(0, 0, 0, 0.7), transparent 70%);
   pointer-events: none;
+}
+
+.cast-strip .cast-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.7), transparent 70%);
+  pointer-events: none;
+}
+
+.cast-strip .cast-card:hover {
+  border-color: rgba(229, 9, 20, 0.9);
+  box-shadow: 0 22px 54px rgba(229, 9, 20, 0.16);
+  transform: translateY(-3px);
 }
 
 .cast-strip img {
@@ -10179,6 +10212,110 @@ body.is-admin-console .mobile-bottom-nav {
   gap: 1rem;
 }
 
+.admin-console-preview-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.85rem;
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+  padding: 0.75rem;
+}
+
+.admin-console-preview-footer span {
+  color: var(--app-muted);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.admin-console-preview-footer a,
+.admin-console-back-link {
+  display: inline-flex;
+  min-height: 2.35rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0 0.85rem;
+  color: var(--app-text);
+  font-size: 0.78rem;
+  font-weight: 950;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: border-color 260ms ease, background-color 260ms ease, transform 260ms ease;
+}
+
+.admin-console-preview-footer a:hover,
+.admin-console-back-link:hover {
+  border-color: rgba(229, 9, 20, 0.72);
+  background: rgba(229, 9, 20, 0.18);
+  transform: translateY(-1px);
+}
+
+.admin-console-back-link svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.admin-leaderboard-page .admin-console-main {
+  margin-left: 0;
+  padding-top: clamp(2rem, 5vw, 4rem);
+}
+
+.admin-console-leaderboard-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-console-view-all-button {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0 1rem;
+  color: var(--app-text);
+  font-size: 0.82rem;
+  font-weight: 950;
+  white-space: nowrap;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transition: border-color 260ms ease, background-color 260ms ease, transform 260ms ease;
+}
+
+.admin-console-view-all-button:hover {
+  border-color: rgba(229, 9, 20, 0.72);
+  background: rgba(229, 9, 20, 0.18);
+  transform: translateY(-1px);
+}
+
+.admin-console-leaderboard-chart {
+  width: 100%;
+  min-height: 330px;
+}
+
+.admin-console-leaderboard-all {
+  margin-top: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  padding-top: 1rem;
+}
+
+.admin-console-leaderboard-all h3 {
+  margin: 0 0 0.85rem;
+  color: var(--app-text);
+  font-size: 1rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
 .admin-console-feed {
   display: grid;
   gap: 0.7rem;
@@ -11641,6 +11778,15 @@ body.is-admin-console .mobile-bottom-nav {
   .admin-console-modal-grid,
   .admin-console-ai-layout {
     grid-template-columns: 1fr;
+  }
+
+  .admin-console-leaderboard-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-console-view-all-button {
+    width: 100%;
   }
 
   .admin-console-template-grid {

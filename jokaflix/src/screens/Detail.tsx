@@ -641,7 +641,7 @@ export default function DetailPage({ mediaType }: DetailPageProps) {
             </div>
             <div className="cast-strip">
               {cast.map((actor) => (
-                <article key={actor.id}>
+                <Link className="cast-card" href={`/actors/${actor.id}`} key={actor.id} aria-label={`View movies acted by ${actor.name}`}>
                   <img
                     src={
                       actor.profile_path
@@ -652,7 +652,7 @@ export default function DetailPage({ mediaType }: DetailPageProps) {
                   />
                   <strong>{actor.name}</strong>
                   <span>{actor.character}</span>
-                </article>
+                </Link>
               ))}
             </div>
           </div>

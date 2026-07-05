@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import {
   Area,
   AreaChart,
@@ -90,11 +91,11 @@ type Summary = {
   clicksPerActiveUser: number;
 };
 
-type TitleRank = { title: string; media_type: string; tmdb_id: string | null; clicks: number };
-type CategoryRank = { category: string; clicks: number };
-type UserRank = { label: string; clicks: number };
+type TitleRank = { title: string; media_type: string; tmdb_id: string | null; clicks: number; total_count?: number };
+type CategoryRank = { category: string; clicks: number; total_count?: number };
+type UserRank = { label: string; clicks: number; total_count?: number };
 type WeeklyPoint = { day: string; movies: number; series: number; clicks: number; users: number };
-type RecentActivity = { title: string; media_type: string; category: string; user_label: string; happened_at: string };
+type RecentActivity = { title: string; media_type: string; category: string; user_label: string; happened_at: string; total_count?: number };
 type EngagementSplit = { name: string; value: number };
 type NewUserPoint = { day: string; users: number };
 type UserDirectoryItem = {
@@ -293,8 +294,73 @@ function formatMediaType(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-function formatNumber(value: number | undefined) {
-  return Number(value || 0).toLocaleString();
+function formatNumber(value: number | string | undefined | null) {
+  const numericValue = Number(value || 0);
+  if (!Number.isFinite(numericValue)) return "0";
+
+  const absoluteValue = Math.abs(numericValue);
+  const suffixes = [
+    { value: 1_000_000_000_000, suffix: "T" },
+    { value: 1_000_000_000, suffix: "B" },
+    { value: 1_000_000, suffix: "M" },
+    { value: 1_000, suffix: "k" },
+  ];
+  const match = suffixes.find((item) => absoluteValue >= item.value);
+
+  if (!match) {
+    return Number.isInteger(numericValue)
+      ? numericValue.toLocaleString()
+      : numericValue.toLocaleString(undefined, { maximumFractionDigits: 1 });
+  }
+
+  const compactValue = numericValue / match.value;
+  const maximumFractionDigits = Math.abs(compactValue) >= 10 ? 0 : 1;
+  return `${compactValue.toLocaleString(undefined, {
+    maximumFractionDigits,
+    minimumFractionDigits: 0,
+  })}${match.suffix}`;
+}
+
+function formatChartValue(value: unknown) {
+  return formatNumber(typeof value === "number" || typeof value === "string" ? value : 0);
+}
+
+function formatChartLabel(value: unknown) {
+  const label = String(value || "");
+  const compactLabels: Record<string, string> = {
+    "Registered users": "Users",
+    "Active period": "Period",
+    "Active today": "Today",
+    "Total clicks": "Clicks",
+    "Movie clicks": "Movies",
+    "Series clicks": "Series",
+  };
+
+  if (compactLabels[label]) return compactLabels[label];
+  return label.length > 12 ? `${label.slice(0, 11)}...` : label;
+}
+
+function formatChartTooltip(value: unknown, name: unknown) {
+  return [formatChartValue(value), String(name)];
+}
+
+function formatMediaTooltip(value: unknown, name: unknown) {
+  return [formatChartValue(value), formatMediaType(String(name))];
+}
+
+function totalCount<T extends { total_count?: number }>(items: T[] | undefined) {
+  return Number(items?.[0]?.total_count || items?.length || 0);
+}
+
+function moreCount<T extends { total_count?: number }>(items: T[] | undefined, visible = 5) {
+  return Math.max(0, totalCount(items) - Math.min(items?.length || 0, visible));
+}
+
+function fullListHref(type: string, duration?: AdminDuration) {
+  const params = new URLSearchParams();
+  if (duration) params.set("duration", duration);
+  const query = params.toString();
+  return `/admin/leaderboards/${type}${query ? `?${query}` : ""}`;
 }
 
 function hasValues<T extends Record<string, unknown>>(data: T[] | undefined, keys: (keyof T)[]) {
@@ -651,10 +717,22 @@ function StatCard({ label, value, detail, icon: Icon }: { label: string; value: 
   );
 }
 
-function RankingList({ items }: { items: { label: string; meta: string; clicks: number }[] }) {
+function PreviewFooter({ remaining, href }: { remaining: number; href: string }) {
+  if (remaining <= 0) return null;
+
+  return (
+    <div className="admin-console-preview-footer">
+      <span>+ {formatNumber(remaining)} more</span>
+      <Link href={href}>View all</Link>
+    </div>
+  );
+}
+
+function RankingList({ items, maxItems = 5 }: { items: { label: string; meta: string; clicks: number }[]; maxItems?: number }) {
+  const visibleItems = items.slice(0, maxItems);
   return (
     <ol className="admin-console-ranking">
-      {items.map((item, index) => (
+      {visibleItems.map((item, index) => (
         <li key={`${item.label}-${index}`}>
           <span>{String(index + 1).padStart(2, "0")}</span>
           <div>
@@ -664,7 +742,7 @@ function RankingList({ items }: { items: { label: string; meta: string; clicks: 
           <b>{formatNumber(item.clicks)}</b>
         </li>
       ))}
-      {!items.length && <li className="admin-console-empty-list">No activity tracked yet.</li>}
+      {!visibleItems.length && <li className="admin-console-empty-list">No activity tracked yet.</li>}
     </ol>
   );
 }
@@ -911,19 +989,20 @@ function PaginatedTable<T>({
   );
 }
 
-function CategoryBars({ items }: { items: CategoryRank[] }) {
-  const max = Math.max(...items.map((item) => item.clicks), 1);
+function CategoryBars({ items, maxItems = 5 }: { items: CategoryRank[]; maxItems?: number }) {
+  const visibleItems = items.slice(0, maxItems);
+  const max = Math.max(...visibleItems.map((item) => item.clicks), 1);
 
   return (
     <div className="admin-console-bars">
-      {items.map((item) => (
+      {visibleItems.map((item) => (
         <div key={item.category}>
           <span>{item.category}</span>
           <i style={{ width: `${Math.max(8, (item.clicks / max) * 100)}%` }} />
           <b>{formatNumber(item.clicks)}</b>
         </div>
       ))}
-      {!items.length && <p className="admin-console-empty-list">No category activity tracked yet.</p>}
+      {!visibleItems.length && <p className="admin-console-empty-list">No category activity tracked yet.</p>}
     </div>
   );
 }
@@ -1016,8 +1095,8 @@ function OverviewPage({ data, loading }: { data: AnalyticsData | null; loading: 
                 <ComposedChart data={data?.weeklyTrend ?? []}>
                   <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
                   <XAxis dataKey="day" stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} />
-                  <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} width={38} />
-                  <Tooltip contentStyle={tooltipStyle} />
+                  <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} tickFormatter={formatChartValue} width={38} />
+                  <Tooltip formatter={formatChartTooltip} contentStyle={tooltipStyle} />
                   <Legend />
                   <Area type="monotone" dataKey="clicks" fill="#e50914" fillOpacity={0.16} stroke="#e50914" strokeWidth={3} />
                   <Bar dataKey="users" fill="#38bdf8" radius={[8, 8, 0, 0]} />
@@ -1040,7 +1119,7 @@ function OverviewPage({ data, loading }: { data: AnalyticsData | null; loading: 
                       <Cell key={entry.name} fill={chartColors[index % chartColors.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value, name) => [value, formatMediaType(String(name))]} contentStyle={tooltipStyle} />
+                  <Tooltip formatter={formatMediaTooltip} contentStyle={tooltipStyle} />
                   <Legend formatter={(value) => formatMediaType(String(value))} />
                 </PieChart>
               </ResponsiveContainer>
@@ -1056,9 +1135,9 @@ function OverviewPage({ data, loading }: { data: AnalyticsData | null; loading: 
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data?.engagementSplit ?? []}>
                   <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
-                  <XAxis dataKey="name" stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} interval={0} />
-                  <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} width={38} />
-                  <Tooltip contentStyle={tooltipStyle} />
+                  <XAxis dataKey="name" stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} interval={0} tickFormatter={formatChartLabel} />
+                  <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} tickFormatter={formatChartValue} width={38} />
+                  <Tooltip formatter={formatChartTooltip} contentStyle={tooltipStyle} />
                   <Bar dataKey="value" fill="#38bdf8" radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -1081,8 +1160,8 @@ function OverviewPage({ data, loading }: { data: AnalyticsData | null; loading: 
                   </defs>
                   <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
                   <XAxis dataKey="day" stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} minTickGap={18} />
-                  <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} width={38} />
-                  <Tooltip contentStyle={tooltipStyle} />
+                  <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} tickFormatter={formatChartValue} width={38} />
+                  <Tooltip formatter={formatChartTooltip} contentStyle={tooltipStyle} />
                   <Area type="monotone" dataKey="users" name="new users" stroke="#22c55e" strokeWidth={3} fill="url(#adminNewUsersFill)" />
                 </AreaChart>
               </ResponsiveContainer>
@@ -1115,8 +1194,8 @@ function TrafficPage({ data }: { data: AnalyticsData | null }) {
                 </defs>
                 <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
                 <XAxis dataKey="label" stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} minTickGap={20} />
-                <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} width={38} />
-                <Tooltip contentStyle={tooltipStyle} />
+                <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} tickFormatter={formatChartValue} width={38} />
+                <Tooltip formatter={formatChartTooltip} contentStyle={tooltipStyle} />
                 <Area type="monotone" dataKey="clicks" stroke="#e50914" strokeWidth={3} fill="url(#adminHourlyFill)" />
               </AreaChart>
             </ResponsiveContainer>
@@ -1133,8 +1212,8 @@ function TrafficPage({ data }: { data: AnalyticsData | null }) {
               <LineChart data={data?.activeUsers ?? []}>
                 <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
                 <XAxis dataKey="day" stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} />
-                <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} width={34} />
-                <Tooltip contentStyle={tooltipStyle} />
+                <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} tickFormatter={formatChartValue} width={34} />
+                <Tooltip formatter={formatChartTooltip} contentStyle={tooltipStyle} />
                 <Line type="monotone" dataKey="users" stroke="#38bdf8" strokeWidth={3} dot={{ r: 4 }} />
               </LineChart>
             </ResponsiveContainer>
@@ -1151,8 +1230,8 @@ function TrafficPage({ data }: { data: AnalyticsData | null }) {
               <BarChart data={data?.weeklyTrend ?? []}>
                 <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
                 <XAxis dataKey="day" stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} />
-                <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} width={34} />
-                <Tooltip contentStyle={tooltipStyle} />
+                <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} tickFormatter={formatChartValue} width={34} />
+                <Tooltip formatter={formatChartTooltip} contentStyle={tooltipStyle} />
                 <Legend />
                 <Bar dataKey="movies" fill="#e50914" radius={[8, 8, 0, 0]} />
                 <Bar dataKey="series" fill="#facc15" radius={[8, 8, 0, 0]} />
@@ -1172,14 +1251,17 @@ function ContentPage({ data }: { data: AnalyticsData | null }) {
     <section className="admin-console-grid">
       <Panel title="Top Movies" kicker="Most loved" icon={Film}>
         <RankingList items={(data?.topMovies ?? []).map((item) => ({ label: item.title, meta: "Movie clicks", clicks: item.clicks }))} />
+        <PreviewFooter remaining={moreCount(data?.topMovies)} href={fullListHref("movies", data?.period.duration)} />
       </Panel>
 
       <Panel title="Top Series" kicker="Most loved" icon={Tv}>
         <RankingList items={(data?.topSeries ?? []).map((item) => ({ label: item.title, meta: "Series clicks", clicks: item.clicks }))} />
+        <PreviewFooter remaining={moreCount(data?.topSeries)} href={fullListHref("series", data?.period.duration)} />
       </Panel>
 
       <Panel title="Best Categories" kicker="Discovery" icon={Tags} className="is-wide">
         <CategoryBars items={data?.bestCategories ?? []} />
+        <PreviewFooter remaining={moreCount(data?.bestCategories)} href={fullListHref("genres", data?.period.duration)} />
       </Panel>
 
       <Panel title="Content Reach" kicker="30 days" icon={Heart} className="is-wide">
@@ -1238,8 +1320,8 @@ function AdminProfilePage({ admin, data }: { admin: AdminUser; data: AnalyticsDa
                   <ComposedChart data={data?.weeklyTrend ?? []}>
                     <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
                     <XAxis dataKey="day" stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} />
-                    <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} width={42} />
-                    <Tooltip contentStyle={tooltipStyle} />
+                    <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} tickFormatter={formatChartValue} width={42} />
+                    <Tooltip formatter={formatChartTooltip} contentStyle={tooltipStyle} />
                     <Legend />
                     <Area type="monotone" dataKey="clicks" fill="#e50914" fillOpacity={0.18} stroke="#e50914" strokeWidth={3} />
                     <Bar dataKey="users" fill="#38bdf8" radius={[8, 8, 0, 0]} />
@@ -1261,7 +1343,7 @@ function AdminProfilePage({ admin, data }: { admin: AdminUser; data: AnalyticsDa
                         <Cell key={entry.name} fill={chartColors[index % chartColors.length]} />
                       ))}
                     </Pie>
-                    <Tooltip contentStyle={tooltipStyle} />
+                    <Tooltip formatter={formatChartTooltip} contentStyle={tooltipStyle} />
                     <Legend />
                   </PieChart>
                 </ResponsiveContainer>
@@ -1294,8 +1376,8 @@ function AdminProfilePage({ admin, data }: { admin: AdminUser; data: AnalyticsDa
                   <LineChart data={data?.activeUsers ?? []}>
                     <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
                     <XAxis dataKey="day" stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} />
-                    <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} width={42} />
-                    <Tooltip contentStyle={tooltipStyle} />
+                    <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} tickFormatter={formatChartValue} width={42} />
+                    <Tooltip formatter={formatChartTooltip} contentStyle={tooltipStyle} />
                     <Line type="monotone" dataKey="users" stroke="#22c55e" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
                   </LineChart>
                 </ResponsiveContainer>
@@ -1372,8 +1454,8 @@ function UserDetailView({ detail, loading, onBack }: { detail: UserDetail | null
                     <ComposedChart data={detail.activityTrend}>
                       <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
                       <XAxis dataKey="day" stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} />
-                      <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} width={38} />
-                      <Tooltip contentStyle={tooltipStyle} />
+                      <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} tickFormatter={formatChartValue} width={38} />
+                      <Tooltip formatter={formatChartTooltip} contentStyle={tooltipStyle} />
                       <Legend />
                       <Area type="monotone" dataKey="clicks" fill="#e50914" fillOpacity={0.16} stroke="#e50914" strokeWidth={3} />
                       <Bar dataKey="active_hours" name="active hours" fill="#38bdf8" radius={[8, 8, 0, 0]} />
@@ -1394,7 +1476,7 @@ function UserDetailView({ detail, loading, onBack }: { detail: UserDetail | null
                           <Cell key={entry.name} fill={chartColors[index % chartColors.length]} />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(value, name) => [value, formatMediaType(String(name))]} contentStyle={tooltipStyle} />
+                      <Tooltip formatter={formatMediaTooltip} contentStyle={tooltipStyle} />
                       <Legend formatter={(value) => formatMediaType(String(value))} />
                     </PieChart>
                   </ResponsiveContainer>
@@ -1488,6 +1570,7 @@ function UsersPage({ data }: { data: AnalyticsData | null }) {
           <section className="admin-console-grid">
             <Panel title="User Leaderboard" kicker="Engagement" icon={Crown}>
               <RankingList items={(data?.leaderboard ?? []).map((item) => ({ label: item.label, meta: "tracked clicks", clicks: item.clicks }))} />
+              <PreviewFooter remaining={moreCount(data?.leaderboard)} href={fullListHref("users", data?.period.duration)} />
             </Panel>
             <Panel title="Active Users" kicker="7 days" icon={Users}>
               <ChartBox>
@@ -1496,8 +1579,8 @@ function UsersPage({ data }: { data: AnalyticsData | null }) {
                     <BarChart data={data?.activeUsers ?? []}>
                       <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
                       <XAxis dataKey="day" stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} />
-                      <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} width={36} />
-                      <Tooltip contentStyle={tooltipStyle} />
+                      <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} tickFormatter={formatChartValue} width={36} />
+                      <Tooltip formatter={formatChartTooltip} contentStyle={tooltipStyle} />
                       <Bar dataKey="users" fill="#22c55e" radius={[8, 8, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
@@ -1519,8 +1602,8 @@ function UsersPage({ data }: { data: AnalyticsData | null }) {
                       </defs>
                       <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
                       <XAxis dataKey="day" stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} minTickGap={18} />
-                      <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} width={36} />
-                      <Tooltip contentStyle={tooltipStyle} />
+                      <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} tickFormatter={formatChartValue} width={36} />
+                      <Tooltip formatter={formatChartTooltip} contentStyle={tooltipStyle} />
                       <Area type="monotone" dataKey="users" name="new users" stroke="#38bdf8" strokeWidth={3} fill="url(#adminUsersPageFill)" />
                     </AreaChart>
                   </ResponsiveContainer>
@@ -1540,6 +1623,7 @@ function UsersPage({ data }: { data: AnalyticsData | null }) {
                 ))}
                 {!data?.recentActivity?.length && <p className="admin-console-empty-list">No recent activity tracked yet.</p>}
               </div>
+              <PreviewFooter remaining={moreCount(data?.recentActivity)} href={fullListHref("recent-activity", data?.period.duration)} />
             </Panel>
           </section>
         </>
@@ -1579,41 +1663,48 @@ function LeaderboardsPage({ data }: { data: AnalyticsData | null }) {
     updateDashboardQuery({ leaderboardTab: nextTab === "movies" ? null : nextTab });
   };
   const rankingItems = React.useMemo(() => {
-    if (tab === "movies") return (data?.topMovies ?? []).map((item) => ({ label: item.title, meta: "most opened movie", clicks: item.clicks }));
-    if (tab === "series") return (data?.topSeries ?? []).map((item) => ({ label: item.title, meta: "most opened series", clicks: item.clicks }));
-    if (tab === "genres") return (data?.bestCategories ?? []).map((item) => ({ label: item.category, meta: "best category/source", clicks: item.clicks }));
-    return (data?.leaderboard ?? []).map((item) => ({ label: item.label, meta: "most active viewer", clicks: item.clicks }));
+    if (tab === "movies") return (data?.topMovies ?? []).map((item) => ({ label: item.title, meta: "most opened movie", clicks: item.clicks, total_count: item.total_count }));
+    if (tab === "series") return (data?.topSeries ?? []).map((item) => ({ label: item.title, meta: "most opened series", clicks: item.clicks, total_count: item.total_count }));
+    if (tab === "genres") return (data?.bestCategories ?? []).map((item) => ({ label: item.category, meta: "best category/source", clicks: item.clicks, total_count: item.total_count }));
+    return (data?.leaderboard ?? []).map((item) => ({ label: item.label, meta: "most active viewer", clicks: item.clicks, total_count: item.total_count }));
   }, [data, tab]);
+  const topRankingItems = rankingItems.slice(0, 5);
 
   return (
     <section className="admin-console-grid">
       <Panel title="Leaderboards" kicker="Most loved" icon={ListOrdered} className="is-wide">
-        <div className="admin-console-tabs movies-tabs" role="tablist" aria-label="Leaderboard categories">
-          {leaderboardTabs.map(({ id, label, icon: Icon }) => (
-            <button key={id} type="button" role="tab" aria-selected={tab === id} className={tab === id ? "movies-tab is-active" : "movies-tab"} onClick={() => setLeaderboardTab(id)}>
-              <Icon />
-              <span>{label}</span>
-            </button>
-          ))}
+        <div className="admin-console-leaderboard-toolbar">
+          <div className="admin-console-tabs movies-tabs" role="tablist" aria-label="Leaderboard categories">
+            {leaderboardTabs.map(({ id, label, icon: Icon }) => (
+              <button key={id} type="button" role="tab" aria-selected={tab === id} className={tab === id ? "movies-tab is-active" : "movies-tab"} onClick={() => setLeaderboardTab(id)}>
+                <Icon />
+                <span>{label}</span>
+              </button>
+            ))}
+          </div>
         </div>
         <div className="admin-console-leaderboard-layout">
-          <RankingList items={rankingItems} />
-          <ChartBox>
-            {rankingItems.some((item) => item.clicks > 0) ? (
+          <RankingList items={topRankingItems} />
+          <div
+            className="admin-console-leaderboard-chart"
+            style={{ minHeight: Math.max(330, topRankingItems.length * 76 - 12) }}
+          >
+            {topRankingItems.some((item) => item.clicks > 0) ? (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={rankingItems.slice(0, 8)} layout="vertical" margin={{ left: 12, right: 18 }}>
+                <BarChart data={topRankingItems} layout="vertical" margin={{ left: 0, right: 18, top: 0, bottom: 0 }}>
                   <CartesianGrid stroke="rgba(255,255,255,0.08)" horizontal={false} />
-                  <XAxis type="number" stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} />
-                  <YAxis type="category" dataKey="label" stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} width={120} />
-                  <Tooltip contentStyle={tooltipStyle} />
+                  <XAxis type="number" stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} tickFormatter={formatChartValue} />
+                  <YAxis type="category" dataKey="label" tick={false} tickLine={false} axisLine={false} width={0} />
+                  <Tooltip formatter={formatChartTooltip} contentStyle={tooltipStyle} />
                   <Bar dataKey="clicks" fill="#e50914" radius={[0, 8, 8, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
               <EmptyChart label="Leaderboard charts appear after activity is tracked." />
             )}
-          </ChartBox>
+          </div>
         </div>
+        <PreviewFooter remaining={moreCount(rankingItems)} href={fullListHref(tab, data?.period.duration)} />
       </Panel>
     </section>
   );
@@ -2386,8 +2477,8 @@ function HealthPage({ data }: { data: AnalyticsData | null }) {
               <ComposedChart data={data?.weeklyTrend ?? []}>
                 <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
                 <XAxis dataKey="day" stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} />
-                <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} width={38} />
-                <Tooltip contentStyle={tooltipStyle} />
+                <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} tickFormatter={formatChartValue} width={38} />
+                <Tooltip formatter={formatChartTooltip} contentStyle={tooltipStyle} />
                 <Legend />
                 <Area type="monotone" dataKey="clicks" fill="#e50914" fillOpacity={0.14} stroke="#e50914" strokeWidth={3} />
                 <Line type="monotone" dataKey="users" stroke="#38bdf8" strokeWidth={3} dot={{ r: 4 }} />
@@ -2406,8 +2497,8 @@ function HealthPage({ data }: { data: AnalyticsData | null }) {
               <BarChart data={data?.activeUsers ?? []}>
                 <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
                 <XAxis dataKey="day" stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} />
-                <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} width={36} />
-                <Tooltip contentStyle={tooltipStyle} />
+                <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} tickFormatter={formatChartValue} width={36} />
+                <Tooltip formatter={formatChartTooltip} contentStyle={tooltipStyle} />
                 <Bar dataKey="users" fill="#22c55e" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -2422,9 +2513,9 @@ function HealthPage({ data }: { data: AnalyticsData | null }) {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={signalData}>
               <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
-              <XAxis dataKey="name" stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} />
-              <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} width={38} />
-              <Tooltip contentStyle={tooltipStyle} />
+              <XAxis dataKey="name" stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} tickFormatter={formatChartLabel} />
+              <YAxis stroke="rgba(255,255,255,0.58)" tickLine={false} axisLine={false} allowDecimals={false} tickFormatter={formatChartValue} width={38} />
+              <Tooltip formatter={formatChartTooltip} contentStyle={tooltipStyle} />
               <Bar dataKey="value" fill="#facc15" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -2441,7 +2532,7 @@ function HealthPage({ data }: { data: AnalyticsData | null }) {
                     <Cell key={entry.name} fill={chartColors[index % chartColors.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value, name) => [value, formatMediaType(String(name))]} contentStyle={tooltipStyle} />
+                <Tooltip formatter={formatMediaTooltip} contentStyle={tooltipStyle} />
                 <Legend formatter={(value) => formatMediaType(String(value))} />
               </PieChart>
             </ResponsiveContainer>

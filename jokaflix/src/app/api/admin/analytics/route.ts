@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAdminUser } from "../../../../lib/admin";
+import { getAdminLeaderboardRows } from "../../../../lib/admin-leaderboards";
 import { adminDurationCondition, adminDurationLabel, adminDurationSeriesStart, sanitizeAdminDuration } from "../../../../lib/admin-duration";
 import { ensureAppSchemaOnce, query } from "../../../../lib/db";
 
@@ -73,34 +74,8 @@ export async function GET(request: Request) {
       where event_type = 'movie_click'
         and ${eventPeriod}
     `),
-    query<StatRow>(`
-      select
-        coalesce(title, 'Untitled') as title,
-        'movie' as media_type,
-        tmdb_id,
-        count(*)::int as clicks
-      from analytics_events
-      where event_type = 'movie_click'
-        and media_type = 'movie'
-        and ${eventPeriod}
-      group by title, tmdb_id
-      order by clicks desc, title asc
-      limit 10
-    `),
-    query<StatRow>(`
-      select
-        coalesce(title, 'Untitled') as title,
-        'tv' as media_type,
-        tmdb_id,
-        count(*)::int as clicks
-      from analytics_events
-      where event_type = 'movie_click'
-        and media_type = 'tv'
-        and ${eventPeriod}
-      group by title, tmdb_id
-      order by clicks desc, title asc
-      limit 10
-    `),
+    getAdminLeaderboardRows("movies", duration, 5),
+    getAdminLeaderboardRows("series", duration, 5),
     query<StatRow>(`
       select
         to_char(hour_bucket, 'HH24:00') as label,
@@ -130,27 +105,8 @@ export async function GET(request: Request) {
       group by day_bucket
       order by day_bucket
     `),
-    query<StatRow>(`
-      select coalesce(category, 'Uncategorized') as category, count(*)::int as clicks
-      from analytics_events
-      where event_type in ('movie_click', 'category_click')
-        and ${eventPeriod}
-      group by category
-      order by clicks desc, category asc
-      limit 8
-    `),
-    query<StatRow>(`
-      select
-        coalesce(u.username, u.name, u.email, 'Guest ' || right(coalesce(e.visitor_id, 'unknown'), 4)) as label,
-        count(*)::int as clicks
-      from analytics_events e
-      left join "user" u on u.id = e.user_id
-      where e.event_type = 'movie_click'
-        and ${aliasedEventPeriod}
-      group by label
-      order by clicks desc, label asc
-      limit 10
-    `),
+    getAdminLeaderboardRows("genres", duration, 5),
+    getAdminLeaderboardRows("users", duration, 5),
     query<StatRow>(`
       select
         to_char(day_bucket, 'Mon DD') as day,
@@ -298,19 +254,7 @@ export async function GET(request: Request) {
       group by hour_bucket
       order by hour_bucket
     `),
-    query<StatRow>(`
-      select
-        coalesce(title, 'Untitled') as title,
-        coalesce(media_type, 'other') as media_type,
-        coalesce(category, 'Uncategorized') as category,
-        coalesce(u.username, u.name, u.email, 'Guest ' || right(coalesce(e.visitor_id, 'unknown'), 4)) as user_label,
-        to_char(e.created_at, 'Mon DD, HH24:MI') as happened_at
-      from analytics_events e
-      left join "user" u on u.id = e.user_id
-      where e.event_type = 'movie_click'
-      order by e.created_at desc
-      limit 12
-    `),
+    getAdminLeaderboardRows("recent-activity", duration, 5),
   ]);
 
   const totals = totals30Days.rows[0] || {};
@@ -338,12 +282,12 @@ export async function GET(request: Request) {
         seriesTouched30Days: toNumber(totals.series_touched),
         clicksPerActiveUser: active30Days > 0 ? Number((totalClicks30Days / active30Days).toFixed(1)) : 0,
       },
-      topMovies: topMovies.rows,
-      topSeries: topSeries.rows,
+      topMovies: topMovies.map((item) => ({ title: item.label, media_type: "movie", tmdb_id: item.id, clicks: item.value, total_count: item.total_count })),
+      topSeries: topSeries.map((item) => ({ title: item.label, media_type: "tv", tmdb_id: item.id, clicks: item.value, total_count: item.total_count })),
       clickTrend: clickTrend.rows,
       weeklyTrend: weeklyTrend.rows,
-      bestCategories: bestCategories.rows,
-      leaderboard: leaderboard.rows,
+      bestCategories: bestCategories.map((item) => ({ category: item.label, clicks: item.value, total_count: item.total_count })),
+      leaderboard: leaderboard.map((item) => ({ label: item.label, clicks: item.value, total_count: item.total_count })),
       activeUsers: activeUsers.rows,
       mediaSplit: mediaSplit.rows,
       engagementSplit: engagementSplit.rows,
@@ -353,7 +297,14 @@ export async function GET(request: Request) {
       reportTemplates: reportTemplates.rows,
       auditLogs: auditLogs.rows,
       auditHeatmap: auditHeatmap.rows,
-      recentActivity: recentActivity.rows,
+      recentActivity: recentActivity.map((item) => ({
+        title: item.label,
+        media_type: item.media_type || "platform",
+        category: item.category || "Uncategorized",
+        user_label: item.actor || "Guest",
+        happened_at: item.valueLabel,
+        total_count: item.total_count,
+      })),
     },
     { headers: { "Cache-Control": "no-store" } }
   );
