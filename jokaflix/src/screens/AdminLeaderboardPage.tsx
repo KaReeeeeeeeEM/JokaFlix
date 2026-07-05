@@ -67,11 +67,13 @@ export default function AdminLeaderboardPage({
         setMobileOpen={setMobileOpen}
       />
       <section className="admin-console-main">
-        <header className="admin-console-topbar admin-leaderboard-topbar">
+        <div className="admin-leaderboard-back-row">
           <Link className="admin-console-back-link" href={dashboardHref}>
             <ArrowLeft />
             Back to dashboard
           </Link>
+        </div>
+        <header className="admin-console-topbar admin-leaderboard-topbar">
           <div>
             <p className="section-kicker">Full list</p>
             <h1>{title}</h1>

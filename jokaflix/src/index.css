@@ -10261,6 +10261,12 @@ body.is-admin-console .mobile-bottom-nav {
   height: 1rem;
 }
 
+.admin-leaderboard-back-row {
+  display: flex;
+  width: min(1500px, 100%);
+  margin: 0 auto 1rem;
+}
+
 .admin-leaderboard-topbar {
   align-items: flex-start;
   flex-direction: column;
