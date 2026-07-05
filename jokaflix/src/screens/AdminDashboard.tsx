@@ -1503,7 +1503,7 @@ function UsersPage({ data }: { data: AnalyticsData | null }) {
                 )}
               </ChartBox>
             </Panel>
-            <Panel title="Recent Activity" kicker="Live feed" icon={Clock3}>
+            <Panel title="Recent Activity" kicker="Live feed" icon={Clock3} className="is-wide">
               <div className="admin-console-feed">
                 {(data?.recentActivity ?? []).map((item, index) => (
                   <div key={`${item.title}-${item.happened_at}-${index}`}>
