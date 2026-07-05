@@ -3119,6 +3119,12 @@ select:disabled {
   margin-top: clamp(1.2rem, 2.6vw, 2.4rem);
 }
 
+.actor-movies-grid .movie-card-link,
+.actor-movies-grid .movies-card-skeleton {
+  flex: 0 0 calc((100% - (var(--movies-grid-gap) * (var(--movies-grid-columns) - 1))) / var(--movies-grid-columns));
+  max-width: calc((100% - (var(--movies-grid-gap) * (var(--movies-grid-columns) - 1))) / var(--movies-grid-columns));
+}
+
 .actor-selection-empty {
   margin-top: clamp(1.2rem, 2.6vw, 2.4rem);
 }
