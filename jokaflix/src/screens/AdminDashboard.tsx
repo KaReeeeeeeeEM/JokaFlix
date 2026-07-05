@@ -333,6 +333,22 @@ function acknowledgeAction(label: string) {
   window.dispatchEvent(new CustomEvent("jokaflix-admin-action", { detail: { message: `${label} action is ready to connect to moderation workflow.` } }));
 }
 
+function useAnimatedPresence(open: boolean, delay = 260) {
+  const [present, setPresent] = React.useState(open);
+
+  React.useEffect(() => {
+    if (open) {
+      setPresent(true);
+      return;
+    }
+
+    const timer = window.setTimeout(() => setPresent(false), delay);
+    return () => window.clearTimeout(timer);
+  }, [delay, open]);
+
+  return present;
+}
+
 function SkeletonBlock({ className = "" }: { className?: string }) {
   return <div className={`admin-console-skeleton ${className}`} aria-hidden="true" />;
 }
@@ -775,22 +791,32 @@ function TableActionMenu({ actions }: { actions: TableAction[] }) {
 
 function AdminActionModal() {
   const [message, setMessage] = React.useState<string | null>(null);
+  const [visibleMessage, setVisibleMessage] = React.useState<string | null>(null);
+  const modalPresent = useAnimatedPresence(Boolean(message));
 
   React.useEffect(() => {
     const handleAction = (event: Event) => {
       const detail = (event as CustomEvent<{ message?: string }>).detail;
-      setMessage(detail?.message || "Action is ready to connect to moderation workflow.");
+      const nextMessage = detail?.message || "Action is ready to connect to moderation workflow.";
+      setVisibleMessage(nextMessage);
+      setMessage(nextMessage);
     };
 
     window.addEventListener("jokaflix-admin-action", handleAction);
     return () => window.removeEventListener("jokaflix-admin-action", handleAction);
   }, []);
 
-  if (!message) return null;
+  React.useEffect(() => {
+    if (!modalPresent) setVisibleMessage(null);
+  }, [modalPresent]);
+
+  const closeModal = () => setMessage(null);
+
+  if (!modalPresent || !visibleMessage) return null;
 
   return (
-    <div className="admin-console-modal-layer" role="presentation">
-      <button type="button" className="admin-console-modal-backdrop" onClick={() => setMessage(null)} aria-label="Close action message" />
+    <div className={`admin-console-modal-layer ${message ? "is-open" : "is-closing"}`} role="presentation">
+      <button type="button" className="admin-console-modal-backdrop" onClick={closeModal} aria-label="Close action message" />
       <section className="admin-console-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="admin-action-modal-title">
         <header>
           <span>
@@ -801,9 +827,9 @@ function AdminActionModal() {
             <h2 id="admin-action-modal-title">Workflow notice</h2>
           </div>
         </header>
-        <p>{message}</p>
+        <p>{visibleMessage}</p>
         <footer>
-          <button type="button" className="is-primary" onClick={() => setMessage(null)}>Done</button>
+          <button type="button" className="is-primary" onClick={closeModal}>Done</button>
         </footer>
       </section>
     </div>
@@ -1767,8 +1793,11 @@ function ReportsPage({ data }: { data: AnalyticsData | null }) {
   const [localTemplates, setLocalTemplates] = React.useState<ReportTemplateItem[]>([]);
   const [deletedTemplateIds, setDeletedTemplateIds] = React.useState<Set<string>>(() => new Set());
   const [confirmTemplate, setConfirmTemplate] = React.useState<ReportTemplateItem | null>(null);
+  const [visibleConfirmTemplate, setVisibleConfirmTemplate] = React.useState<ReportTemplateItem | null>(null);
   const [savingTemplate, setSavingTemplate] = React.useState(false);
   const [tab, setTab] = React.useState<"overview" | "table">(() => readQueryOption("reportsTab", "overview", ["overview", "table"]));
+  const reportModalPresent = useAnimatedPresence(modalOpen);
+  const confirmTemplatePresent = useAnimatedPresence(Boolean(confirmTemplate));
   const setReportsTab = (nextTab: "overview" | "table") => {
     setTab(nextTab);
     updateDashboardQuery({ reportsTab: nextTab === "overview" ? null : nextTab });
@@ -1791,6 +1820,14 @@ function ReportsPage({ data }: { data: AnalyticsData | null }) {
   React.useEffect(() => {
     if (data?.period.duration) setSelectedDuration(data.period.duration);
   }, [data?.period.duration]);
+
+  React.useEffect(() => {
+    if (confirmTemplate) setVisibleConfirmTemplate(confirmTemplate);
+  }, [confirmTemplate]);
+
+  React.useEffect(() => {
+    if (!confirmTemplatePresent) setVisibleConfirmTemplate(null);
+  }, [confirmTemplatePresent]);
 
   const createReport = () => {
     downloadReport(selectedTemplate ? selectedTemplate.report_type : selectedReport, selectedFormat, {
@@ -1944,8 +1981,8 @@ function ReportsPage({ data }: { data: AnalyticsData | null }) {
         </section>
       )}
 
-      {modalOpen && (
-        <div className="admin-console-modal-layer" role="presentation">
+      {reportModalPresent && (
+        <div className={`admin-console-modal-layer ${modalOpen ? "is-open" : "is-closing"}`} role="presentation">
           <button type="button" className="admin-console-modal-backdrop" onClick={() => setModalOpen(false)} aria-label="Close report creator" />
           <section className="admin-console-modal" role="dialog" aria-modal="true" aria-labelledby="admin-report-modal-title">
             <header>
@@ -2051,8 +2088,8 @@ function ReportsPage({ data }: { data: AnalyticsData | null }) {
         </div>
       )}
 
-      {confirmTemplate && (
-        <div className="admin-console-modal-layer" role="presentation">
+      {confirmTemplatePresent && visibleConfirmTemplate && (
+        <div className={`admin-console-modal-layer ${confirmTemplate ? "is-open" : "is-closing"}`} role="presentation">
           <button type="button" className="admin-console-modal-backdrop" onClick={() => setConfirmTemplate(null)} aria-label="Cancel template deletion" />
           <section className="admin-console-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="admin-template-delete-title">
             <header>
@@ -2064,10 +2101,10 @@ function ReportsPage({ data }: { data: AnalyticsData | null }) {
                 <h2 id="admin-template-delete-title">Remove this report template?</h2>
               </div>
             </header>
-            <p>Deleting <strong>{confirmTemplate.name}</strong> removes it from reusable report templates. Generated report history will remain untouched.</p>
+            <p>Deleting <strong>{visibleConfirmTemplate.name}</strong> removes it from reusable report templates. Generated report history will remain untouched.</p>
             <footer>
               <button type="button" onClick={() => setConfirmTemplate(null)}>Cancel</button>
-              <button type="button" className="is-danger" onClick={() => void deleteTemplate(confirmTemplate)}>
+              <button type="button" className="is-danger" onClick={() => void deleteTemplate(visibleConfirmTemplate)}>
                 <Trash2 />
                 Delete template
               </button>
@@ -2340,6 +2377,7 @@ function HealthPage({ data }: { data: AnalyticsData | null }) {
 }
 
 export default function AdminDashboard({ admin }: { admin: AdminUser }) {
+  const mainRef = React.useRef<HTMLElement | null>(null);
   const [data, setData] = React.useState<AnalyticsData | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -2372,6 +2410,54 @@ export default function AdminDashboard({ admin }: { admin: AdminUser }) {
     void loadAnalytics();
   }, [loadAnalytics]);
 
+  React.useEffect(() => {
+    const root = mainRef.current;
+    if (!root) return;
+
+    const targets = Array.from(
+      root.querySelectorAll<HTMLElement>(
+        [
+          ".admin-console-topbar",
+          ".admin-console-tabs",
+          ".admin-console-page-actions",
+          ".admin-console-stat",
+          ".admin-console-panel",
+          ".admin-profile-hero",
+          ".admin-profile-section",
+          ".admin-profile-chart-card",
+          ".admin-console-report-card",
+          ".admin-console-template-card",
+          ".admin-console-table-wrap",
+          ".admin-console-ai-page",
+          ".admin-console-error",
+        ].join(", ")
+      )
+    );
+
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    targets.forEach((target, index) => {
+      target.classList.add("admin-reveal");
+      target.style.setProperty("--admin-reveal-index", String(Math.min(index, 10)));
+      if (prefersReducedMotion) target.classList.add("is-visible");
+    });
+
+    if (prefersReducedMotion) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        });
+      },
+      { root: null, rootMargin: "0px 0px -8% 0px", threshold: 0.12 }
+    );
+
+    targets.forEach((target) => observer.observe(target));
+    return () => observer.disconnect();
+  }, [activeSection, data, loading, error]);
+
   const setDashboardSection = React.useCallback((section: SectionId) => {
     setActiveSection(section);
     updateDashboardQuery({ section: section === "overview" ? null : section });
@@ -2395,7 +2481,7 @@ export default function AdminDashboard({ admin }: { admin: AdminUser }) {
         </div>
         <AdminAccountMenu admin={admin} onViewProfile={() => setDashboardSection("profile")} />
       </div>
-      <section className="admin-console-main">
+      <section className="admin-console-main" ref={mainRef}>
         <header className="admin-console-topbar">
           <button type="button" className="admin-console-mobile-menu" onClick={() => setMobileOpen(true)} aria-label="Open admin navigation">
             <Menu />
@@ -2422,7 +2508,7 @@ export default function AdminDashboard({ admin }: { admin: AdminUser }) {
         {loading && !data ? (
           <AdminPageSkeleton section={activeSection} />
         ) : (
-          <>
+          <div className="admin-console-section-enter" key={activeSection}>
             {activeSection === "overview" && <OverviewPage data={data} loading={loading} />}
             {activeSection === "traffic" && <TrafficPage data={data} />}
             {activeSection === "content" && <ContentPage data={data} />}
@@ -2433,7 +2519,7 @@ export default function AdminDashboard({ admin }: { admin: AdminUser }) {
             {activeSection === "ai" && <AIManagerPage data={data} />}
             {activeSection === "health" && <HealthPage data={data} />}
             {activeSection === "profile" && <AdminProfilePage admin={admin} data={data} />}
-          </>
+          </div>
         )}
       </section>
       <AdminActionModal />
