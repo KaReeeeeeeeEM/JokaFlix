@@ -2,16 +2,21 @@ import type { Metadata, Viewport } from "next";
 import "../index.css";
 import { Providers } from "./providers";
 import AppChrome from "./app-chrome";
+import { JsonLd } from "../components/seo/JsonLd";
+import { createMetadata, siteConfig, siteJsonLd } from "../lib/seo";
 
 export const metadata: Metadata = {
-  title: "JokaFlix",
-  description: "Browse movies and series on JokaFlix.",
+  ...createMetadata(),
   manifest: "/manifest.json",
-  applicationName: "JokaFlix",
+  applicationName: siteConfig.name,
+  authors: [{ name: siteConfig.name, url: siteConfig.url }],
+  creator: siteConfig.name,
+  publisher: siteConfig.name,
+  category: "Entertainment",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "JokaFlix",
+    title: siteConfig.name,
   },
   icons: {
     icon: [
@@ -23,7 +28,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#e50914",
+  themeColor: siteConfig.themeColor,
   colorScheme: "dark light",
   width: "device-width",
   initialScale: 1,
@@ -34,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
+        <JsonLd data={siteJsonLd()} />
         <Providers>
           <AppChrome>{children}</AppChrome>
         </Providers>

@@ -1,5 +1,13 @@
 import MediaPlayer from "../../../../components/global/play/MediaPlayer";
 import { createPlaybackToken } from "../../../../lib/media-security";
+import { createMetadata } from "../../../../lib/seo";
+
+export const metadata = createMetadata({
+  title: "Player",
+  description: "JokaFlix playback page.",
+  path: "/play",
+  noIndex: true,
+});
 
 type PageProps = {
   params: Promise<{ category: string; id: string }>;

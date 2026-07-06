@@ -3,15 +3,20 @@ import { getAdminUser } from "../../../../lib/admin";
 import { adminLeaderboardTitle, getAdminLeaderboardRows, sanitizeAdminLeaderboardType } from "../../../../lib/admin-leaderboards";
 import { adminDurationLabel, sanitizeAdminDuration } from "../../../../lib/admin-duration";
 import { ensureAppSchemaOnce } from "../../../../lib/db";
+import { createMetadata } from "../../../../lib/seo";
 import AdminLeaderboardPage from "../../../../screens/AdminLeaderboardPage";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ type: string }> }) {
   const { type } = await params;
-  return {
-    title: `${adminLeaderboardTitle(sanitizeAdminLeaderboardType(type))} · JokaFlix Admin`,
-  };
+  const title = adminLeaderboardTitle(sanitizeAdminLeaderboardType(type));
+  return createMetadata({
+    title: `${title} Admin Leaderboard`,
+    description: "Private JokaFlix admin leaderboard.",
+    path: `/admin/leaderboards/${type}`,
+    noIndex: true,
+  });
 }
 
 export default async function Page({
