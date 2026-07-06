@@ -5,13 +5,14 @@ type FetchOptions = {
   method?: string;
   headers?: Record<string, string>;
   params?: Record<string, string | number>;
-  body?: any;
+  body?: unknown;
   enabled?: boolean | undefined;
   queryKey?: QueryKey;
+  signal?: AbortSignal;
 };
 
 async function fetcher<T>(options: FetchOptions): Promise<T> {
-  const { url, method = "GET", headers, params, body } = options;
+  const { url, method = "GET", headers, params, body, signal } = options;
   let fetchUrl = url;
   if (params && Object.keys(params).length > 0) {
     const query = new URLSearchParams(params as Record<string, string>).toString();
@@ -21,6 +22,7 @@ async function fetcher<T>(options: FetchOptions): Promise<T> {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
+    signal,
   });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
@@ -34,7 +36,7 @@ export function useFetch<T = unknown>(
   const key = queryKey ?? [fetchOptions.url, fetchOptions.params, fetchOptions.body, fetchOptions.headers, fetchOptions.method];
   const query = useQuery<T, Error>({
     queryKey: key,
-    queryFn: () => fetcher<T>({ ...fetchOptions }),
+    queryFn: ({ signal }) => fetcher<T>({ ...fetchOptions, signal }),
     enabled,
     ...queryOptions,
   });

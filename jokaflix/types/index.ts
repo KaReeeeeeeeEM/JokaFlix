@@ -1,7 +1,7 @@
 export interface TrendingMovie {
     name: string | undefined;
     original_name: boolean;
-    first_air_date: any;
+    first_air_date: string | undefined;
     backdrop_path: string;
     id: number;
     title: string;

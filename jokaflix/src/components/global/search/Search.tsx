@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { PlayCircle, Search } from "lucide-react";
 import type { TrendingMovie } from "../../../../types";
 import { useFetch } from "../../../api";
@@ -12,6 +13,7 @@ export default function SearchDrawer() {
   const pathname = usePathname() ?? "/";
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
@@ -19,6 +21,20 @@ export default function SearchDrawer() {
 
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
+
+  const searchQueryKey = useMemo(() => ["search-drawer", "results", debounced], [debounced]);
+  const suggestionsQueryKey = useMemo(() => ["search-drawer", "suggestions"], []);
+
+  const handleClose = useCallback(() => {
+    void queryClient.cancelQueries({ queryKey: ["search-drawer"] });
+
+    const next = new URLSearchParams(searchParams?.toString());
+    next.delete("search");
+    setQuery("");
+    setDebounced("");
+    const queryString = next.toString();
+    router.replace(queryString ? `${pathname}?${queryString}` : pathname, { scroll: false });
+  }, [pathname, queryClient, router, searchParams]);
 
   useEffect(() => {
     const t = window.setTimeout(() => setDebounced(query.trim()), 350);
@@ -38,11 +54,12 @@ export default function SearchDrawer() {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open]);
+  }, [open, handleClose]);
 
   const { data, loading } = useFetch<{ results: TrendingMovie[] }>(
     debounced
       ? {
+          queryKey: searchQueryKey,
           url: `https://api.themoviedb.org/3/search/multi?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}&query=${encodeURIComponent(debounced)}`,
         }
       : { url: "" },
@@ -51,23 +68,24 @@ export default function SearchDrawer() {
 
   const { data: suggestionsData, loading: suggestionsLoading } = useFetch<{ results: TrendingMovie[] }>(
     {
+      queryKey: suggestionsQueryKey,
       url: `https://api.themoviedb.org/3/trending/all/day?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}`,
     },
     { enabled: open && debounced.length <= 1 }
   );
 
-  const mediaFilter = (item: any) =>
+  const mediaFilter = useCallback((item: TrendingMovie) =>
     (item.media_type === "movie" || item.media_type === "tv") &&
-    (item.poster_path || item.backdrop_path);
+    Boolean(item.poster_path || item.backdrop_path), []);
 
   const results = useMemo(
     () => (data?.results || []).filter(mediaFilter),
-    [data]
+    [data, mediaFilter]
   );
 
   const suggestions = useMemo(
     () => (suggestionsData?.results || []).filter(mediaFilter).slice(0, 12),
-    [suggestionsData]
+    [suggestionsData, mediaFilter]
   );
 
   const showingResults = debounced.length > 1;
@@ -92,16 +110,7 @@ export default function SearchDrawer() {
     return () => observer.disconnect();
   }, [open, visibleItems]);
 
-  const handleClose = () => {
-    const next = new URLSearchParams(searchParams?.toString());
-    next.delete("search");
-    setQuery("");
-    setDebounced("");
-    const queryString = next.toString();
-    router.replace(queryString ? `${pathname}?${queryString}` : pathname, { scroll: false });
-  };
-
-  const handleResultClick = (item: any, title: string, isSeries: boolean) => {
+  const handleResultClick = (item: TrendingMovie, title: string, isSeries: boolean) => {
     trackAnalyticsEvent({
       eventType: "movie_click",
       mediaType: isSeries ? "tv" : "movie",
@@ -175,8 +184,8 @@ export default function SearchDrawer() {
             </div>
           ) : visibleItems.length > 0 ? (
             <div className="search-suggestion-list">
-              {visibleItems.map((item: any, index) => {
-                const title = item.title || item.name;
+              {visibleItems.map((item, index) => {
+                const title = item.title || item.name || "Untitled";
                 const isSeries = item.media_type === "tv";
                 return (
                   <Link
