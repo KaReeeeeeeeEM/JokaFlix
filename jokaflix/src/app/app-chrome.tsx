@@ -9,6 +9,7 @@ import PWARegister from "../components/pwa/PWARegister";
 import SplashScreen from "../components/pwa/SplashScreen";
 import LoginNudge from "../components/auth/LoginNudge";
 import AuthSessionSync from "../components/auth/AuthSessionSync";
+import IdleScreensaver from "../components/global/screensaver/IdleScreensaver";
 
 export default function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() ?? "/";
@@ -28,6 +29,7 @@ export default function AppChrome({ children }: { children: React.ReactNode }) {
         {!isAuthFlowRoute && !isAdminRoute && <LoginNudge />}
         {showPublicChrome && <Header />}
         {showPublicChrome && <SearchDrawer />}
+        {showPublicChrome && !isAuthFlowRoute && <IdleScreensaver />}
       </Suspense>
       <Toaster richColors position="top-center" toastOptions={{ className: "jokaflix-toast" }} />
       <Suspense fallback={null}>{children}</Suspense>

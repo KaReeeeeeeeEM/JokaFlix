@@ -241,8 +241,7 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
 
   React.useEffect(() => {
     if (!session.data?.user) return;
-    const role = (session.data.user as { role?: string | null }).role;
-    router.replace(role === "superadmin" || role === "admin" ? "/admin" : nextPath);
+    router.replace(redirectPathForSession({ user: session.data.user }, nextPath));
   }, [nextPath, router, session.data?.user]);
 
   React.useEffect(() => {

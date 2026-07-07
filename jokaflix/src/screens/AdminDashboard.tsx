@@ -945,8 +945,7 @@ function AdminAccountMenu({ admin, onViewProfile }: { admin: AdminUser; onViewPr
   const handleLogout = async () => {
     await authClient.signOut();
     notifyAuthChanged({ signedOut: true, user: null, profile: null });
-    router.replace(`/signin?next=${encodeURIComponent("/admin")}`);
-    router.refresh();
+    router.replace("/signin");
   };
 
   return (

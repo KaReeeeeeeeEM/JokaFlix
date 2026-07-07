@@ -6,6 +6,7 @@ import { useFetch } from "../../../api";
 import type { TrendingMovie } from "../../../../types";
 
 const idleDelayMs = 22000;
+const pointerJitterThreshold = 12;
 
 function backdropUrl(item: TrendingMovie) {
   const path = item.backdrop_path || item.poster_path;
@@ -29,8 +30,11 @@ export default function IdleScreensaver() {
   const [index, setIndex] = React.useState(0);
   const idleTimer = React.useRef<number | null>(null);
   const exitTimer = React.useRef<number | null>(null);
+  const visibleRef = React.useRef(false);
+  const lastPointer = React.useRef<{ x: number; y: number } | null>(null);
   const { data } = useFetch<{ results: TrendingMovie[] }>({
-    url: `https://api.themoviedb.org/3/trending/all/week?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}&include_adult=false`,
+    url: "/api/screensaver",
+    queryKey: ["screensaver-items"],
   });
 
   const items = React.useMemo(
@@ -39,16 +43,21 @@ export default function IdleScreensaver() {
   );
   const current = items[index % Math.max(items.length, 1)];
 
+  React.useEffect(() => {
+    visibleRef.current = visible;
+  }, [visible]);
+
   const hideScreensaver = React.useCallback(() => {
-    if (!visible) return;
+    if (!visibleRef.current) return;
 
     setExiting(true);
     if (exitTimer.current) window.clearTimeout(exitTimer.current);
     exitTimer.current = window.setTimeout(() => {
       setVisible(false);
+      visibleRef.current = false;
       setExiting(false);
     }, 520);
-  }, [visible]);
+  }, []);
 
   const resetIdleTimer = React.useCallback(() => {
     if (idleTimer.current) window.clearTimeout(idleTimer.current);
@@ -57,6 +66,7 @@ export default function IdleScreensaver() {
       if (items.length > 0) {
         if (exitTimer.current) window.clearTimeout(exitTimer.current);
         setExiting(false);
+        visibleRef.current = true;
         setVisible(true);
       }
     }, idleDelayMs);
@@ -64,12 +74,31 @@ export default function IdleScreensaver() {
 
   React.useEffect(() => {
     resetIdleTimer();
+
+    const handleActivity = (event: Event) => {
+      if (event.type === "pointermove" && !visibleRef.current) {
+        const pointerEvent = event as PointerEvent;
+        const previous = lastPointer.current;
+        lastPointer.current = { x: pointerEvent.clientX, y: pointerEvent.clientY };
+
+        if (
+          previous &&
+          Math.abs(pointerEvent.clientX - previous.x) < pointerJitterThreshold &&
+          Math.abs(pointerEvent.clientY - previous.y) < pointerJitterThreshold
+        ) {
+          return;
+        }
+      }
+
+      resetIdleTimer();
+    };
+
     const events = ["pointermove", "pointerdown", "keydown", "wheel", "touchstart"];
-    events.forEach((eventName) => window.addEventListener(eventName, resetIdleTimer, { passive: true }));
+    events.forEach((eventName) => window.addEventListener(eventName, handleActivity, { passive: true }));
     return () => {
       if (idleTimer.current) window.clearTimeout(idleTimer.current);
       if (exitTimer.current) window.clearTimeout(exitTimer.current);
-      events.forEach((eventName) => window.removeEventListener(eventName, resetIdleTimer));
+      events.forEach((eventName) => window.removeEventListener(eventName, handleActivity));
     };
   }, [resetIdleTimer]);
 

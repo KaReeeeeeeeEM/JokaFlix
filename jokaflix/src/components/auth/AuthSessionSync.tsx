@@ -1,23 +1,17 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import { authClient } from "../../lib/auth-client";
 import { AUTH_CHANGED_EVENT, AUTH_STORAGE_KEY, type AuthChangeDetail } from "../../lib/auth-events";
 
 type AuthChangeEvent = CustomEvent<AuthChangeDetail>;
 
 export default function AuthSessionSync() {
-  const router = useRouter();
   const session = authClient.useSession();
 
   React.useEffect(() => {
-    const syncSession = async (event?: Event) => {
-      const detail = event && "detail" in event ? (event as AuthChangeEvent).detail : undefined;
+    const syncSession = async (_event?: Event) => {
       await session.refetch();
-      if (detail?.signedOut) {
-        router.refresh();
-      }
     };
 
     const syncFromStorage = (event: StorageEvent) => {
@@ -33,7 +27,7 @@ export default function AuthSessionSync() {
       window.removeEventListener(AUTH_CHANGED_EVENT, syncSession);
       window.removeEventListener("storage", syncFromStorage);
     };
-  }, [router, session]);
+  }, [session]);
 
   return null;
 }
