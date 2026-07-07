@@ -8,6 +8,7 @@ import { Check, CheckCircle2, ChevronDown, ChevronLeft, Eye, EyeOff, KeyRound, L
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { authClient } from "../../lib/auth-client";
+import { notifyAuthChanged } from "../../lib/auth-events";
 import { authSlides } from "./auth-slides";
 import {
   DropdownMenu,
@@ -145,7 +146,11 @@ function usernameSuggestions(name: string, email: string) {
 
 function redirectPathForSession(profileSession: unknown, fallback: string) {
   const role = (profileSession as { user?: { role?: string | null } })?.user?.role;
-  return role === "superadmin" || role === "admin" ? "/admin" : fallback;
+  const isAdmin = role === "superadmin" || role === "admin";
+  const safeFallback = fallback.startsWith("/") && !fallback.startsWith("//") ? fallback : "/profile";
+
+  if (isAdmin) return safeFallback.startsWith("/admin") ? safeFallback : "/admin";
+  return safeFallback.startsWith("/admin") ? "/profile" : safeFallback;
 }
 
 function AuthDropdown({
@@ -325,7 +330,7 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
         : { username: identifier, password: form.password, rememberMe: true, callbackURL: nextPath };
       await authFetch(path, body);
       const profileSession = await waitForProfileSession();
-      window.dispatchEvent(new CustomEvent("jokaflix:auth-changed", { detail: profileSession }));
+      notifyAuthChanged(profileSession);
       router.refresh();
       toast.success("Signed in");
       router.push(redirectPathForSession(profileSession, nextPath));
@@ -394,7 +399,7 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
       const result = await authClient.signIn.passkey();
       if (result.error) throw new Error(result.error.message);
       const profileSession = await waitForProfileSession();
-      window.dispatchEvent(new CustomEvent("jokaflix:auth-changed", { detail: profileSession }));
+      notifyAuthChanged(profileSession);
       router.refresh();
       toast.success("Signed in with passkey");
       router.push(redirectPathForSession(profileSession, nextPath));

@@ -2,10 +2,12 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Bookmark, Clock, KeyRound, LogOut, MoreVertical, Save, Star, Trash2, User } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "../components/ui/button";
 import { authClient } from "../lib/auth-client";
+import { AUTH_CHANGED_EVENT, type AuthChangeDetail, notifyAuthChanged } from "../lib/auth-events";
 import { Dialog, DialogContent, DialogTitle } from "../components/ui/dialog";
 import {
   DropdownMenu,
@@ -80,6 +82,7 @@ function ProfileSkeleton() {
 }
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [data, setData] = React.useState<ProfileData | null>(null);
   const [avatarUrl, setAvatarUrl] = React.useState("");
   const [avatarSaving, setAvatarSaving] = React.useState(false);
@@ -100,20 +103,29 @@ export default function ProfilePage() {
   }, [loadProfile]);
 
   React.useEffect(() => {
-    const refreshProfile = () => void loadProfile();
+    const refreshProfile = (event?: Event) => {
+      const detail = event && "detail" in event ? (event as CustomEvent<AuthChangeDetail>).detail : undefined;
+      if (detail?.signedOut) {
+        setData({ user: null });
+        setAvatarUrl("");
+        setAvatarOpen(false);
+        return;
+      }
+      void loadProfile();
+    };
     const refreshWhenVisible = () => {
       if (document.visibilityState === "visible") void loadProfile();
     };
 
     window.addEventListener("jokaflix:watch-later-updated", refreshProfile);
-    window.addEventListener("jokaflix:auth-changed", refreshProfile);
+    window.addEventListener(AUTH_CHANGED_EVENT, refreshProfile);
     window.addEventListener("storage", refreshProfile);
     window.addEventListener("focus", refreshProfile);
     document.addEventListener("visibilitychange", refreshWhenVisible);
 
     return () => {
       window.removeEventListener("jokaflix:watch-later-updated", refreshProfile);
-      window.removeEventListener("jokaflix:auth-changed", refreshProfile);
+      window.removeEventListener(AUTH_CHANGED_EVENT, refreshProfile);
       window.removeEventListener("storage", refreshProfile);
       window.removeEventListener("focus", refreshProfile);
       document.removeEventListener("visibilitychange", refreshWhenVisible);
@@ -122,8 +134,13 @@ export default function ProfilePage() {
 
   const signOut = async () => {
     await authClient.signOut();
+    setData({ user: null });
+    setAvatarUrl("");
+    setAvatarOpen(false);
+    notifyAuthChanged({ signedOut: true, user: null, profile: null });
     toast.success("Signed out");
-    window.location.href = "/";
+    router.replace("/");
+    router.refresh();
   };
 
   const addPasskey = async () => {

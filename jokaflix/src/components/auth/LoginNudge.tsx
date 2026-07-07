@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Film, X } from "lucide-react";
 import { authClient } from "../../lib/auth-client";
+import { AUTH_CHANGED_EVENT, type AuthChangeDetail } from "../../lib/auth-events";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 
@@ -42,14 +43,21 @@ export default function LoginNudge() {
   }, [isBlockedRoute, session.data?.user, session.isPending]);
 
   React.useEffect(() => {
-    const closeForAuthenticatedUser = () => {
+    const closeForAuthenticatedUser = (event: Event) => {
+      const detail = (event as CustomEvent<AuthChangeDetail>).detail;
+      if (detail?.signedOut) {
+        setOpen(false);
+        window.localStorage.setItem("jokaflix-login-nudge-dismissed", "1");
+        void session.refetch();
+        return;
+      }
       void session.refetch().then(() => {
         setOpen(false);
         window.localStorage.setItem("jokaflix-login-nudge-dismissed", "1");
       });
     };
-    window.addEventListener("jokaflix:auth-changed", closeForAuthenticatedUser);
-    return () => window.removeEventListener("jokaflix:auth-changed", closeForAuthenticatedUser);
+    window.addEventListener(AUTH_CHANGED_EVENT, closeForAuthenticatedUser);
+    return () => window.removeEventListener(AUTH_CHANGED_EVENT, closeForAuthenticatedUser);
   }, [session]);
 
   React.useEffect(() => {

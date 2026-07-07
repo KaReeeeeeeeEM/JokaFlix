@@ -20,14 +20,18 @@ function titleImage(title: TmdbTitleDetails) {
   return [url];
 }
 
+async function safeTmdbList<T>(path: string) {
+  return fetchTmdbList<T>(path).catch(() => null);
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const [popularMovies, nowPlayingMovies, popularSeries, onAirSeries, movieGenres] = await Promise.all([
-    fetchTmdbList<TmdbTitleDetails>("/movie/popular?page=1"),
-    fetchTmdbList<TmdbTitleDetails>("/movie/now_playing?page=1"),
-    fetchTmdbList<TmdbTitleDetails>("/tv/popular?page=1"),
-    fetchTmdbList<TmdbTitleDetails>("/tv/on_the_air?page=1"),
-    fetchTmdbList<TmdbGenre>("/genre/movie/list"),
+    safeTmdbList<TmdbTitleDetails>("/movie/popular?page=1"),
+    safeTmdbList<TmdbTitleDetails>("/movie/now_playing?page=1"),
+    safeTmdbList<TmdbTitleDetails>("/tv/popular?page=1"),
+    safeTmdbList<TmdbTitleDetails>("/tv/on_the_air?page=1"),
+    safeTmdbList<TmdbGenre>("/genre/movie/list"),
   ]);
 
   const movieEntries =

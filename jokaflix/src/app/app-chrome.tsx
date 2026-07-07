@@ -8,6 +8,7 @@ import SearchDrawer from "../components/global/search/Search";
 import PWARegister from "../components/pwa/PWARegister";
 import SplashScreen from "../components/pwa/SplashScreen";
 import LoginNudge from "../components/auth/LoginNudge";
+import AuthSessionSync from "../components/auth/AuthSessionSync";
 
 export default function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() ?? "/";
@@ -20,6 +21,7 @@ export default function AppChrome({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+      <AuthSessionSync />
       <PWARegister />
       <SplashScreen />
       <Suspense fallback={null}>

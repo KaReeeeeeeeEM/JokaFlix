@@ -10,15 +10,13 @@ import React from "react";
 import { Film, Grid3X3, Home, QrCode, Search, Tv, User, UsersRound, type LucideIcon } from "lucide-react";
 import { ThemeToggle } from "../global/header/theme-toggle";
 import { authClient } from "../../lib/auth-client";
+import { AUTH_CHANGED_EVENT, type AuthChangeDetail } from "../../lib/auth-events";
 
 type AudioWindow = Window & {
   webkitAudioContext?: typeof AudioContext;
 };
 
-type ProfileSessionEvent = CustomEvent<{
-  user?: unknown;
-  profile?: { avatar_url?: string | null } | null;
-}>;
+type ProfileSessionEvent = CustomEvent<AuthChangeDetail>;
 
 export default function Header() {
   const router = useRouter();
@@ -55,6 +53,11 @@ export default function Header() {
   React.useEffect(() => {
     const authListener = async (event: Event) => {
       const detail = (event as ProfileSessionEvent).detail;
+      if (detail?.signedOut) {
+        setProfile(null);
+        await session.refetch();
+        return;
+      }
       if (detail?.user) {
         setProfile(detail.profile || null);
       }
@@ -62,10 +65,10 @@ export default function Header() {
       await loadProfile(true);
     };
     const profileListener = () => void loadProfile(true);
-    window.addEventListener("jokaflix:auth-changed", authListener);
+    window.addEventListener(AUTH_CHANGED_EVENT, authListener);
     window.addEventListener("jokaflix:profile-updated", profileListener);
     return () => {
-      window.removeEventListener("jokaflix:auth-changed", authListener);
+      window.removeEventListener(AUTH_CHANGED_EVENT, authListener);
       window.removeEventListener("jokaflix:profile-updated", profileListener);
     };
   }, [loadProfile, session]);

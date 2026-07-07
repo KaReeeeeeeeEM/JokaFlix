@@ -63,6 +63,7 @@ import {
 import { useRouter } from "next/navigation";
 import type { AdminUser } from "../lib/admin";
 import { authClient } from "../lib/auth-client";
+import { notifyAuthChanged } from "../lib/auth-events";
 import { ThemeToggle } from "../components/global/header/theme-toggle";
 import { Button } from "../components/ui/button";
 import {
@@ -806,7 +807,8 @@ function AdminAccountMenu({ admin, onViewProfile }: { admin: AdminUser; onViewPr
 
   const handleLogout = async () => {
     await authClient.signOut();
-    router.push(`/signin?next=${encodeURIComponent("/admin")}`);
+    notifyAuthChanged({ signedOut: true, user: null, profile: null });
+    router.replace(`/signin?next=${encodeURIComponent("/admin")}`);
     router.refresh();
   };
 
@@ -2556,6 +2558,7 @@ function HealthPage({ data }: { data: AnalyticsData | null }) {
 
 export default function AdminDashboard({ admin }: { admin: AdminUser }) {
   const mainRef = React.useRef<HTMLElement | null>(null);
+  const analyticsRequestRef = React.useRef(0);
   const [data, setData] = React.useState<AnalyticsData | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -2569,24 +2572,28 @@ export default function AdminDashboard({ admin }: { admin: AdminUser }) {
     return () => document.body.classList.remove("is-admin-console");
   }, []);
 
-  const loadAnalytics = React.useCallback(async () => {
+  const loadAnalytics = React.useCallback(async (nextDuration = duration) => {
+    const requestId = analyticsRequestRef.current + 1;
+    analyticsRequestRef.current = requestId;
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/admin/analytics?duration=${encodeURIComponent(duration)}`, { credentials: "include", cache: "no-store" });
+      const response = await fetch(`/api/admin/analytics?duration=${encodeURIComponent(nextDuration)}`, { credentials: "include", cache: "no-store" });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload?.error || "Unable to load analytics");
+      if (requestId !== analyticsRequestRef.current) return;
       setData(payload as AnalyticsData);
     } catch (loadError) {
+      if (requestId !== analyticsRequestRef.current) return;
       setError(loadError instanceof Error ? loadError.message : "Unable to load analytics");
     } finally {
-      setLoading(false);
+      if (requestId === analyticsRequestRef.current) setLoading(false);
     }
   }, [duration]);
 
   React.useEffect(() => {
-    void loadAnalytics();
-  }, [loadAnalytics]);
+    void loadAnalytics(duration);
+  }, [duration, loadAnalytics]);
 
   React.useEffect(() => {
     const root = mainRef.current;
@@ -2641,6 +2648,11 @@ export default function AdminDashboard({ admin }: { admin: AdminUser }) {
     updateDashboardQuery({ section: section === "overview" ? null : section });
   }, []);
 
+  const handleDurationChange = React.useCallback((nextDuration: AdminDuration) => {
+    setDuration(nextDuration);
+    setData((current) => current ? { ...current, period: { duration: nextDuration, label: durationOptions.find((option) => option.id === nextDuration)?.label || current.period.label } } : current);
+  }, []);
+
   const activePage = activeSection === "profile" ? { label: "Admin Profile" } : navItems.find((item) => item.id === activeSection) ?? navItems[0];
 
   return (
@@ -2671,9 +2683,9 @@ export default function AdminDashboard({ admin }: { admin: AdminUser }) {
           </div>
           <div className="admin-console-topbar-actions">
             <div className="admin-console-filter">
-              <AdminDropdown label="Duration" value={duration} options={durationOptions} onChange={setDuration} />
+              <AdminDropdown label="Duration" value={duration} options={durationOptions} onChange={handleDurationChange} />
             </div>
-            <Button className="admin-refresh-button" onClick={() => void loadAnalytics()} disabled={loading}>
+            <Button className="admin-refresh-button" onClick={() => void loadAnalytics(duration)} disabled={loading}>
               <RefreshCw className={loading ? "is-spinning" : ""} />
               Refresh
             </Button>
@@ -2686,7 +2698,7 @@ export default function AdminDashboard({ admin }: { admin: AdminUser }) {
         {loading && !data ? (
           <AdminPageSkeleton section={activeSection} />
         ) : (
-          <div className="admin-console-section-enter" key={activeSection}>
+          <div className="admin-console-section-enter" key={`${activeSection}-${data?.period.duration || duration}`}>
             {activeSection === "overview" && <OverviewPage data={data} loading={loading} />}
             {activeSection === "traffic" && <TrafficPage data={data} />}
             {activeSection === "content" && <ContentPage data={data} />}
