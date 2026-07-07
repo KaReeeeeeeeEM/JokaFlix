@@ -12,6 +12,11 @@ const posterImages = [
   "https://image.tmdb.org/t/p/w500/b85bJfrTOSJ7M5Ox0yp4lxIxdG1.jpg",
 ];
 
+function appAssetUrl(path: string) {
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.BETTER_AUTH_URL || "https://jokaflix.com").replace(/\/$/, "");
+  return `${siteUrl}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
 function posterStrip() {
   return posterImages
     .map(
@@ -39,6 +44,8 @@ function commercialEmailLayout({
   ctaLabel?: string;
   code: string;
 }) {
+  const logoUrl = appAssetUrl("/logo-sub.png");
+
   return `
     <!doctype html>
     <html>
@@ -54,7 +61,7 @@ function commercialEmailLayout({
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;max-width:none;overflow:hidden;border-radius:0;background:#0b0b0d;border:0">
                 <tr>
                   <td background="${emailBackdrop}" style="background-image:linear-gradient(90deg,rgba(0,0,0,0.94),rgba(0,0,0,0.62)),url('${emailBackdrop}');background-size:cover;background-position:center;padding:42px 38px 34px">
-                    <div style="display:inline-block;background:#e50914;color:#fff;border-radius:0;padding:9px 14px;font-size:12px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase">JokaFlix</div>
+                    <img src="${logoUrl}" alt="JokaFlix" width="76" style="display:block;width:76px;height:auto;border:0;outline:none;text-decoration:none" />
                     <p style="margin:24px 0 8px;color:#ffb5ba;font-size:12px;font-weight:800;letter-spacing:0.18em;text-transform:uppercase">${eyebrow}</p>
                     <h1 style="margin:0;color:#ffffff !important;font-size:38px;line-height:1.05;font-weight:900;letter-spacing:-0.02em">${title}</h1>
                     <p style="margin:16px 0 0;max-width:460px;color:#ffffff !important;font-size:16px;line-height:1.6">${body}</p>

@@ -77,7 +77,8 @@ function formatCampaignBody(value: string) {
 }
 
 function campaignEmailTemplate({ subject, body, cta, posters }: { subject: string; body: string; cta: string; posters: ReturnType<typeof sanitizePosters> }) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.BETTER_AUTH_URL || "https://jokaflix.com";
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.BETTER_AUTH_URL || "https://jokaflix.com").replace(/\/$/, "");
+  const logoUrl = `${siteUrl}/logo-sub.png`;
   const posterCards = posters.length ? posters : [{ title: "Trending picks", type: "JokaFlix", clicks: 0, imageUrl: "" }];
   const heroImage = posterCards.find((poster) => poster.imageUrl)?.imageUrl || fallbackCampaignBackdrop;
 
@@ -95,7 +96,7 @@ function campaignEmailTemplate({ subject, body, cta, posters }: { subject: strin
             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;max-width:none;overflow:hidden;border-radius:0;background:#0b0b0d;border:0">
               <tr>
                 <td background="${escapeHtml(heroImage)}" style="background-image:linear-gradient(90deg,rgba(0,0,0,0.94),rgba(0,0,0,0.62)),url('${escapeHtml(heroImage)}');background-size:cover;background-position:center;padding:42px 38px 34px">
-              <div style="display:inline-block;background:#e50914;color:#fff;border-radius:0;padding:9px 14px;font-size:12px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase">JokaFlix</div>
+              <img src="${escapeHtml(logoUrl)}" alt="JokaFlix" width="76" style="display:block;width:76px;height:auto;border:0;outline:none;text-decoration:none" />
               <h1 style="margin:24px 0 0;max-width:760px;color:#ffffff !important;font-size:38px;line-height:1.05;font-weight:900;letter-spacing:-0.02em">${escapeHtml(subject)}</h1>
               ${formatCampaignBody(body)}
               <a href="${escapeHtml(siteUrl)}" style="display:inline-block;margin-top:28px;background:#e50914;color:#ffffff;text-decoration:none;border-radius:0;padding:16px 24px;font-weight:900">${escapeHtml(cta)}</a>

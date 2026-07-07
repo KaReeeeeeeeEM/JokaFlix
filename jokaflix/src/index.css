@@ -11948,17 +11948,10 @@ body.is-admin-console .mobile-bottom-nav {
 }
 
 .campaign-preview-brand {
-  display: inline-flex;
-  width: max-content;
-  align-items: center;
-  border-radius: 0;
-  background: #e50914;
-  color: white;
-  padding: 0.55rem 0.85rem;
-  font-size: 0.74rem;
-  font-weight: 950;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  display: block;
+  width: clamp(4.5rem, 7vw, 6rem);
+  height: auto;
+  object-fit: contain;
 }
 
 .campaign-preview-hero h3 {

@@ -2809,7 +2809,7 @@ function CampaignPage({ data }: { data: AnalyticsData | null }) {
                   className="campaign-preview-hero"
                   style={campaignHeroImage ? { backgroundImage: `linear-gradient(90deg, rgba(0,0,0,0.94), rgba(0,0,0,0.62)), url("${campaignHeroImage}")` } : undefined}
                 >
-                  <div className="campaign-preview-brand">JokaFlix</div>
+                  <img className="campaign-preview-brand" src="/logo-sub.png" alt="JokaFlix" />
                   <h3>{subject}</h3>
                   <CampaignFormattedMessage text={body} />
                   <button type="button">{cta}</button>
