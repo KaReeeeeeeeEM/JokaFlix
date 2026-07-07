@@ -26,11 +26,13 @@ import {
   Ban,
   BrainCircuit,
   CalendarDays,
+  Check,
   CheckCircle2,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   Clock3,
+  Clipboard,
   Crown,
   Download,
   Eye,
@@ -48,6 +50,7 @@ import {
   Plus,
   RefreshCw,
   ScrollText,
+  Search,
   Send,
   ShieldCheck,
   Sparkles,
@@ -61,6 +64,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import type { AdminUser } from "../lib/admin";
 import { authClient } from "../lib/auth-client";
 import { notifyAuthChanged } from "../lib/auth-events";
@@ -92,7 +96,7 @@ type Summary = {
   clicksPerActiveUser: number;
 };
 
-type TitleRank = { title: string; media_type: string; tmdb_id: string | null; clicks: number; total_count?: number };
+type TitleRank = { title: string; media_type: string; tmdb_id: string | null; clicks: number; total_count?: number; poster_path?: string | null; backdrop_path?: string | null };
 type CategoryRank = { category: string; clicks: number; total_count?: number };
 type UserRank = { label: string; clicks: number; total_count?: number };
 type WeeklyPoint = { day: string; movies: number; series: number; clicks: number; users: number };
@@ -177,6 +181,8 @@ type ReportFormat = "csv" | "pdf";
 type CampaignTemplateId = "weekly" | "winback" | "premiere" | "family";
 type CampaignPosterCriteria = "trending" | "top_movies" | "top_series" | "personalized";
 type CampaignPosterLayout = "strip" | "grid" | "hero";
+type CampaignRecipientMode = "all" | "selected";
+type CampaignPosterItem = TitleRank & { type: string; imageUrl?: string };
 
 const chartColors = ["#e50914", "#38bdf8", "#22c55e", "#facc15", "#f97316", "#a78bfa"];
 const tooltipStyle = { background: "#101010", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 8, color: "#fff" };
@@ -705,12 +711,14 @@ function Panel({
   icon: Icon,
   children,
   className = "",
+  action,
 }: {
   title: string;
   kicker: string;
-  icon: LucideIcon;
+  icon?: LucideIcon;
   children: React.ReactNode;
   className?: string;
+  action?: React.ReactNode;
 }) {
   return (
     <article className={`admin-console-panel ${className}`}>
@@ -719,7 +727,10 @@ function Panel({
           <p className="section-kicker">{kicker}</p>
           <h2>{title}</h2>
         </div>
-        <Icon />
+        <div className="admin-console-panel-heading-actions">
+          {action}
+          {Icon && <Icon />}
+        </div>
       </div>
       {children}
     </article>
@@ -847,6 +858,80 @@ function AdminDropdown<T extends string>({
           </DropdownMenuRadioGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+    </label>
+  );
+}
+
+function CampaignUserSelect({
+  users,
+  selectedIds,
+  onChange,
+  disabled = false,
+}: {
+  users: UserDirectoryItem[];
+  selectedIds: string[];
+  onChange: (ids: string[]) => void;
+  disabled?: boolean;
+}) {
+  const [query, setQuery] = React.useState("");
+  const selectedUsers = users.filter((user) => selectedIds.includes(user.id));
+  const filteredUsers = users.filter((user) => {
+    const haystack = `${user.label} ${user.email} ${user.role}`.toLowerCase();
+    return haystack.includes(query.trim().toLowerCase());
+  });
+
+  const toggleUser = (userId: string) => {
+    onChange(selectedIds.includes(userId) ? selectedIds.filter((id) => id !== userId) : [...selectedIds, userId]);
+  };
+
+  return (
+    <label className="admin-console-dropdown-field campaign-recipient-select">
+      <span>Selected members</span>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild disabled={disabled}>
+          <button type="button" className="admin-console-dropdown-trigger" disabled={disabled}>
+            <span>{selectedIds.length ? `${selectedIds.length} member${selectedIds.length === 1 ? "" : "s"} selected` : "Choose members"}</span>
+            <ChevronDown />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="admin-console-dropdown-content campaign-recipient-dropdown" align="start">
+          <div className="campaign-recipient-search">
+            <Search />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              onKeyDown={(event) => event.stopPropagation()}
+              placeholder="Search users..."
+            />
+          </div>
+          <div className="campaign-recipient-list">
+            {filteredUsers.map((user) => (
+              <button
+                type="button"
+                className={`campaign-recipient-option ${selectedIds.includes(user.id) ? "is-selected" : ""}`}
+                key={user.id}
+                onClick={() => toggleUser(user.id)}
+              >
+                <span>{selectedIds.includes(user.id) ? <CheckCircle2 /> : <User />}</span>
+                <strong>{user.label}</strong>
+                <small>{user.email}</small>
+              </button>
+            ))}
+            {!filteredUsers.length && <p className="campaign-recipient-empty">No users match that search.</p>}
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      {selectedUsers.length > 0 && (
+        <div className="campaign-recipient-chips">
+          {selectedUsers.slice(0, 4).map((user) => (
+            <button type="button" key={user.id} onClick={() => toggleUser(user.id)}>
+              {user.label}
+              <X />
+            </button>
+          ))}
+          {selectedUsers.length > 4 && <span>+{selectedUsers.length - 4} more</span>}
+        </div>
+      )}
     </label>
   );
 }
@@ -2373,6 +2458,59 @@ function TypingDots() {
   );
 }
 
+function renderCampaignInline(text: string, keyPrefix: string): React.ReactNode[] {
+  const tokens = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|<u>[\s\S]*?<\/u>)/g).filter(Boolean);
+  return tokens.map((token, index) => {
+    const key = `${keyPrefix}-${index}`;
+    if (token.startsWith("**") && token.endsWith("**")) return <strong key={key}>{token.slice(2, -2)}</strong>;
+    if (token.startsWith("*") && token.endsWith("*")) return <em key={key}>{token.slice(1, -1)}</em>;
+    if (token.startsWith("<u>") && token.endsWith("</u>")) return <u key={key}>{token.slice(3, -4)}</u>;
+    return <React.Fragment key={key}>{token}</React.Fragment>;
+  });
+}
+
+function CampaignFormattedMessage({ text }: { text: string }) {
+  const blocks = text.split(/\n{2,}/).map((block) => block.trim()).filter(Boolean);
+  if (!blocks.length) return null;
+
+  return (
+    <div className="campaign-formatted-message">
+      {blocks.map((block, blockIndex) => {
+        const lines = block.split("\n").map((line) => line.trim()).filter(Boolean);
+        if (lines.every((line) => line.startsWith("- "))) {
+          return (
+            <ul key={`campaign-list-${blockIndex}`}>
+              {lines.map((line, lineIndex) => (
+                <li key={`campaign-list-${blockIndex}-${lineIndex}`}>{renderCampaignInline(line.slice(2), `campaign-li-${blockIndex}-${lineIndex}`)}</li>
+              ))}
+            </ul>
+          );
+        }
+
+        return <p key={`campaign-copy-${blockIndex}`}>{renderCampaignInline(lines.join(" "), `campaign-p-${blockIndex}`)}</p>;
+      })}
+    </div>
+  );
+}
+
+function tmdbCampaignImage(path?: string | null, size = "w780") {
+  return path ? `https://image.tmdb.org/t/p/${size}${path}` : "";
+}
+
+async function fetchCampaignCover(item: CampaignPosterItem) {
+  if (item.backdrop_path || item.poster_path) return item.backdrop_path || item.poster_path || "";
+  if (!item.tmdb_id) return "";
+
+  const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+  if (!apiKey) return "";
+
+  const mediaType = item.media_type === "tv" ? "tv" : "movie";
+  const response = await fetch(`https://api.themoviedb.org/3/${mediaType}/${item.tmdb_id}?api_key=${apiKey}`, { cache: "force-cache" });
+  if (!response.ok) return "";
+  const details = (await response.json().catch(() => null)) as { backdrop_path?: string | null; poster_path?: string | null } | null;
+  return details?.backdrop_path || details?.poster_path || "";
+}
+
 function CampaignPage({ data }: { data: AnalyticsData | null }) {
   const [templateId, setTemplateId] = React.useState<CampaignTemplateId>("weekly");
   const [posterCriteria, setPosterCriteria] = React.useState<CampaignPosterCriteria>("trending");
@@ -2381,10 +2519,21 @@ function CampaignPage({ data }: { data: AnalyticsData | null }) {
   const [subject, setSubject] = React.useState(campaignTemplates[0].subject);
   const [body, setBody] = React.useState(campaignTemplates[0].body);
   const [cta, setCta] = React.useState(campaignTemplates[0].cta);
+  const [aiOpen, setAiOpen] = React.useState(false);
   const [aiPrompt, setAiPrompt] = React.useState("");
+  const [aiResult, setAiResult] = React.useState("");
+  const [aiLoading, setAiLoading] = React.useState(false);
+  const [aiCopied, setAiCopied] = React.useState(false);
+  const [previewOpen, setPreviewOpen] = React.useState(false);
+  const [campaignSending, setCampaignSending] = React.useState(false);
+  const [recipientMode, setRecipientMode] = React.useState<CampaignRecipientMode>("all");
+  const [selectedUserIds, setSelectedUserIds] = React.useState<string[]>([]);
+  const [posterCoverMap, setPosterCoverMap] = React.useState<Record<string, string>>({});
+  const aiModalPresent = useAnimatedPresence(aiOpen);
+  const previewModalPresent = useAnimatedPresence(previewOpen);
 
   const template = campaignTemplates.find((item) => item.id === templateId) || campaignTemplates[0];
-  const posterSources = React.useMemo(() => {
+  const posterSources = React.useMemo<CampaignPosterItem[]>(() => {
     const topMovies = (data?.topMovies || []).map((item) => ({ ...item, type: "Movie" }));
     const topSeries = (data?.topSeries || []).map((item) => ({ ...item, type: "Series" }));
 
@@ -2393,10 +2542,44 @@ function CampaignPage({ data }: { data: AnalyticsData | null }) {
     if (posterCriteria === "personalized") return [...topMovies.slice(0, 3), ...topSeries.slice(0, 3)];
     return [...topMovies, ...topSeries].sort((a, b) => b.clicks - a.clicks);
   }, [data?.topMovies, data?.topSeries, posterCriteria]);
-  const posterItems = posterSources.slice(0, posterCount);
+  const posterSourceKey = posterSources.map((item) => `${item.media_type}-${item.tmdb_id || item.title}`).join("|");
+  const posterItems = posterSources.slice(0, posterCount).map((item) => {
+    const key = `${item.media_type}-${item.tmdb_id || item.title}`;
+    const imagePath = posterCoverMap[key] || item.backdrop_path || item.poster_path || "";
+    return { ...item, imageUrl: tmdbCampaignImage(imagePath) };
+  });
+  const campaignHeroImage = posterItems.find((item) => item.imageUrl)?.imageUrl;
   const posterSummary = posterItems.length
     ? posterItems.map((item) => item.title).join(", ")
     : "fresh trending movies and series";
+  const selectedUsers = (data?.userDirectory || []).filter((user) => selectedUserIds.includes(user.id));
+  const recipientSummary = recipientMode === "all"
+    ? `All members (${formatNumber(data?.summary.totalUsers || data?.userDirectory?.length || 0)})`
+    : selectedUsers.length
+      ? `${selectedUsers.length} selected member${selectedUsers.length === 1 ? "" : "s"}`
+      : "No selected members yet";
+
+  React.useEffect(() => {
+    let cancelled = false;
+    const visibleItems = posterSources.slice(0, posterCount);
+    if (!visibleItems.length) return;
+
+    void Promise.all(visibleItems.map(async (item) => {
+      const key = `${item.media_type}-${item.tmdb_id || item.title}`;
+      if (posterCoverMap[key]) return null;
+      const cover = await fetchCampaignCover(item).catch(() => "");
+      return cover ? [key, cover] as const : null;
+    })).then((entries) => {
+      if (cancelled) return;
+      const nextEntries = entries.filter((entry): entry is readonly [string, string] => Boolean(entry));
+      if (!nextEntries.length) return;
+      setPosterCoverMap((current) => ({ ...current, ...Object.fromEntries(nextEntries) }));
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [posterCount, posterSourceKey]);
 
   const applyTemplate = (nextTemplateId: CampaignTemplateId) => {
     const nextTemplate = campaignTemplates.find((item) => item.id === nextTemplateId) || campaignTemplates[0];
@@ -2406,19 +2589,97 @@ function CampaignPage({ data }: { data: AnalyticsData | null }) {
     setCta(nextTemplate.cta);
   };
 
-  const composeWithAi = () => {
+  const buildAiInstruction = () => {
     const instruction = aiPrompt.trim();
-    const opener = instruction
-      ? `Based on "${instruction}", here is a sharper campaign for your audience.`
-      : `Here is a ${template.tone.toLowerCase()} campaign for your audience.`;
-    setSubject(`${template.subject}: ${posterItems[0]?.title || "new picks"}`);
-    setBody(`${opener} Feature ${posterSummary}. Keep the message focused: viewers should understand what to watch, why it matters tonight, and where to click next.`);
-    setCta(template.cta);
+    return [
+      "Write a commercial JokaFlix campaign email message for subscribers.",
+      `Template tone: ${template.tone}.`,
+      `Current subject: ${subject}.`,
+      `CTA: ${cta}.`,
+      `Feature these titles: ${posterSummary}.`,
+      instruction ? `Admin prompt: ${instruction}.` : "Admin prompt: make it clear, persuasive, and easy to paste into the campaign message field.",
+      "You may use **bold headings**, *italic title names*, <u>underlined calls to action</u>, blank-line paragraphs, and - bullet lists.",
+      "Return only the email body copy, not a subject line.",
+    ].join(" ");
+  };
+
+  const composeWithAi = async () => {
+    if (aiLoading) return;
+    setAiLoading(true);
+    setAiResult("");
+    setAiCopied(false);
+    try {
+      const response = await fetch("/api/admin/ai", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: buildAiInstruction(), duration: data?.period.duration }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload?.error || "AI composer failed to generate content.");
+      setAiResult(String(payload?.answer || "").trim());
+    } catch (error) {
+      setAiResult(error instanceof Error ? error.message : "AI composer failed to generate content.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const copyAiResult = async () => {
+    if (!aiResult.trim()) return;
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(aiResult);
+    }
+    setAiCopied(true);
+    toast.success("Copied successfully");
+    window.setTimeout(() => setAiCopied(false), 1600);
+  };
+
+  const sendCampaign = async () => {
+    if (campaignSending) return;
+    if (recipientMode === "selected" && selectedUserIds.length === 0) {
+      toast.error("Select at least one member before sending");
+      return;
+    }
+
+    setCampaignSending(true);
+    try {
+      const response = await fetch("/api/admin/campaign/send", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          subject,
+          body,
+          cta,
+          recipientMode,
+          selectedUserIds,
+          posters: posterItems,
+        }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload?.error || "Campaign could not be sent");
+      toast.success(`Campaign sent to ${formatNumber(payload?.sent)} member${Number(payload?.sent) === 1 ? "" : "s"}`);
+      setPreviewOpen(false);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Campaign could not be sent");
+    } finally {
+      setCampaignSending(false);
+    }
   };
 
   return (
     <section className="admin-console-grid campaign-console">
-      <Panel title="Campaign Composer" kicker="Email campaign" icon={Send} className="is-wide">
+      <Panel
+        title="Campaign composer"
+        kicker="Email campaign"
+        className="is-wide"
+        action={(
+          <Button className="admin-refresh-button campaign-heading-action" type="button" onClick={() => setAiOpen(true)}>
+            <Sparkles /> Compose with AI
+          </Button>
+        )}
+      >
         <div className="campaign-builder">
           <div className="campaign-form-grid">
             <AdminDropdown label="Template" value={templateId} options={campaignTemplates.map(({ id, label }) => ({ id, label }))} onChange={applyTemplate} />
@@ -2445,46 +2706,146 @@ function CampaignPage({ data }: { data: AnalyticsData | null }) {
               <span>CTA label</span>
               <input value={cta} onChange={(event) => setCta(event.target.value)} />
             </label>
-            <label className="campaign-field">
-              <span>AI composer prompt</span>
-              <input value={aiPrompt} onChange={(event) => setAiPrompt(event.target.value)} placeholder="Example: make it urgent for weekend viewers" />
-            </label>
+            <AdminDropdown
+              label="Audience"
+              value={recipientMode}
+              options={[
+                { id: "all", label: "All members" },
+                { id: "selected", label: "Selected members" },
+              ]}
+              onChange={setRecipientMode}
+            />
           </div>
+
+          {recipientMode === "selected" && (
+            <CampaignUserSelect
+              users={data?.userDirectory || []}
+              selectedIds={selectedUserIds}
+              onChange={setSelectedUserIds}
+            />
+          )}
+          <p className="campaign-recipient-summary">Recipients: {recipientSummary}</p>
 
           <div className="campaign-actions">
-            <Button className="admin-refresh-button" type="button" onClick={composeWithAi}>
-              <Sparkles /> Compose with AI
+            <Button className="admin-refresh-button" type="button" onClick={() => setPreviewOpen(true)}>
+              <Eye /> Preview
             </Button>
-            <Button className="admin-refresh-button" type="button" variant="ghost">
-              <Send /> Save draft
+            <Button
+              className={`admin-refresh-button ${campaignSending ? "is-loading" : ""}`}
+              type="button"
+              onClick={sendCampaign}
+              disabled={campaignSending || (recipientMode === "selected" && selectedUserIds.length === 0)}
+            >
+              {campaignSending ? <span className="button-loading-spinner" aria-label="Sending campaign" /> : <><Send /> Send</>}
             </Button>
           </div>
         </div>
       </Panel>
 
-      <Panel title="Live Preview" kicker="Subscriber email" icon={Eye} className="is-wide">
-        <div className={`campaign-preview is-${posterLayout}`}>
-          <div className="campaign-preview-hero">
-            <p>JokaFlix campaign</p>
-            <h3>{subject}</h3>
-            <span>{body}</span>
-            <button type="button">{cta}</button>
-          </div>
-          <div className="campaign-preview-posters">
-            {posterItems.length ? posterItems.map((item, index) => (
-              <article key={`${item.title}-${index}`}>
-                <strong>{item.title}</strong>
-                <span>{item.type} · {formatNumber(item.clicks)} signals</span>
-              </article>
-            )) : (
-              <article>
-                <strong>Trending picks</strong>
-                <span>Campaign posters appear after analytics data is available.</span>
-              </article>
-            )}
-          </div>
+      {aiModalPresent && (
+        <div className={`admin-console-modal-layer ${aiOpen ? "is-open" : "is-closing"}`} role="presentation">
+          <button type="button" className="admin-console-modal-backdrop" onClick={() => setAiOpen(false)} aria-label="Close AI composer" />
+          <section className="admin-console-modal campaign-ai-modal" role="dialog" aria-modal="true" aria-labelledby="campaign-ai-modal-title">
+            <header>
+              <div>
+                <p className="section-kicker">AI composer</p>
+                <h2 id="campaign-ai-modal-title">Compose with AI</h2>
+              </div>
+              <button type="button" onClick={() => setAiOpen(false)} aria-label="Close AI composer">
+                <X />
+              </button>
+            </header>
+            <div className="campaign-modal-stack">
+              <label className="campaign-field">
+                <span>Prompt</span>
+                <textarea
+                  value={aiPrompt}
+                  onChange={(event) => setAiPrompt(event.target.value)}
+                  placeholder="Example: write a short urgent weekend email for people who love fantasy series."
+                  rows={5}
+                />
+              </label>
+              <Button className={`admin-refresh-button ${aiLoading ? "is-loading" : ""}`} type="button" onClick={composeWithAi} disabled={aiLoading}>
+                {aiLoading ? <span className="button-loading-spinner" aria-label="Composing" /> : <><Sparkles /> Generate message</>}
+              </Button>
+              <div className="campaign-ai-result">
+                <div>
+                  <span>AI result</span>
+                  <button
+                    type="button"
+                    className="campaign-ai-copy-button"
+                    onClick={copyAiResult}
+                    disabled={!aiResult.trim()}
+                    aria-label={aiCopied ? "Copied campaign message" : "Copy campaign message"}
+                    title={aiCopied ? "Copied" : "Copy"}
+                  >
+                    {aiCopied ? <Check /> : <Clipboard />}
+                  </button>
+                </div>
+                <p>{aiResult || "The generated campaign message will appear here. Copy it, close this modal, and paste it into Campaign message if you want to use it."}</p>
+              </div>
+            </div>
+          </section>
         </div>
-      </Panel>
+      )}
+
+      {previewModalPresent && (
+        <div className={`admin-console-modal-layer ${previewOpen ? "is-open" : "is-closing"}`} role="presentation">
+          <button type="button" className="admin-console-modal-backdrop" onClick={() => setPreviewOpen(false)} aria-label="Close campaign preview" />
+          <section className="admin-console-modal campaign-preview-modal" role="dialog" aria-modal="true" aria-labelledby="campaign-preview-modal-title">
+            <header>
+              <div>
+                <p className="section-kicker">Send preview</p>
+                <h2 id="campaign-preview-modal-title">Preview campaign email</h2>
+              </div>
+              <button type="button" onClick={() => setPreviewOpen(false)} aria-label="Close campaign preview">
+                <X />
+              </button>
+            </header>
+            <div className="campaign-modal-stack">
+              <p className="campaign-recipient-summary">Recipients: {recipientSummary}</p>
+              <div className={`campaign-preview is-${posterLayout}`}>
+                <div
+                  className="campaign-preview-hero"
+                  style={campaignHeroImage ? { backgroundImage: `linear-gradient(90deg, rgba(0,0,0,0.94), rgba(0,0,0,0.62)), url("${campaignHeroImage}")` } : undefined}
+                >
+                  <div className="campaign-preview-brand">JokaFlix</div>
+                  <h3>{subject}</h3>
+                  <CampaignFormattedMessage text={body} />
+                  <button type="button">{cta}</button>
+                </div>
+                <div className="campaign-preview-posters">
+                  {posterItems.length ? posterItems.map((item, index) => (
+                    <article
+                      className={item.imageUrl ? "has-cover" : ""}
+                      key={`modal-${item.title}-${index}`}
+                      style={item.imageUrl ? { backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.88)), url("${item.imageUrl}")` } : undefined}
+                    >
+                      <strong>{item.title}</strong>
+                    </article>
+                  )) : (
+                    <article>
+                      <strong>Trending picks</strong>
+                      <span>Campaign posters appear after analytics data is available.</span>
+                    </article>
+                  )}
+                </div>
+              </div>
+              <div className="campaign-modal-actions">
+                <Button type="button" variant="ghost" onClick={() => setPreviewOpen(false)}>Close preview</Button>
+                <Button
+                  className={`admin-refresh-button ${campaignSending ? "is-loading" : ""}`}
+                  type="button"
+                  onClick={sendCampaign}
+                  disabled={campaignSending || (recipientMode === "selected" && selectedUserIds.length === 0)}
+                >
+                  {campaignSending ? <span className="button-loading-spinner" aria-label="Sending campaign" /> : <><Send /> Send campaign</>}
+                </Button>
+              </div>
+            </div>
+          </section>
+        </div>
+      )}
     </section>
   );
 }

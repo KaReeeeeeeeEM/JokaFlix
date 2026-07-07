@@ -72,7 +72,7 @@ function ProfileSkeleton() {
             <h2>{title}</h2>
           </div>
           <div className="profile-rail profile-rail-horizontal">
-            {Array.from({ length: 4 }).map((_, index) => (
+            {Array.from({ length: 5 }).map((_, index) => (
               <div className="profile-title-card profile-title-card-loading" aria-hidden="true" key={index} />
             ))}
           </div>
