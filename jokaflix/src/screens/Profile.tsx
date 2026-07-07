@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
 import ContinueWatchingRail, { type ContinueWatchingItem } from "../components/profile/ContinueWatchingRail";
+import PersonalizedRecommendations from "../components/global/recommendations/PersonalizedRecommendations";
 
 type ProfileTitleItem = ContinueWatchingItem & {
   media_type: "movie" | "tv";
@@ -285,6 +286,8 @@ export default function ProfilePage() {
         </div>
         <ContinueWatchingRail items={continueWatching} />
       </section>
+
+      <PersonalizedRecommendations placement="profile" />
 
       <section className="profile-section">
         <div className="profile-section-title">

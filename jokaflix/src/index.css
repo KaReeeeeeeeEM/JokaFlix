@@ -639,6 +639,13 @@ html {
     transform: translateX(4px);
   }
 
+  .catalog-subtitle {
+    max-width: 48rem;
+    color: var(--app-muted);
+    font-size: clamp(0.88rem, 1vw, 1rem);
+    font-weight: 800;
+  }
+
   .movie-strip {
     display: flex;
     gap: clamp(1rem, 1.6vw, 1.6rem);
@@ -684,8 +691,175 @@ html {
   animation-delay: 240ms;
 }
 
-.movie-strip .movie-card-link:nth-child(5) {
+  .movie-strip .movie-card-link:nth-child(5) {
   animation-delay: 320ms;
+}
+
+.for-you-strip {
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  padding-right: clamp(1rem, 3vw, 2rem);
+}
+
+.for-you-strip .movie-card-link {
+  flex: 0 0 clamp(250px, 24vw, 390px) !important;
+}
+
+.for-you-heading {
+  align-items: flex-end;
+}
+
+.profile-section .for-you-heading h2 {
+  color: var(--app-text);
+  font-size: clamp(2rem, 4vw, 4.4rem);
+  font-weight: 950;
+  line-height: 0.95;
+}
+
+.for-you-carousel-actions {
+  margin-left: auto;
+}
+
+.idle-screensaver {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  overflow: hidden;
+  background: #020203;
+  color: white;
+  animation: screensaverEnter 700ms ease both;
+}
+
+.idle-screensaver.is-exiting {
+  pointer-events: none;
+  animation: screensaverExit 520ms ease both;
+}
+
+.idle-screensaver-slide {
+  position: absolute;
+  inset: -3%;
+  background-position: center;
+  background-size: cover;
+  opacity: 0;
+  transform: scale(1.08) translateX(2%);
+  transition: opacity 1200ms ease, transform 6200ms ease;
+}
+
+.idle-screensaver-slide.is-active {
+  opacity: 1;
+  transform: scale(1.02) translateX(-1.5%);
+}
+
+.idle-screensaver.is-exiting .idle-screensaver-slide.is-active {
+  transform: scale(1.035) translateX(-1%);
+  transition-duration: 520ms;
+}
+
+.idle-screensaver-slide::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background:
+    radial-gradient(circle at 72% 20%, rgba(229, 9, 20, 0.18), transparent 32%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.86));
+}
+
+.idle-screensaver-copy {
+  position: absolute;
+  left: clamp(2rem, 7vw, 8rem);
+  right: clamp(1.25rem, 7vw, 8rem);
+  bottom: clamp(5rem, 12vh, 9rem);
+  max-width: min(78rem, 78vw);
+  text-shadow: 0 18px 60px rgba(0, 0, 0, 0.72);
+  transition: opacity 380ms ease, transform 380ms ease;
+}
+
+.idle-screensaver-copy p {
+  margin-bottom: 0.85rem;
+  color: #e50914;
+  font-size: clamp(0.9rem, 1.2vw, 1.15rem);
+  font-weight: 950;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.idle-screensaver-copy h2 {
+  max-width: 12ch;
+  color: white;
+  font-size: clamp(4rem, 8vw, 10rem);
+  font-weight: 950;
+  line-height: 0.9;
+}
+
+.idle-screensaver-copy span {
+  display: block;
+  margin-top: 1.4rem;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: clamp(1rem, 1.4vw, 1.5rem);
+  font-weight: 850;
+}
+
+.idle-screensaver-close {
+  position: absolute;
+  top: clamp(1rem, 3vw, 2rem);
+  right: clamp(1rem, 3vw, 2rem);
+  display: inline-flex;
+  width: 3.35rem;
+  height: 3.35rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  backdrop-filter: blur(18px);
+  transition: opacity 380ms ease, transform 380ms ease;
+}
+
+.idle-screensaver-progress {
+  position: absolute;
+  left: clamp(2rem, 7vw, 8rem);
+  right: clamp(2rem, 7vw, 8rem);
+  bottom: clamp(2rem, 6vh, 4rem);
+  display: flex;
+  gap: 0.5rem;
+  transition: opacity 380ms ease, transform 380ms ease;
+}
+
+.idle-screensaver.is-exiting .idle-screensaver-copy,
+.idle-screensaver.is-exiting .idle-screensaver-close,
+.idle-screensaver.is-exiting .idle-screensaver-progress {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.idle-screensaver-progress span {
+  width: 3.5rem;
+  height: 0.25rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.idle-screensaver-progress span.is-active {
+  background: #e50914;
+}
+
+@keyframes screensaverEnter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes screensaverExit {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
   @media (min-width: 1024px) {
@@ -8503,7 +8677,7 @@ select:disabled {
   border-radius: 999px;
   background: rgba(0, 0, 0, 0.5);
   color: white;
-  opacity: 0;
+  opacity: 1;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
   backdrop-filter: blur(14px);
   transition: opacity 180ms ease, background 180ms ease, transform 180ms ease;
@@ -11460,6 +11634,161 @@ body.is-admin-console .mobile-bottom-nav {
   line-height: 1.5;
 }
 
+.campaign-console {
+  align-items: start;
+}
+
+.campaign-builder {
+  display: grid;
+  gap: 1rem;
+}
+
+.campaign-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.campaign-field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.campaign-field span {
+  color: var(--app-muted);
+  font-size: 0.72rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.campaign-field input,
+.campaign-field textarea {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.24);
+  color: var(--app-text);
+  padding: 0.85rem 0.95rem;
+  font: inherit;
+  font-weight: 850;
+  outline: 0;
+}
+
+.campaign-field textarea {
+  min-height: 170px;
+  resize: vertical;
+  line-height: 1.65;
+}
+
+.campaign-field input:focus,
+.campaign-field textarea:focus {
+  border-color: rgba(229, 9, 20, 0.68);
+  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.12);
+}
+
+.campaign-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+}
+
+.campaign-preview {
+  overflow: hidden;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: #08080a;
+}
+
+.campaign-preview-hero {
+  min-height: 300px;
+  padding: clamp(1.4rem, 3vw, 2.25rem);
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.36)),
+    radial-gradient(circle at 80% 10%, rgba(229, 9, 20, 0.28), transparent 34%);
+}
+
+.campaign-preview-hero p {
+  color: #e50914;
+  font-size: 0.8rem;
+  font-weight: 950;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.campaign-preview-hero h3 {
+  max-width: 12ch;
+  margin-top: 0.8rem;
+  color: white;
+  font-size: clamp(2rem, 4vw, 4rem);
+  font-weight: 950;
+  line-height: 0.95;
+}
+
+.campaign-preview-hero span {
+  display: block;
+  max-width: 64ch;
+  margin-top: 1rem;
+  color: rgba(255, 255, 255, 0.78);
+  font-weight: 750;
+  line-height: 1.7;
+}
+
+.campaign-preview-hero button {
+  margin-top: 1.3rem;
+  border: 0;
+  border-radius: 8px;
+  background: #e50914;
+  color: white;
+  padding: 0.85rem 1.25rem;
+  font-weight: 950;
+}
+
+.campaign-preview-posters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.8rem;
+  padding: 1rem;
+}
+
+.campaign-preview.is-strip .campaign-preview-posters {
+  display: flex;
+  overflow-x: auto;
+}
+
+.campaign-preview.is-strip .campaign-preview-posters article {
+  flex: 0 0 170px;
+}
+
+.campaign-preview.is-hero .campaign-preview-posters {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.campaign-preview-posters article {
+  min-height: 170px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.9)),
+    color-mix(in oklab, #e50914 18%, #101010);
+  padding: 0.9rem;
+}
+
+.campaign-preview-posters strong {
+  color: white;
+  font-size: 0.95rem;
+  line-height: 1.15;
+}
+
+.campaign-preview-posters span {
+  margin-top: 0.35rem;
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
 .admin-console-report-checks {
   display: grid;
   gap: 0.5rem;
@@ -12153,6 +12482,19 @@ body.is-admin-console .mobile-bottom-nav {
 
   .admin-console-report-preview-grid {
     grid-template-columns: 1fr;
+  }
+
+  .campaign-form-grid,
+  .campaign-preview.is-hero .campaign-preview-posters {
+    grid-template-columns: 1fr;
+  }
+
+  .idle-screensaver-copy {
+    max-width: calc(100vw - 2.5rem);
+  }
+
+  .idle-screensaver-copy h2 {
+    font-size: clamp(3rem, 17vw, 5.6rem);
   }
 
   .admin-console-create-report,

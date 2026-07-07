@@ -170,10 +170,13 @@ type AnalyticsData = {
   recentActivity: RecentActivity[];
 };
 
-type SectionId = "overview" | "traffic" | "content" | "users" | "leaderboards" | "audit" | "reports" | "ai" | "health" | "profile";
+type SectionId = "overview" | "traffic" | "content" | "users" | "leaderboards" | "audit" | "reports" | "campaign" | "ai" | "health" | "profile";
 type LeaderboardTab = "movies" | "series" | "genres" | "users";
 type ReportType = "executive" | "activity" | "users" | "content" | "audit";
 type ReportFormat = "csv" | "pdf";
+type CampaignTemplateId = "weekly" | "winback" | "premiere" | "family";
+type CampaignPosterCriteria = "trending" | "top_movies" | "top_series" | "personalized";
+type CampaignPosterLayout = "strip" | "grid" | "hero";
 
 const chartColors = ["#e50914", "#38bdf8", "#22c55e", "#facc15", "#f97316", "#a78bfa"];
 const tooltipStyle = { background: "#101010", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 8, color: "#fff" };
@@ -211,6 +214,7 @@ const navItems: { id: SectionId; label: string; icon: LucideIcon }[] = [
   { id: "leaderboards", label: "Leaderboards", icon: Trophy },
   { id: "audit", label: "Audit Logs", icon: ScrollText },
   { id: "reports", label: "Reports", icon: FileText },
+  { id: "campaign", label: "Campaign", icon: Send },
   { id: "ai", label: "AI Manager", icon: BrainCircuit },
   { id: "health", label: "Health", icon: Gauge },
 ];
@@ -252,6 +256,54 @@ const reportTypeDropdownOptions = reportOptions.map(({ id, label }) => ({ id, la
 const reportFormatOptions: { id: ReportFormat; label: string }[] = [
   { id: "pdf", label: "PDF document" },
   { id: "csv", label: "CSV data file" },
+];
+
+const campaignTemplates: { id: CampaignTemplateId; label: string; subject: string; tone: string; body: string; cta: string }[] = [
+  {
+    id: "weekly",
+    label: "Weekly watch night",
+    subject: "Your next JokaFlix watch night is ready",
+    tone: "Warm, cinematic, and recommendation-led",
+    body: "We picked a fresh set of movies and series based on what JokaFlix viewers are opening, saving, and rating this week. Start with the highlights below and keep building your personal watchlist.",
+    cta: "Open JokaFlix",
+  },
+  {
+    id: "winback",
+    label: "Come back",
+    subject: "New stories are waiting on JokaFlix",
+    tone: "Short, direct, and reactivation-focused",
+    body: "You have new titles waiting in JokaFlix. Jump back in, continue where you stopped, and discover the picks that are trending with viewers right now.",
+    cta: "Continue watching",
+  },
+  {
+    id: "premiere",
+    label: "Premiere alert",
+    subject: "Tonight's featured premieres on JokaFlix",
+    tone: "Premium, urgent, and launch-focused",
+    body: "Make tonight feel like a premiere. We have assembled standout titles with strong audience momentum so every viewer has something worth opening first.",
+    cta: "See premieres",
+  },
+  {
+    id: "family",
+    label: "Family picks",
+    subject: "Easy picks for everyone watching together",
+    tone: "Friendly, clear, and family-watch focused",
+    body: "Bring everyone into one watch night. These picks are selected to make browsing faster and help viewers choose a title without scrolling for too long.",
+    cta: "Browse picks",
+  },
+];
+
+const campaignPosterCriteriaOptions: { id: CampaignPosterCriteria; label: string }[] = [
+  { id: "trending", label: "Trending now" },
+  { id: "top_movies", label: "Top movies" },
+  { id: "top_series", label: "Top series" },
+  { id: "personalized", label: "Personalized mix" },
+];
+
+const campaignPosterLayouts: { id: CampaignPosterLayout; label: string }[] = [
+  { id: "strip", label: "Poster strip" },
+  { id: "grid", label: "Poster grid" },
+  { id: "hero", label: "Hero with posters" },
 ];
 
 const reportSamples: Record<ReportType, { title: string; audience: string; sections: string[]; highlights: string[] }> = {
@@ -2321,6 +2373,122 @@ function TypingDots() {
   );
 }
 
+function CampaignPage({ data }: { data: AnalyticsData | null }) {
+  const [templateId, setTemplateId] = React.useState<CampaignTemplateId>("weekly");
+  const [posterCriteria, setPosterCriteria] = React.useState<CampaignPosterCriteria>("trending");
+  const [posterLayout, setPosterLayout] = React.useState<CampaignPosterLayout>("strip");
+  const [posterCount, setPosterCount] = React.useState(5);
+  const [subject, setSubject] = React.useState(campaignTemplates[0].subject);
+  const [body, setBody] = React.useState(campaignTemplates[0].body);
+  const [cta, setCta] = React.useState(campaignTemplates[0].cta);
+  const [aiPrompt, setAiPrompt] = React.useState("");
+
+  const template = campaignTemplates.find((item) => item.id === templateId) || campaignTemplates[0];
+  const posterSources = React.useMemo(() => {
+    const topMovies = (data?.topMovies || []).map((item) => ({ ...item, type: "Movie" }));
+    const topSeries = (data?.topSeries || []).map((item) => ({ ...item, type: "Series" }));
+
+    if (posterCriteria === "top_movies") return topMovies;
+    if (posterCriteria === "top_series") return topSeries;
+    if (posterCriteria === "personalized") return [...topMovies.slice(0, 3), ...topSeries.slice(0, 3)];
+    return [...topMovies, ...topSeries].sort((a, b) => b.clicks - a.clicks);
+  }, [data?.topMovies, data?.topSeries, posterCriteria]);
+  const posterItems = posterSources.slice(0, posterCount);
+  const posterSummary = posterItems.length
+    ? posterItems.map((item) => item.title).join(", ")
+    : "fresh trending movies and series";
+
+  const applyTemplate = (nextTemplateId: CampaignTemplateId) => {
+    const nextTemplate = campaignTemplates.find((item) => item.id === nextTemplateId) || campaignTemplates[0];
+    setTemplateId(nextTemplate.id);
+    setSubject(nextTemplate.subject);
+    setBody(nextTemplate.body);
+    setCta(nextTemplate.cta);
+  };
+
+  const composeWithAi = () => {
+    const instruction = aiPrompt.trim();
+    const opener = instruction
+      ? `Based on "${instruction}", here is a sharper campaign for your audience.`
+      : `Here is a ${template.tone.toLowerCase()} campaign for your audience.`;
+    setSubject(`${template.subject}: ${posterItems[0]?.title || "new picks"}`);
+    setBody(`${opener} Feature ${posterSummary}. Keep the message focused: viewers should understand what to watch, why it matters tonight, and where to click next.`);
+    setCta(template.cta);
+  };
+
+  return (
+    <section className="admin-console-grid campaign-console">
+      <Panel title="Campaign Composer" kicker="Email campaign" icon={Send} className="is-wide">
+        <div className="campaign-builder">
+          <div className="campaign-form-grid">
+            <AdminDropdown label="Template" value={templateId} options={campaignTemplates.map(({ id, label }) => ({ id, label }))} onChange={applyTemplate} />
+            <AdminDropdown label="Poster criteria" value={posterCriteria} options={campaignPosterCriteriaOptions} onChange={setPosterCriteria} />
+            <AdminDropdown label="Poster layout" value={posterLayout} options={campaignPosterLayouts} onChange={setPosterLayout} />
+            <label className="campaign-field">
+              <span>Poster count</span>
+              <input type="number" min={3} max={10} value={posterCount} onChange={(event) => setPosterCount(Math.min(10, Math.max(3, Number(event.target.value) || 5)))} />
+            </label>
+          </div>
+
+          <label className="campaign-field">
+            <span>Subject</span>
+            <input value={subject} onChange={(event) => setSubject(event.target.value)} />
+          </label>
+
+          <label className="campaign-field">
+            <span>Campaign message</span>
+            <textarea value={body} onChange={(event) => setBody(event.target.value)} rows={6} />
+          </label>
+
+          <div className="campaign-form-grid">
+            <label className="campaign-field">
+              <span>CTA label</span>
+              <input value={cta} onChange={(event) => setCta(event.target.value)} />
+            </label>
+            <label className="campaign-field">
+              <span>AI composer prompt</span>
+              <input value={aiPrompt} onChange={(event) => setAiPrompt(event.target.value)} placeholder="Example: make it urgent for weekend viewers" />
+            </label>
+          </div>
+
+          <div className="campaign-actions">
+            <Button className="admin-refresh-button" type="button" onClick={composeWithAi}>
+              <Sparkles /> Compose with AI
+            </Button>
+            <Button className="admin-refresh-button" type="button" variant="ghost">
+              <Send /> Save draft
+            </Button>
+          </div>
+        </div>
+      </Panel>
+
+      <Panel title="Live Preview" kicker="Subscriber email" icon={Eye} className="is-wide">
+        <div className={`campaign-preview is-${posterLayout}`}>
+          <div className="campaign-preview-hero">
+            <p>JokaFlix campaign</p>
+            <h3>{subject}</h3>
+            <span>{body}</span>
+            <button type="button">{cta}</button>
+          </div>
+          <div className="campaign-preview-posters">
+            {posterItems.length ? posterItems.map((item, index) => (
+              <article key={`${item.title}-${index}`}>
+                <strong>{item.title}</strong>
+                <span>{item.type} · {formatNumber(item.clicks)} signals</span>
+              </article>
+            )) : (
+              <article>
+                <strong>Trending picks</strong>
+                <span>Campaign posters appear after analytics data is available.</span>
+              </article>
+            )}
+          </div>
+        </div>
+      </Panel>
+    </section>
+  );
+}
+
 function AIManagerPage({ data }: { data: AnalyticsData | null }) {
   const [question, setQuestion] = React.useState("");
   const [messages, setMessages] = React.useState<ChatMessage[]>([
@@ -2706,6 +2874,7 @@ export default function AdminDashboard({ admin }: { admin: AdminUser }) {
             {activeSection === "leaderboards" && <LeaderboardsPage data={data} />}
             {activeSection === "audit" && <AuditLogsPage data={data} />}
             {activeSection === "reports" && <ReportsPage data={data} />}
+            {activeSection === "campaign" && <CampaignPage data={data} />}
             {activeSection === "ai" && <AIManagerPage data={data} />}
             {activeSection === "health" && <HealthPage data={data} />}
             {activeSection === "profile" && <AdminProfilePage admin={admin} data={data} />}

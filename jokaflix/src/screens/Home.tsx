@@ -9,6 +9,7 @@ import TrendingMovies  from '../components/global/trending-movies/TrendingMovies
 import TVShows from '../components/global/tv-shows/TVShows';
 import PersonalizedRecommendations from '../components/global/recommendations/PersonalizedRecommendations';
 import ContinueWatchingRail, { type ContinueWatchingItem } from '../components/profile/ContinueWatchingRail';
+import IdleScreensaver from '../components/global/screensaver/IdleScreensaver';
 import { authClient } from '../lib/auth-client';
 
 export default function Home() {
@@ -65,6 +66,7 @@ export default function Home() {
           <TVShows />
         </section>
       </div>
+      <IdleScreensaver />
       {/* <BottyWidget botId='6968e1a8629bc8c27e18a5bf' apiUrl={bottyApiUrl} /> */}
     </main>
   )
