@@ -1177,7 +1177,9 @@ export function AdminSidenav({
       />
       <aside className={`admin-console-sidenav ${collapsed ? "is-collapsed" : ""} ${mobileOpen ? "is-mobile-open" : ""}`}>
         <div className="admin-console-brand">
-          <span>JF</span>
+          <span>
+            <img src="/logo-sub.png" alt="JokaFlix" />
+          </span>
           <div>
             <strong>JokaFlix</strong>
             <p>Admin Console</p>
