@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { Check, CheckCircle2, ChevronLeft, Copy, Play, Plus, Share2, Star, ThumbsUp, X } from "lucide-react";
+import { Check, CheckCircle2, ChevronLeft, ChevronRight, Copy, Play, Plus, Share2, Star, ThumbsUp, X } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../components/ui/dialog";
 import { useFetch } from "../api";
@@ -96,6 +96,7 @@ export default function DetailPage({ mediaType }: DetailPageProps) {
   const params = useParams<{ id: string }>();
   const id = params?.id ?? "";
   const router = useRouter();
+  const castStripRef = React.useRef<HTMLDivElement | null>(null);
   const [activeSeason, setActiveSeason] = React.useState(0);
   const [titleState, setTitleState] = React.useState<{
     authenticated: boolean;
@@ -269,6 +270,18 @@ export default function DetailPage({ mediaType }: DetailPageProps) {
     setPendingRating(titleState.rating || 0);
     setHoverRating(0);
     setRatingComment(titleState.ratingComment || "");
+  };
+
+  const scrollCast = (direction: "left" | "right") => {
+    const strip = castStripRef.current;
+    if (!strip) return;
+
+    const firstCard = strip.querySelector<HTMLElement>(".cast-card");
+    const distance = firstCard ? firstCard.offsetWidth + 28 : strip.clientWidth * 0.82;
+    strip.scrollBy({
+      left: direction === "right" ? distance : -distance,
+      behavior: "smooth",
+    });
   };
 
   const openEpisodeRating = (episodeItem: TmdbEpisode, event: React.MouseEvent<HTMLButtonElement>) => {
@@ -638,8 +651,16 @@ export default function DetailPage({ mediaType }: DetailPageProps) {
                 <p className="section-kicker">Cast</p>
                 <h2>People in this title</h2>
               </div>
+              <div className="cast-scroll-controls" aria-label="Cast navigation">
+                <button type="button" onClick={() => scrollCast("left")} aria-label="Scroll cast left">
+                  <ChevronLeft />
+                </button>
+                <button type="button" onClick={() => scrollCast("right")} aria-label="Scroll cast right">
+                  <ChevronRight />
+                </button>
+              </div>
             </div>
-            <div className="cast-strip">
+            <div className="cast-strip" ref={castStripRef}>
               {cast.map((actor) => (
                 <Link className="cast-card" href={`/actors/${actor.id}`} key={actor.id} aria-label={`View movies acted by ${actor.name}`}>
                   <img

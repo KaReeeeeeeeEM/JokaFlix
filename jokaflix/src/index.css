@@ -1508,6 +1508,44 @@ html {
   margin-bottom: 1.25rem;
 }
 
+.cast-scroll-controls {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.cast-scroll-controls button {
+  display: inline-flex;
+  width: clamp(2.75rem, 3.3vw, 3.35rem);
+  height: clamp(2.75rem, 3.3vw, 3.35rem);
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08)),
+    rgba(18, 18, 18, 0.48);
+  color: white;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(18px);
+  transition: border-color 220ms ease, background 220ms ease, color 220ms ease, transform 220ms ease, box-shadow 220ms ease;
+}
+
+.cast-scroll-controls button:hover,
+.cast-scroll-controls button:focus-visible {
+  border-color: rgba(229, 9, 20, 0.82);
+  background: rgba(229, 9, 20, 0.82);
+  color: white;
+  box-shadow: 0 20px 54px rgba(229, 9, 20, 0.2);
+  transform: translateY(-2px);
+}
+
+.cast-scroll-controls svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
 .detail-section-heading a {
   border-radius: 999px;
   background: color-mix(in oklab, var(--app-text) 9%, transparent);
@@ -7151,6 +7189,10 @@ select:disabled {
 
   .cast-strip {
     grid-auto-columns: minmax(210px, 72vw) !important;
+  }
+
+  .cast-scroll-controls {
+    margin-left: auto;
   }
 
   .detail-bottom-dock {
